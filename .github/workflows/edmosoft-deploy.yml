@@ -1,0 +1,13 @@
+name: Edmosoft WebHost Deploy
+on: 
+  push:
+    branches:
+    - main
+jobs:
+  Deploy-Public:
+    runs-on: self-hosted
+    environment: production
+    steps:
+      - name: deploy
+      - uses: actions/checkout@v4
+      - run: rsync -av --progress * /var/www/clearcom.edmosoft.com/ --exclude .*
