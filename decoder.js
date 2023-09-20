@@ -1,4 +1,4 @@
-
+//uploader = document.getElementById("upload")
 
 async function decode(uploader) {
     if (uploader.files && uploader.files[0]&& (uploader.files[0].name.substring(uploader.files[0].name.lastIndexOf('.') + 1).toLowerCase() == "cca")) 
@@ -9,6 +9,6 @@ async function decode(uploader) {
         reader.readAsArrayBuffer(uploader.files[0]);
     })
     var decompressor = new DecompressionStream("gzip");
-    var decompressed = fileData.stream().pipeThrough(decompressor);
+    var decompressed = new Blob(fileData).stream().pipeThrough(decompressor);
     parseViewer.innerText = decompressed.readAsText()
 }
