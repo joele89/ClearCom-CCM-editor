@@ -8,6 +8,6 @@ jobs:
     runs-on: self-hosted
     environment: production
     steps:
-      - name: deploy
       - uses: actions/checkout@v4
-      - run: rsync -av --progress * /var/www/clearcom.edmosoft.com/ --exclude .*
+      - name: deploy
+        run: rsync -av --progress * /var/www/clearcom.edmosoft.com/ --exclude .*
