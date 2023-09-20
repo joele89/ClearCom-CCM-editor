@@ -1,10 +1,11 @@
 
-function decode(uploader) {
-    if (uploader.files && uploader.files[0]&& (url.substring(url.lastIndexOf('.') + 1).toLowerCase() == "cca")) 
+async function decode(uploader) {
+    if (uploader.files && uploader.files[0]&& (uploader.files[0].name.substring(uploader.files[0].name.lastIndexOf('.') + 1).toLowerCase() == "cca")) 
+    var parseViewer = document.getElementById("parseViewer");
     var reader = new FileReader();
-    reader.onload = function(e) {
-        var parseViewer = document.getElementById("parseViewer");
-        parseViewer.innerText = e.target.result;
-    }
-    read.readAsDataURL(input.files[0]);
+    var fileData = await new Promise(resolve => {
+        reader.onload = function(e) { resolve(e.target.result); }
+        read.readAsDataURL(uploader.files[0]);
+    })
+    parseViewer.innerText = fileData
 }
