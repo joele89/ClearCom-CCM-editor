@@ -5,7 +5,7 @@ async function decode(uploader) {
     var reader = new FileReader();
     var fileData = await new Promise(resolve => {
         reader.onload = function(e) { resolve(e.target.result); }
-        read.readAsDataURL(uploader.files[0]);
+        reader.readAsDataURL(uploader.files[0]);
     })
     parseViewer.innerText = fileData
 }
