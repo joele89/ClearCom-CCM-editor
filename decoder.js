@@ -9,6 +9,9 @@ async function decode(uploader) {
         reader.readAsArrayBuffer(uploader.files[0]);
     })
     var decompressor = new DecompressionStream("gzip");
-    var decompressed = new Blob(fileData).stream().pipeThrough(decompressor);
-    parseViewer.innerText = decompressed.readAsText()
+    var decompressed = new Blob([fileData]).stream().pipeThrough(decompressor);
+    var reader = decompressed.getReader();
+    var fileBytes = (await reader.read()).value
+    var fileText = new TextDecoder("utf-8").decode(fileBytes);
+    parseViewer.innerText = fileText;
 }
