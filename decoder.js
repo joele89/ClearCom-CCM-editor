@@ -1,4 +1,5 @@
 //uploader = document.getElementById("upload")
+var globalOffset;
 
 async function decode(uploader) {
     if (uploader.files && uploader.files[0]&& (uploader.files[0].name.substring(uploader.files[0].name.lastIndexOf('.') + 1).toLowerCase() == "cca")) 
@@ -70,8 +71,8 @@ async function decode(uploader) {
     //
 }
 
-var globalOffset;
 function readString(body, len) {
-    return body.substring(globalOffset,len);
+    ret = body.substring(globalOffset,len);
     globalOffset+=len;
+    return ret;
 }
