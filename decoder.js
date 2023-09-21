@@ -33,13 +33,12 @@ async function decode(uploader) {
     var unknownStrings2 = readString(fileText, 183);
     var bodyNT = fileText.indexOf('\0',globalOffset);
     var bodyLen = bodyNT + ((bodyNT - globalOffset) % 512) + 512
-    var body = readstring(fileText,bodyLen)
+    var body = readString(fileText,bodyLen)
     
     console.log("remainder");
     console.log(fileText.substring(globalOffset));
 
     //parseViewer.innerText =
-    
     
     //869
     //1714
