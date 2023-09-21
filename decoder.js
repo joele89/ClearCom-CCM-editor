@@ -36,7 +36,7 @@ async function decode(uploader) {
         if (bodyLenProto > 0) {
             var bodyNT = fileText.indexOf('\0',globalOffset);
             //var bodyLen = (bodyNT - ((bodyNT - globalOffset) % 512)) + 512
-            var bodyLen = (((bodyNT - globalOffset) / 512) + 1) * 512
+            var bodyLen = (Math.trunc((bodyNT - globalOffset) / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
         }
     } while (globalOffset < fileText.length);
