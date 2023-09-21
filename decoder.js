@@ -31,7 +31,7 @@ async function decode(uploader) {
     var ustar = readString(fileText, 8);
     var user = readString(fileText, 5);
     var group = readString(fileText, 5);
-    var body = readString(fileText, 1000);
+    var body = readString(fileText, 500);
 
     // console.log(tableName);
     // console.log(unknownInt1);
@@ -77,7 +77,7 @@ async function decode(uploader) {
 }
 
 function readString(body, len) {
-    ret = body.substring(globalOffset,len).replace('\0+$','');
+    var ret = body.substring(globalOffset,len).replace('\0+$','');
     console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
