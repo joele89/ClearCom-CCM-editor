@@ -73,4 +73,5 @@ async function decode(uploader) {
 var globalOffset;
 function readString(body, len) {
     return body.substring(globalOffset,len);
+    globalOffset+=len;
 }
