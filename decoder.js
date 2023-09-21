@@ -24,7 +24,7 @@ async function decode(uploader) {
         var unknownInt1 = readString(fileText, 8);
         var unknownInt2 = readString(fileText, 8);
         var unknownInt3 = readString(fileText, 8);
-        var bodyLenProto = int(readString(fileText, 12));
+        var bodyLenProto = parseInt(readString(fileText, 12));
         var unknownInt5 = readString(fileText, 12);
         var unknownInt6 = readString(fileText, 7);
         var unknownInt7 = readString(fileText, 2);
