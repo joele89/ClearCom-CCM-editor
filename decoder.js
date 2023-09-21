@@ -24,9 +24,8 @@ async function decode(uploader) {
     var unknownInt3 = readString(fileText, 8);
     var unknownInt4 = readString(fileText, 12);
     var unknownInt5 = readString(fileText, 12);
-    var unknownInt6 = readString(fileText, 8);
-    var unknownInt7 = readString(fileText, 7);
-    var unknownInt8 = readString(fileText, 2);
+    var unknownInt6 = readString(fileText, 7);
+    var unknownInt7 = readString(fileText, 2);
     var unknownStrings = readString(fileText, 100);
     var ustar = readString(fileText, 8);
     var user = readString(fileText, 5);
@@ -41,7 +40,6 @@ async function decode(uploader) {
     // console.log(unknownInt5);
     // console.log(unknownInt6);
     // console.log(unknownInt7);
-    // console.log(unknownInt8);
     // console.log(unknownStrings);
     // console.log(ustar);
     // console.log(user);
