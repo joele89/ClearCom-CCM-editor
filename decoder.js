@@ -77,8 +77,9 @@ async function decode(uploader) {
 }
 
 function readString(body, len) {
-    var ret = body.substring(globalOffset,len).replace('\0+$','');
+    var ret = body.substring(globalOffset,globalOffset+len).replace('\0+$','');
     console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
+    body.substring(,)
 }
