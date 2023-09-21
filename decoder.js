@@ -33,22 +33,27 @@ async function decode(uploader) {
     var group = readString(fileText, 5);
     var body = readString(fileText, 1000);
 
-    console.log(tableName);
-    console.log(unknownInt1);
-    console.log(unknownInt2);
-    console.log(unknownInt3);
-    console.log(unknownInt4);
-    console.log(unknownInt5);
-    console.log(unknownInt6);
-    console.log(unknownInt7);
-    console.log(unknownInt8);
-    console.log(unknownStrings);
-    console.log(ustar);
-    console.log(user);
-    console.log(group);
-    console.log(body);
+    // console.log(tableName);
+    // console.log(unknownInt1);
+    // console.log(unknownInt2);
+    // console.log(unknownInt3);
+    // console.log(unknownInt4);
+    // console.log(unknownInt5);
+    // console.log(unknownInt6);
+    // console.log(unknownInt7);
+    // console.log(unknownInt8);
+    // console.log(unknownStrings);
+    // console.log(ustar);
+    // console.log(user);
+    // console.log(group);
+    // console.log(body);
 
-    parseViewer.innerText = fileText.substring(globalOffset);
+    console.log("remainder");
+    console.log(fileText.substring(globalOffset));
+
+    //parseViewer.innerText =
+    
+    
     //869
     //1714
     //3304
@@ -72,7 +77,8 @@ async function decode(uploader) {
 }
 
 function readString(body, len) {
-    ret = body.substring(globalOffset,len);
+    ret = body.substring(globalOffset,len).replace('\0+$','');
+    console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
 }
