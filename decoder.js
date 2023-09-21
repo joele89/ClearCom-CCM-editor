@@ -26,26 +26,15 @@ async function decode(uploader) {
     var unknownInt5 = readString(fileText, 12);
     var unknownInt6 = readString(fileText, 7);
     var unknownInt7 = readString(fileText, 2);
-    var unknownStrings = readString(fileText, 100);
+    var unknownStrings1 = readString(fileText, 100);
     var ustar = readString(fileText, 8);
-    var user = readString(fileText, 5);
-    var group = readString(fileText, 5);
-    var body = readString(fileText, 500);
-
-    // console.log(tableName);
-    // console.log(unknownInt1);
-    // console.log(unknownInt2);
-    // console.log(unknownInt3);
-    // console.log(unknownInt4);
-    // console.log(unknownInt5);
-    // console.log(unknownInt6);
-    // console.log(unknownInt7);
-    // console.log(unknownStrings);
-    // console.log(ustar);
-    // console.log(user);
-    // console.log(group);
-    // console.log(body);
-
+    var user = readString(fileText, 32);
+    var group = readString(fileText, 32);
+    var unknownStrings2 = readString(fileText, 183);
+    var bodyNT = fileText.indexOf('\0',globalOffset);
+    var bodyLen = bodyNT + ((bodyNT - globalOffset) % 512) + 512
+    var body = readstring(fileText,bodyLen)
+    
     console.log("remainder");
     console.log(fileText.substring(globalOffset));
 
