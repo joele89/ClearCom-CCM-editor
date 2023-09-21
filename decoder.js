@@ -81,5 +81,4 @@ function readString(body, len) {
     console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
-    body.substring(,)
 }
