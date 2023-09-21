@@ -19,11 +19,12 @@ async function decode(uploader) {
     }
     globalOffset = 0;
     do {
+        console.log("=======================")
         var tableName = readString(fileText, 100);
         var unknownInt1 = readString(fileText, 8);
         var unknownInt2 = readString(fileText, 8);
         var unknownInt3 = readString(fileText, 8);
-        var bodyLenProto = readString(fileText, 12);
+        var bodyLenProto = int(readString(fileText, 12));
         var unknownInt5 = readString(fileText, 12);
         var unknownInt6 = readString(fileText, 7);
         var unknownInt7 = readString(fileText, 2);
@@ -32,7 +33,6 @@ async function decode(uploader) {
         var user = readString(fileText, 32);
         var group = readString(fileText, 32);
         var unknownStrings2 = readString(fileText, 183);
-
         if (bodyLenProto > 0) {
             var bodyNT = fileText.indexOf('\0',globalOffset);
             var bodyLen = ((bodyNT - globalOffset) % 512) + 512
