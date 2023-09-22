@@ -40,7 +40,7 @@ async function decode(uploader) {
         var filenamePrefix = readString(fileText, 155);
         var padding = readString(fileText, 12);
         if (bodyLen > 0) {
-            var bodyLen = (Math.trunc(size / 512) + 1) * 512
+            var bodyLen = (Math.trunc(bodyLen / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
             if (body.startsWith("{")) {
                 var table = JSON.parse('[' + body + ']')
