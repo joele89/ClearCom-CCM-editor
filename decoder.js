@@ -43,9 +43,9 @@ async function decode(uploader) {
             var bodyLen = (Math.trunc(bodyLen / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
             if (body.startsWith("{")) {
-                body.replace("/}\r?\n?{/","},{")
+                body = '[' + body.replace("/}\r?\n?{/","},{") + ']'
                 try {
-                    var table = JSON.parse('[' + body + ']')
+                    var table = JSON.parse(body)
                 } catch (e) {
                     console.log(e);
                 }
