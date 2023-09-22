@@ -13,7 +13,7 @@ async function decode(uploader) {
     var decompressor = new DecompressionStream("gzip");
     var decompressed = new Blob([fileData]).stream().pipeThrough(decompressor);
     var reader = decompressed.getReader();
-    var dataset = untar(reader);
+    var dataset = await untar(reader);
     console.log(dataset);
 }
 
