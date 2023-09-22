@@ -26,7 +26,7 @@ async function decode(uploader) {
         var fileMode = readString(fileText, 8);
         var ownerUID = readString(fileText, 8);
         var groupGID = readString(fileText, 8);
-        var size = parseInt(readString(fileText, 12), 8);
+        var bodyLen = parseInt(readString(fileText, 12), 8);
         var lastChange = parseInt(readString(fileText, 12), 8);
         var checksum = readString(fileText, 7);
         var typeFlag = readString(fileText, 2);
@@ -50,7 +50,7 @@ async function decode(uploader) {
             fileMode: fileMode,
             ownerUID: ownerUID,
             groupGID: groupGID,
-            size: size,
+            bodyLen: bodyLen,
             lastChange: lastChange,
             checksum: checksum,
             typeFlag: typeFlag,
