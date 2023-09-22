@@ -40,10 +40,10 @@ async function decode(uploader) {
         var filenamePrefix = readString(fileText, 155);
         var padding = readString(fileText, 12);
         if (bodyLen > 0) {
-            var bodyLen = (Math.trunc(bodyLen / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
+            globalOffset += (512 - (bodyLen % 512)) //padding
             if (body.startsWith("{")) {
-                body = '[' + body.replace("/}\r?\n?{/","},{") + ']';
+                body = '[' + body.replace(/}\r?\n?{/g,"},{") + ']';
                 try {
                     console.log(body);
                     var table = JSON.parse(body);
@@ -81,7 +81,7 @@ async function decode(uploader) {
 }
 
 function readString(body, len) {
-    var ret = body.substring(globalOffset,globalOffset+len).replace('\0+$','');
+    var ret = body.substring(globalOffset,globalOffset+len).replace(/\0+$/g,'');
     //console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
