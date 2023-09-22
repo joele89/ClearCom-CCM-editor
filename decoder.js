@@ -43,9 +43,10 @@ async function decode(uploader) {
             var bodyLen = (Math.trunc(bodyLen / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
             if (body.startsWith("{")) {
-                body = '[' + body.replace("/}\r?\n?{/","},{") + ']'
+                body = '[' + body.replace("/}\r?\n?{/","},{") + ']';
                 try {
-                    var table = JSON.parse(body)
+                    console.log(body);
+                    var table = JSON.parse(body);
                 } catch (e) {
                     console.log(e);
                 }
@@ -81,7 +82,7 @@ async function decode(uploader) {
 
 function readString(body, len) {
     var ret = body.substring(globalOffset,globalOffset+len).replace('\0+$','');
-    console.log(globalOffset +':' + len + ': "' + ret + '"')
+    //console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
 }
