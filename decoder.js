@@ -42,6 +42,9 @@ async function decode(uploader) {
         if (bodyLen > 0) {
             var bodyLen = (Math.trunc(size / 512) + 1) * 512
             var body = readString(fileText,bodyLen)
+            if (body.startsWith("{")) {
+                var table = JSON.parse('[' + body + ']')
+            }
         }
         dataset[tableName] = {
             fileMode: fileMode,
@@ -59,7 +62,8 @@ async function decode(uploader) {
             deviceMajorNumber: deviceMajorNumber,
             deviceMinorNumber: deviceMinorNumber,
             filenamePrefix: filenamePrefix,
-            table: JSON.parse('[' + body + ']')
+            body: body,
+            table: table
         }
     } while (globalOffset < fileText.length);
 
