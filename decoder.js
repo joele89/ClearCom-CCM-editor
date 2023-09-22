@@ -1,5 +1,6 @@
 //uploader = document.getElementById("upload")
 var globalOffset;
+var settingsContainer;
 
 async function decode(uploader) {
     if (uploader.files && uploader.files[0]&& (uploader.files[0].name.substring(uploader.files[0].name.lastIndexOf('.') + 1).toLowerCase() == "cca")) 
@@ -12,6 +13,11 @@ async function decode(uploader) {
     var decompressor = new DecompressionStream("gzip");
     var decompressed = new Blob([fileData]).stream().pipeThrough(decompressor);
     var reader = decompressed.getReader();
+    var dataset = untar(reader);
+    console.log(dataset);
+}
+
+async function untar(reader) {
     var fileText = "";
     for (i = 0; fileBytes = (await reader.read()).value; fileBytes)
     {
@@ -21,7 +27,6 @@ async function decode(uploader) {
     //USTAR file format
     var dataset = {};
     do {
-        console.log("=======================")
         var tableName = readString(fileText, 100);
         var fileMode = readString(fileText, 8);
         var ownerUID = readString(fileText, 8);
@@ -44,12 +49,7 @@ async function decode(uploader) {
             globalOffset += (512 - (bodyLen % 512)) //padding
             if (body.startsWith("{")) {
                 body = '[' + body.replace(/}\r?\n?{/g,"},{") + ']';
-                try {
-                    console.log(body);
-                    var table = JSON.parse(body);
-                } catch (e) {
-                    console.log(e);
-                }
+                var table = JSON.parse(body);
             }
         }
         dataset[tableName] = {
@@ -72,17 +72,11 @@ async function decode(uploader) {
             table: table
         }
     } while (globalOffset < fileText.length);
-
-    console.log()
-    console.log("REMAINDER");
-    console.log()
-    console.log(fileText.substring(globalOffset));
-
+    return dataset;
 }
 
 function readString(body, len) {
     var ret = body.substring(globalOffset,globalOffset+len).replace(/\0+$/g,'');
-    //console.log(globalOffset +':' + len + ': "' + ret + '"')
     globalOffset+=len;
     return ret;
 }
