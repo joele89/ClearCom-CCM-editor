@@ -44,12 +44,14 @@ async function untar(reader) {
         var deviceMinorNumber = readString(fileText, 8);
         var filenamePrefix = readString(fileText, 155);
         var padding = readString(fileText, 12);
+        var body = null;
+        var table = null;
         if (bodyLen > 0) {
-            var body = readString(fileText,bodyLen)
+            body = readString(fileText,bodyLen)
             globalOffset += (512 - (bodyLen % 512)) //padding
             if (body.startsWith("{")) {
                 body = '[' + body.replace(/}\r?\n?{/g,"},{") + ']';
-                var table = JSON.parse(body);
+                table = JSON.parse(body);
             }
         }
         dataset[tableName] = {
