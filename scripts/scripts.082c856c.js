@@ -1,5 +1,6 @@
 "use strict";
 
+/*
 function keysetAssign(a, b, c, d, e, f, g) {
     function h(h, i, j) {
         function k() {
@@ -445,7 +446,8 @@ function keysetAssign(a, b, c, d, e, f, g) {
     };
     return i
 }
-
+*/
+/*
 function Expander(a) {
     function b(b, c, d) {
         b.currentState = {}, b.guideSupported = void 0 !== b.guideEnabled, b.showMe = function() {
@@ -483,7 +485,8 @@ function Expander(a) {
     };
     return c
 }
-
+*/
+/*
 function connectionContainer() {
     return {
         scope: {},
@@ -512,7 +515,8 @@ function connectionContainer() {
         controllerAs: "ctrl"
     }
 }
-
+*/
+/*
 function navBarController(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
     function o() {
         e.getDevice(0).then(function(a) {
@@ -598,56 +602,58 @@ function navBarController(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
         }, a)
     })
 }
-
+*/
+/*
 function socket(a, b, c) {
     var d = b.defer();
     return c.getDeviceCapabilites(0).then(function(b) {
-            function c(b, c, d) {
-                var e = function() {
-                    for (var b = [], d = 0; d < arguments.length; d++) b[d] = arguments[d];
-                    a.$apply(function() {
-                        c.apply(void 0, b)
-                    })
-                };
-                return h.on(b, e), d && d.$on("$destroy", function() {
-                    return h.off(b, e)
-                }), e
-            }
-
-            function e(a, b) {
-                h.off(a, b)
-            }
-
-            function f(a, b) {
-                h.emit(a, b)
-            }
-
-            function g(a) {
-                h instanceof PollingSocket && h.setPollingInterval(a)
-            }
-            var h;
-            h = b.webSocket ? io.connect("/", {
-                reconnection: !0,
-                reconnectionDelay: 1e3,
-                reconnectionDelayMax: 1e3,
-                reconnectionAttempts: 1 / 0
-            }) : new PollingSocket(window.location.host, {
-                reconnectionDelay: 1e3,
-                pollInterval: 5e3
-            }), d.resolve({
-                on: c,
-                off: e,
-                emit: f,
-                setPollingIntervalMs: g
-            })
-        }, function(a) {
-            console.error("Failed to fetch device capabilities, unable to initiate socket"), d.reject(new Error("Unable to initiate socket"))
-        }),
-        function() {
-            return d.promise
+        function c(b, c, d) {
+            var e = function() {
+                for (var b = [], d = 0; d < arguments.length; d++) b[d] = arguments[d];
+                a.$apply(function() {
+                    c.apply(void 0, b)
+                })
+            };
+            return h.on(b, e), d && d.$on("$destroy", function() {
+                return h.off(b, e)
+            }), e
         }
-}
 
+        function e(a, b) {
+            h.off(a, b)
+        }
+
+        function f(a, b) {
+            h.emit(a, b)
+        }
+
+        function g(a) {
+            h instanceof PollingSocket && h.setPollingInterval(a)
+        }
+        var h;
+        h = b.webSocket ? io.connect("/", {
+            reconnection: !0,
+            reconnectionDelay: 1e3,
+            reconnectionDelayMax: 1e3,
+            reconnectionAttempts: 1 / 0
+        }) : new PollingSocket(window.location.host, {
+            reconnectionDelay: 1e3,
+            pollInterval: 5e3
+        }), d.resolve({
+            on: c,
+            off: e,
+            emit: f,
+            setPollingIntervalMs: g
+        })
+    }, function(a) {
+        console.error("Failed to fetch device capabilities, unable to initiate socket"), d.reject(new Error("Unable to initiate socket"))
+    }),
+    function() {
+        return d.promise
+    }
+}
+*/
+/*
 function whilePressed(a, b) {
     function c(c, d, e) {
         function f() {
@@ -685,7 +691,8 @@ function whilePressed(a, b) {
         link: c
     }
 }
-
+*/
+/*
 function deviceListCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F, G, H, I, J, K, L, M) {
     function N() {
         q.roles.then(function(a) {
@@ -1431,7 +1438,8 @@ function deviceListCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s,
         })), ea.hasUnsupportedDeviceCount = ea.devices.length > ea.supportedDevices, U(), ha(ea.displayDevices), ma(), la(G), ca(H), X(), $(), Z(), W(), da()
     })
 }
-
+*/
+/*
 function deviceMenuCtrl(a, b, c, d) {
     function e() {
         d.linkGroupCapabilities.then(function(a) {
@@ -1452,7 +1460,8 @@ function deviceMenuCtrl(a, b, c, d) {
         return e()
     })
 }
-
+*/
+/*
 function deviceViewCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) {
     function r() {
         v.count++, k.endpoints.then(function(a) {
@@ -1539,7 +1548,8 @@ function deviceViewCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) {
         })
     })
 }
-
+*/
+/*
 function devCfgCommonCtrl(a, b, c, d, e) {
     function f() {
         c.devices.then(function(a) {
@@ -1564,7 +1574,8 @@ function devCfgCommonCtrl(a, b, c, d, e) {
         }))
     }
 }
-
+*/
+/*
 function devCfgBtnGroupCtrl(a, b, c, d) {
     function e() {
         d.getPortWarningsForDevice(i.sharedVM.device.device_id).then(function(a) {
@@ -1589,7 +1600,8 @@ function devCfgBtnGroupCtrl(a, b, c, d) {
         return "Linking" === a ? i.sharedVM.deviceCapability.linking : "Network" === a ? i.sharedVM.deviceCapability.network : "Station" !== a || "FSII" === i.sharedVM.device.deviceType_name
     }
 }
-
+*/
+/*
 function deviceCfgGeneralCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D) {
     function E(a) {
         var b = [];
@@ -2337,7 +2349,8 @@ function deviceCfgGeneralCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q,
         return N()
     }), N(), O.getDateTime()
 }
-
+*/
+/*
 function deviceCfgSettingsCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) {
     function p(a) {
         var b = "",
@@ -2658,7 +2671,8 @@ function deviceCfgSettingsCtrl(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) {
         e.result.then(function() {}, function() {})
     }
 }
-
+*/
+/*
 function deviceCfgNetworkCtrl(a, b, c, d, e, f, g, h, i) {
     var j = this;
     j.root = b, j.sharedVM = b.devSharedVM, j.openGuide = function() {
@@ -2777,7 +2791,8 @@ function deviceCfgNetworkCtrl(a, b, c, d, e, f, g, h, i) {
         })
     }
 }
-
+*/
+/*
 function deviceCfgEventsCtrl(a, b, c, d, e, f) {
     a.controllerName = "DeviceCfgEventsCtrl";
     var g = this;
@@ -2858,7 +2873,8 @@ function deviceCfgEventsCtrl(a, b, c, d, e, f) {
         g.fsIIEventlogOrderByField === a ? g.fsIIEventlogReverseSort = !g.fsIIEventlogReverseSort : (g.fsIIEventlogOrderByField = a, g.fsIIEventlogReverseSort = !1), g.getEventLog(0)
     }, g.getEventLog(0)
 }
-
+*/
+/*
 function deviceUpgradeCtrl(a, b, c, d, e, f, g, h) {
     var i = this;
     i.sharedVM = b.devSharedVM, i.upgrade = {
@@ -2997,7 +3013,8 @@ function deviceUpgradeCtrl(a, b, c, d, e, f, g, h) {
         k && c.cancel(k)
     })
 }
-
+*/
+/*
 function FSIIBeltpackCfgCtrl(a, b, c, d, e, f, g, h, i, j, k, l) {
     function m() {
         a.count++, k.getEndpoint(a.endpoint.id).then(function(b) {
@@ -3165,7 +3182,8 @@ function FSIIBeltpackCfgCtrl(a, b, c, d, e, f, g, h, i, j, k, l) {
         a.updateRoleLabel()
     })
 }
-
+*/
+/*
 function FSIIAntennaCableLengthsCtrl(a, b, c, d, e, f, g) {
     function h(a, b) {
         b.length != a.length && (b.length = 0);
@@ -3284,7 +3302,8 @@ function FSIIAntennaCableLengthsCtrl(a, b, c, d, e, f, g) {
         b.dismiss()
     }
 }
-
+*/
+/*
 function FSIIAntennaCfgCtrl(a, b, c, d, e, f, g, h, i, j) {
     function k() {
         a.count++, i.getEndpoint(a.endpoint.id).then(function(b) {
@@ -3379,7 +3398,8 @@ function FSIIAntennaCfgCtrl(a, b, c, d, e, f, g, h, i, j) {
         a.fsIIEventlogOrderByField === b ? a.fsIIEventlogReverseSort = !a.fsIIEventlogReverseSort : (a.fsIIEventlogOrderByField = b, a.fsIIEventlogReverseSort = !1), a.fsIIEventLogFromDate = this.fsIIEventLogFromDate, a.fsIIEventLogToDate = this.fsIIEventLogToDate, a.fsIILogDescriptionSearch = this.fsIILogDescriptionSearch, a.getEventLog(0)
     }, a.getEventLog(0)
 }
-
+*/
+/*
 function HNEndpointCfgCtrl(a, b, c, d, e, f, g, h) {
     function i(a) {
         function b(a) {
@@ -3481,7 +3501,11 @@ function HNEndpointCfgCtrl(a, b, c, d, e, f, g, h) {
         b.dismiss()
     }
 }
+*/
+/*
 keysetAssign.$inject = ["$filter", "$uibModal", "gettext", "naturalSort", "portsService", "connectionsService", "rolesService"], navBarController.$inject = ["$scope", "$rootScope", "$route", "$window", "devicesService", "capabilitiesService", "navbarService", "showModalAlert", "socket", "CCM_CONSTANTS", "gettext", "pageGuideService", "linkGroupCapabilitiesService", "$routeSegment"], socket.$inject = ["$rootScope", "$q", "capabilitiesService"], whilePressed.$inject = ["$parse", "$interval"], deviceListCtrl.$inject = ["$scope", "$rootScope", "$interval", "$uibModal", "$filter", "$timeout", "gettext", "socket", "showModalConfirm", "showModalAlert", "navbarService", "audioInterfacesService", "AudioInterfacesUtil", "multiDevicesCapabilitiesLoader", "pageGuideService", "alertsService", "rolesService", "connectionsService", "naturalSort", "$q", "devicesService", "callsService", "portsService", "externalDevicesService", "endpointsService", "licenseService", "linkGroupCapabilitiesService", "ivpUsersService", "gpioService", "CCM_CONSTANTS", "connections", "ports", "devices", "audioInterfaces", "roles", "endpoints", "linkGroupCapabilities", "ivpUsers", "PerformActionOnDevice"], deviceMenuCtrl.$inject = ["$scope", "$rootScope", "pageGuideService", "linkGroupCapabilitiesService"], deviceViewCtrl.$inject = ["$scope", "$rootScope", "$routeSegment", "$routeParams", "socket", "gettext", "AudioInterfacesUtil", "alertsService", "devicesService", "audioInterfacesService", "endpointsService", "portsService", "CCM_CONSTANTS", "device", "endpoints", "audioInterfaces", "deviceCapability"], devCfgCommonCtrl.$inject = ["$scope", "$rootScope", "devicesService", "$routeSegment", "$location"], devCfgBtnGroupCtrl.$inject = ["$scope", "$rootScope", "deviceCfgBtnGroupService", "portsService"], deviceCfgGeneralCtrl.$inject = ["$scope", "$rootScope", "$window", "$uibModal", "$location", "$filter", "$routeSegment", "FileSaver", "gettext", "UpdateDevice", "PerformActionOnDevice", "ClientInfoService", "FileUploader", "$timeout", "showModalConfirm", "socket", "pageGuideService", "devicesService", "connectionsService", "rolesService", "portsService", "userService", "endpointsService", "linkGroupCapabilitiesService", "gpioService", "networkEventService", "linkGroupCapabilities", "connections", "roles", "ports"], deviceCfgSettingsCtrl.$inject = ["$scope", "$rootScope", "$uibModal", "$filter", "gettext", "naturalSort", "UpdateDevice", "connectionsService", "rolesService", "portsService", "endpointsService", "pageGuideService", "connections", "ports", "roles"], deviceCfgNetworkCtrl.$inject = ["$scope", "$rootScope", "$uibModal", "DeviceIp", "gettext", "showModalConfirm", "devicesService", "pageGuideService", "linkGroupCapabilitiesService"], deviceCfgEventsCtrl.$inject = ["$scope", "$rootScope", "FileSaver", "showModalConfirm", "eventLogService", "pageGuideService"], deviceUpgradeCtrl.$inject = ["$scope", "$rootScope", "$timeout", "$uibModal", "gettext", "FileUploader", "UpgradeDevice", "socket"], FSIIBeltpackCfgCtrl.$inject = ["$scope", "$uibModalInstance", "$uibModal", "$filter", "options", "gettext", "socket", "showModalConfirm", "FileSaver", "rolesService", "endpointsService", "eventLogService"], FSIIAntennaCableLengthsCtrl.$inject = ["$scope", "$uibModalInstance", "options", "gettext", "socket", "$filter", "endpointsService"], FSIIAntennaCfgCtrl.$inject = ["$scope", "$uibModalInstance", "options", "gettext", "FileSaver", "socket", "showModalConfirm", "$filter", "endpointsService", "eventLogService"], HNEndpointCfgCtrl.$inject = ["$scope", "$uibModalInstance", "$uibModal", "options", "rolesService", "gettext", "$timeout", "endpointsService"], angular.module("userControlsDirectives", []);
+*/
+/*
 var moonraker = angular.module("moonraker", ["ngResource", "ngSanitize", "naturalSort", "ui.bootstrap", "ngRoute", "route-segment", "view-segment", "gettext", "xeditable", "angularFileUpload", "angularAwesomeSlider", "ngGrid", "userControlsDirectives", "ngFileSaver", "ngNumberPicker"]).constant("CCM_CONSTANTS", {
     PRODUCT_NAME: "Core Configuration Manager"
 }).run(["gettextCatalog", function(a) {
@@ -3769,6 +3793,8 @@ var moonraker = angular.module("moonraker", ["ngResource", "ngSanitize", "natura
         }
     }).up()
 }]);
+*/
+/*
 moonraker.run(["editableOptions", "editableThemes", function(a, b) {
     b.bs3.inputClass = "input-sm", b.bs3.buttonsClass = "btn-sm", b.bs3.errorTpl = "", a.theme = "bs3"
 }]), Array.prototype.find || (Array.prototype.find = function(a) {
@@ -3792,6 +3818,8 @@ moonraker.run(["editableOptions", "editableThemes", function(a, b) {
     }
     return a
 });
+*/
+/*
 var Emitter = function() {
     function a() {
         this.eventHandlers = {}
@@ -3841,7 +3869,11 @@ var Emitter = function() {
         return !!this.listeners(a).length
     }, a
 }();
+*/
+/*
 angular.module("userControlsDirectives").directive("keysetAssign", keysetAssign), angular.module("userControlsDirectives").directive("expander", ["userService", Expander]), angular.module("userControlsDirectives").directive("ccConnectionContainer", connectionContainer);
+*/
+/*
 var ConnectionContainerCtrl = function() {
         function a(a, b) {
             var c = this;
@@ -3997,6 +4029,8 @@ var ConnectionContainerCtrl = function() {
             })
         }, a
     }();
+*/
+
 angular.module("userControlsDirectives").component("ccConnectionParticipant", {
     bindings: {
         participant: "<",
@@ -4027,6 +4061,8 @@ angular.module("userControlsDirectives").component("ccConnectionParticipant", {
 }), angular.module("moonraker").controller("errorCtrl", ["$location", function(a) {
     console.log("error controler"), "/view/devices" != a.path() && (a.path("/view/devices"), window.location.reload(!0))
 }]);
+
+/*
 var CCUtils = function() {
     function a() {}
     return a.copyObjectPreserveRefs = function(a, b) {
@@ -4079,6 +4115,8 @@ var CCUtils = function() {
         return !0
     }, a
 }();
+*/
+/*
 CCUtils.downloadAction = {
     method: "GET",
     headers: {
@@ -4105,6 +4143,8 @@ CCUtils.downloadAction = {
         }
     }
 };
+*/
+/*
 var PageGuideService = function() {
     function a(a, b) {
         this.$window = a, this.$rootScope = b, this.$rootScope.guideEnabled = !1
@@ -4128,8 +4168,14 @@ var PageGuideService = function() {
             this.$window.tl.pg.destroy(), this.$rootScope.guideEnabled = !1, this.currentGuide = null
         }, a
 }();
+*/
+/*
 angular.module("moonraker").service("pageGuideService", PageGuideService);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.factory("naturalSort", ["$locale", function(a) {
     var b = {},
         c = function(a) {
@@ -4160,7 +4206,11 @@ app.factory("naturalSort", ["$locale", function(a) {
         }
     }
 }]);
+*/
+/*
 var deviceFactory = angular.module("moonraker");
+*/
+/*
 deviceFactory.factory("UpdateDevice", ["$resource", function(a) {
     return a("/api/:version/devices/:deviceId", {
         version: "@version",
@@ -4313,6 +4363,8 @@ deviceFactory.factory("UpdateDevice", ["$resource", function(a) {
         isValidHostName: b
     }
 });
+*/
+/*
 var DevicesService = function() {
     function a(a, b, c, d, e) {
         this.$rootScope = b, this.$q = c, this.socket = d, this.$route = e, this.hostIdCache = null, this.devicesCache = null, this.deviceResource = a("/api/2/devices/:deviceId/:action", {
@@ -4446,8 +4498,14 @@ var DevicesService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("devicesService", DevicesService);
+*/
+/*
 var mobileService = angular.module("moonraker");
+*/
+/*
 mobileService.factory("ClientInfoService", ["$window", function(a) {
     var b = function() {
         var b = navigator.userAgent || navigator.vendor || a.opera;
@@ -4457,6 +4515,8 @@ mobileService.factory("ClientInfoService", ["$window", function(a) {
         isMobile: b
     }
 }]), angular.module("moonraker").factory("socket", socket);
+*/
+/*
 var PollingSocket = function() {
     function a(a, b) {
         return this.url = a, this.topics = {}, this.receivedResponse = !0, this.connected = !0, this.ws = null, this.intervalId = null, this.pollInterval = b.pollInterval, this.reconnectionDelay = b.reconnectionDelay, this.emitter = new Emitter, "WebSocket" in window ? void this.open() : void(this.connected = !0)
@@ -4517,6 +4577,8 @@ var PollingSocket = function() {
         this.pollInterval = a, this.stopPolling(), this.startPolling()
     }, a
 }();
+*/
+/*
 angular.module("moonraker").factory("deviceCfgBtnGroupService", ["$window", "gettext", function(a, b) {
     var c = [{
             name: "General",
@@ -4564,7 +4626,11 @@ angular.module("moonraker").factory("deviceCfgBtnGroupService", ["$window", "get
         }
     }
 }]);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.factory("showModalConfirm", ["$uibModal", "gettext", function(a, b) {
         return function(c, d, e, f, g, h) {
             var i = a.open({
@@ -4651,6 +4717,8 @@ app.factory("showModalConfirm", ["$uibModal", "gettext", function(a, b) {
             }
         })
     }();
+*/
+/*
 var CcDeviceIvcContainerCtrl = function() {
     function a() {
         this.numberOfConnectedPorts = 0, this.numberOfAssignedPorts = 0
@@ -4668,6 +4736,8 @@ var CcDeviceIvcContainerCtrl = function() {
         this.numberOfAssignedPorts = c, this.numberOfConnectedPorts = b
     }, a
 }();
+*/
+/*
 angular.module("moonraker").component("ccDeviceIvcContainer", {
     bindings: {
         externalDevice: "<device"
@@ -4676,10 +4746,16 @@ angular.module("moonraker").component("ccDeviceIvcContainer", {
     controllerAs: "ctrl",
     templateUrl: "/views/components/externalDeviceIvcContainer.directive.html"
 }), angular.module("moonraker").directive("ccWhilePressed", whilePressed), angular.module("moonraker").controller("deviceListCtrl", deviceListCtrl);
+*/
+/*
 var GPIOType;
+*/
+/*
 ! function(a) {
     a[a.GPI = 0] = "GPI", a[a.GPO = 1] = "GPO"
 }(GPIOType || (GPIOType = {})), angular.module("moonraker").controller("deviceMenuCtrl", deviceMenuCtrl), angular.module("moonraker").controller("deviceViewCtrl", deviceViewCtrl), angular.module("moonraker").controller("devCfgCommonCtrl", devCfgCommonCtrl), angular.module("moonraker").controller("devCfgBtnGroupCtrl", devCfgBtnGroupCtrl), angular.module("moonraker").controller("deviceCfgGeneralCtrl", deviceCfgGeneralCtrl);
+*/
+/*
 var DeviceCfgLicenseCtrl = function() {
     function a(a, b, c, d, e, f, g) {
         var h = this;
@@ -4805,6 +4881,8 @@ var DeviceCfgLicenseCtrl = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("deviceCfgLicenseCtrl", DeviceCfgLicenseCtrl), angular.module("moonraker").controller("deviceCfgLinkingCtrl", ["$scope", "$rootScope", "$uibModal", "$location", "gettext", "DeviceIp", "PerformActionOnDevice", "devicesService", "pageGuideService", "linkGroupCapabilities", "linkGroupCapabilitiesService", function(a, b, c, d, e, f, g, h, i, j, k) {
     function l(a) {
         p.masterIp = a || p.sharedVM.device.device_masterAddress, p.mgmtPort != p.sharedVM.device.device_masterPort && (p.masterIp = p.masterIp + ":" + p.sharedVM.device.device_masterPort)
@@ -5038,6 +5116,8 @@ angular.module("moonraker").controller("deviceCfgLicenseCtrl", DeviceCfgLicenseC
         })
     }
 }]);
+*/
+/*
 var PortsCtrl = function() {
     function a(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A) {
         var B = this;
@@ -6043,6 +6123,8 @@ var PortsCtrl = function() {
         }
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("portsCtrl", PortsCtrl), angular.module("moonraker").controller("deviceCfgWirelessCtrl", ["$rootScope", "$uibModal", "PerformActionOnDevice", "UpdateDevice", "gettext", function(a, b, c, d, e) {
     var f = this;
     f.root = a, f.sharedVM = a.devSharedVM, f.controllerName = "deviceCfgWirelessCtrl", f.generalErrorTitle = "", f.generalErrorInfo = "", f.goodResponse = "", f.startOTA = function() {
@@ -6266,7 +6348,11 @@ angular.module("moonraker").controller("portsCtrl", PortsCtrl), angular.module("
         })
     })
 }]);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("ModalInstanceConfirmCtrl", ["$scope", "$uibModalInstance", "modalMessage", function(a, b, c) {
     a.modalMessage = c, a.ok = function() {
         b.close("OK")
@@ -6297,6 +6383,8 @@ app.controller("ModalInstanceConfirmCtrl", ["$scope", "$uibModalInstance", "moda
         angular.isDefined(j) && (c.cancel(j), j = void 0, b.close())
     }
 }]);
+*/
+/*
 var AicUsersCtrl = function() {
     function a(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
         var o = this;
@@ -6503,7 +6591,11 @@ var AicUsersCtrl = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("aicUsersCtrl", AicUsersCtrl);
+*/
+/*
 var RolesCtrl = function() {
     function a(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) {
         var v = this;
@@ -7818,7 +7910,11 @@ var RolesCtrl = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("rolesCtrl", RolesCtrl);
+*/
+/*
 var NewRoleDialog = function() {
     function a(a, b, c, d, e, f, g) {
         var h = this;
@@ -7873,7 +7969,11 @@ var NewRoleDialog = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("newRoleDialog", NewRoleDialog);
+*/
+/*
 var ConnectionSelectionDialog = function() {
     function a(a, b, c, d) {
         var e = this;
@@ -7926,11 +8026,19 @@ var ConnectionSelectionDialog = function() {
         b != -1 && this.options.assigned.splice(b, 1)
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("connectionSelectionDialog", ConnectionSelectionDialog);
+*/
+/*
 var EndpointStatus;
+*/
+/*
 ! function(a) {
     a[a.Forced = 0] = "Forced", a[a.Assigned = 1] = "Assigned", a[a.NoRole = 2] = "NoRole", a[a.Offline = 3] = "Offline"
 }(EndpointStatus || (EndpointStatus = {}));
+*/
+/*
 var EndpointSelectionDialog = function() {
     function a(a, b, c) {
         this.showSection = {}, this.endpointStatus = EndpointStatus, this.modalInstance = b, this.options = c;
@@ -7976,15 +8084,35 @@ var EndpointSelectionDialog = function() {
         b != -1 && this.options.assigned.splice(b, 1)
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("endpointSelectionDialog", EndpointSelectionDialog);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("FSIIBeltpackCfgCtrl", FSIIBeltpackCfgCtrl);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("FSIIAntennaCableLengthsCtrl", FSIIAntennaCableLengthsCtrl);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("FSIIAntennaCfgCtrl", FSIIAntennaCfgCtrl);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("HNEndpointCfgCtrl", HNEndpointCfgCtrl);
+*/
+/*
 var AccountsCtrl = function() {
     function a(a, b, c, d, e, f, g) {
         var h = this;
@@ -8016,7 +8144,11 @@ var AccountsCtrl = function() {
         }), a
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("accountsCtrl", AccountsCtrl);
+*/
+/*
 var AccountsBaseController = function() {
         function a(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
             var o = this;
@@ -8300,7 +8432,11 @@ var AccountsBaseController = function() {
             return ""
         }, b
     }(AccountsBaseController);
+*/
+/*
 angular.module("moonraker").controller("ivc32Ctrl", Ivc32Ctrl);
+*/
+/*
 var __extends = this && this.__extends || function() {
         var a = Object.setPrototypeOf || {
             __proto__: []
@@ -8412,7 +8548,11 @@ var __extends = this && this.__extends || function() {
             return "" == this.selectedExternalDevice.settings.ip && 1 == Object.getOwnPropertyNames(this.selectedExternalDevice.ports).length
         }, b
     }(AccountsBaseController);
+*/
+/*
 angular.module("moonraker").controller("sipCtrl", SipCtrl);
+*/
+/*
 var ConnCtrl = function() {
     function a(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A, B) {
         var C = this;
@@ -8985,8 +9125,14 @@ var ConnCtrl = function() {
         return !b || "HMS-4X" !== b.deviceType_name
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("connectionCtrl", ConnCtrl);
+*/
+/*
 var app = angular.module("moonraker");
+*/
+/*
 app.controller("bridgeOptionsCtrl", ["$uibModalInstance", "options", "$filter", "gettext", "portsService", function(a, b, c, d, e) {
     var f = this;
     f.silenceSuppressionMessage = d("Silence suppression may affect latency (see network quality for details). This setting is not suitable for music.");
@@ -9157,6 +9303,8 @@ app.controller("bridgeOptionsCtrl", ["$uibModalInstance", "options", "$filter", 
         a.dismiss()
     }
 }]);
+*/
+/*
 var SipDialOutCtrl = function() {
     function a(a, b, c, d, e, f, g) {
         var h = this;
@@ -9208,7 +9356,11 @@ var SipDialOutCtrl = function() {
         }), this.port || this.cancel()
     }, a
 }();
+*/
+/*
 angular.module("moonraker").controller("sipDialOutCtrl", SipDialOutCtrl);
+*/
+/*
 var AlertsService = function() {
     function a(a, b, c, d, e, f, g) {
         var h = this;
@@ -9281,7 +9433,11 @@ var AlertsService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("alertsService", AlertsService);
+*/
+/*
 var LicensingService = function() {
     function a(a, b) {
         this.$q = b, this.AGENT_IC_SINGLE_LICENSE = "AGENT-IC-LQ", this.AGENT_IC_BULK_LICENSE = "AGENT-IC8-LQ", this.SIP_BULK_LICENSE = "SIP8-LQ", this.AGENT_IC_SINGLE_LICENSE_DEMO = "AGENT-IC-LQ-DEMO", this.AGENT_IC_BULK_LICENSE_DEMO = "AGENT-IC8-LQ-DEMO", this.SIP_BULK_LICENSE_DEMO = "SIP8-LQ-DEMO", this.AGENT_IC_LICENSE_REGEXP = /^AGENT-IC(\d*)-LQ$/, this.SIP_LICENSE_REGEXP = /^SIP(\d*)-LQ$/, this.AGENT_IC_LICENSE_REGEXP_DEMO = /^AGENT-IC(\d*)-LQ-DEMO$/, this.SIP_LICENSE_REGEXP_DEMO = /^SIP(\d*)-LQ-DEMO$/, this.licensableFeatures = {
@@ -9390,8 +9546,14 @@ var LicensingService = function() {
         return a.toUpperCase().match(/.{5}/g).join("-")
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("licenseService", LicensingService);
+*/
+/*
 var audioIfService = angular.module("moonraker");
+*/
+/*
 audioIfService.factory("AudioInterfacesUtil", [function() {
     return {
         formatWithCapabilities: function(a, b, c) {
@@ -9437,6 +9599,8 @@ audioIfService.factory("AudioInterfacesUtil", [function() {
         }
     }
 }]);
+*/
+/*
 var AudioInterfacesService = function() {
     function a(a, b, c, d, e, f) {
         this.$q = b, this.$rootScope = c, this.$route = d, this.socket = e, this.devicesService = f, this.interfacesCache = null, this.interfacesUrl = "/api/1/devices/:deviceId/interfaces/:interfaceId", this.interfacesResource = a(this.interfacesUrl, {
@@ -9546,7 +9710,11 @@ var AudioInterfacesService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("audioInterfacesService", AudioInterfacesService);
+*/
+/*
 var PortsService = function() {
     function a(a, b, c, d, e, f) {
         this.$q = b, this.$route = c, this.$rootScope = d, this.socket = e, this.devicesService = f, this.portsCache = null, this.portsUrl = "/api/1/devices/:deviceId/interfaces/:interfaceId/ports/:portId/:action", this.portsResource = a(this.portsUrl, {
@@ -9754,7 +9922,11 @@ var PortsService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("portsService", PortsService);
+*/
+/*
 var CallsService = function() {
     function a(a, b, c, d, e) {
         var f = this;
@@ -9829,7 +10001,11 @@ var CallsService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("callsService", CallsService);
+*/
+/*
 var ConnectionsService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.connectionsUrl = "/api/1/connections/:connectionId/:action", this.connectionsResource = a(this.connectionsUrl, {
@@ -9928,7 +10104,11 @@ var ConnectionsService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("connectionsService", ConnectionsService);
+*/
+/*
 var ConnectionsLiveStatusService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.connectionsLiveStatusUrl = "/api/1/connections/liveStatus", this.connectionsLiveStatusResource = a(this.connectionsLiveStatusUrl), this.subscribeToSocket()
@@ -9981,7 +10161,11 @@ var ConnectionsLiveStatusService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("connectionsLiveStatusService", ConnectionsLiveStatusService);
+*/
+/*
 var UserService = function() {
     function a(a, b) {
         this.$q = b, this.userData = null, this.userUrl = "/api/:version/users/:username", this.userResource = a(this.userUrl, {
@@ -10019,7 +10203,11 @@ var UserService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("userService", UserService);
+*/
+/*
 var RolesService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.rolesCache = null, this.rolesUrl = "/api/1/roles/:roleId/:action", this.rolesResource = a(this.rolesUrl, {
@@ -10121,6 +10309,8 @@ var RolesService = function() {
         })
     }, a
 }();
+*/
+/*
 RolesService.defaultIACKeyset = {
     keysetIndex: -1,
     connections: [],
@@ -10145,6 +10335,8 @@ RolesService.defaultIACKeyset = {
     minVolume: 0,
     maxVolume: 15e3
 }, angular.module("moonraker").service("rolesService", RolesService);
+*/
+/*
 var IvpUsersService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.usersCache = null, this.usersUrl = "/api/1/ivpusers/:userId/:action", this.usersResource = a(this.usersUrl, {
@@ -10234,8 +10426,14 @@ var IvpUsersService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("ivpUsersService", IvpUsersService);
+*/
+/*
 var capabilityServices = angular.module("moonraker");
+*/
+/*
 capabilityServices.factory("DeviceCapability", ["$resource", function(a) {
     return a("/api/:version/devices/:deviceId/capability", {
         version: "@version",
@@ -10282,6 +10480,8 @@ capabilityServices.factory("DeviceCapability", ["$resource", function(a) {
         }), d.promise
     }
 }]);
+*/
+/*
 var CapabilitiesService = function() {
     function a(a, b, c) {
         this.$q = b, this.$route = c, this._devicesCapabilitesCache = {}, this.audioInterfaceCapabilitiesCache = null, this.deviceCapabilitiesResource = a("/api/1/devices/:deviceId/capability", {
@@ -10333,6 +10533,8 @@ var CapabilitiesService = function() {
         configurable: !0
     }), a
 }();
+*/
+/*
 angular.module("moonraker").service("capabilitiesService", CapabilitiesService);
 var LinkGroupCapabilitiesService = function() {
     function a(a, b, c, d) {
@@ -10380,6 +10582,8 @@ var LinkGroupCapabilitiesService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("linkGroupCapabilitiesService", LinkGroupCapabilitiesService);
 var EndpointsService = function() {
     function a(a, b, c, d) {
@@ -10538,6 +10742,8 @@ var EndpointsService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("endpointsService", EndpointsService);
 var ExternalDevicesService = function() {
     function a(a, b, c, d, e) {
@@ -10730,6 +10936,8 @@ var ExternalDevicesService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("externalDevicesService", ExternalDevicesService);
 var GPIOService = function() {
     function a(a, b, c, d) {
@@ -11014,6 +11222,8 @@ var GPIOService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("gpioService", GPIOService);
 var NetworkEventService = function() {
     function a(a, b) {
@@ -11063,6 +11273,8 @@ var NetworkEventService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("networkEventService", NetworkEventService);
 var EventLogService = function() {
     function a(a, b, c, d) {
@@ -11142,6 +11354,8 @@ var EventLogService = function() {
         })
     }, a
 }();
+*/
+/*
 angular.module("moonraker").service("eventLogService", EventLogService), angular.module("moonraker").directive("ngBlur", ["$parse", function(a) {
     return function(b, c, d) {
         var e = a(d.ngBlur);
@@ -11202,3 +11416,4 @@ angular.module("moonraker").service("eventLogService", EventLogService), angular
         }), f
     }
 });
+*/
