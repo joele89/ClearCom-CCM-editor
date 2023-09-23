@@ -1,0 +1,26 @@
+<div class="conn-container" ng-class="{ 'selected': ctrl.selected, 'selectable': !ctrl.selected, 'group': ctrl.connection.type === 'group',
+                  'partyline': ctrl.connection.type === 'partyline', 'direct': ctrl.connection.type === 'direct' }" ng-click="ctrl.select({ connection: ctrl.connection })">
+  <div class="conn-container-header">
+    
+    <div class="conn-container-label-section">
+      <span class="conn-label" editable-text="ctrl.connection.label" ng-show="ctrl.labelEdit" e-required e-maxlength="{{ ctrl.connectionCapabilities.labelLength }}" onbeforesave="ctrl.labelEditCallback({ connection: ctrl.connection, label: $data })" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" e-style="margin-left: -9px;">{{ ctrl.connection.label }}</span>
+      <span class="conn-label" ng-hide="ctrl.labelEdit">{{ ctrl.connection.label }}</span>
+      
+      <div ng-if="ctrl.showEvents" class="conn-events">
+        
+        <img ng-src="{{ ctrl.connectionStatus.events.talk ? 'images/event1-on.svg' : 'images/event1-off.svg' }}">
+        
+        <img ng-src="{{ ctrl.connectionStatus.events.control ? 'images/event2-on.svg' : 'images/event2-off.svg' }}">
+        
+        <img ng-src="{{ ctrl.connectionStatus.events.call ? 'images/flasher-green.svg' : 'images/flasher-gray.svg' }}">
+      </div>
+    </div>
+
+    
+    <div ng-if="ctrl.connectionCapabilities.dynamic" ng-click="ctrl.deleteCallback({ connection: ctrl.connection })" class="conn-container-delete">
+      <span class="glyphicon glyphicon-trash icon-button" ng-class="!ctrl.delete && 'icon-button-disabled'"></span>
+    </div>
+  </div>
+
+  <ng-include src="ctrl.partialTemplateUrl"></ng-include>
+</div>

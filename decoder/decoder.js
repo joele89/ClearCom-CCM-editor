@@ -14,7 +14,16 @@ async function decode(uploader) {
     var decompressed = new Blob([fileData]).stream().pipeThrough(decompressor);
     var reader = decompressed.getReader();
     var dataset = await untar(reader);
-    console.log(dataset);
+
+    dataset["db/connections"].forEach(function(r) {
+
+    })
+    dataset["db/devices"].forEach(function(r) {
+
+    })
+    dataset["db/roles"].forEach(function(r) {
+
+    })
 }
 
 async function untar(reader) {

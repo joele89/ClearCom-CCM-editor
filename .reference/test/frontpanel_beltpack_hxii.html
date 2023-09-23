@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        
+        #container {
+            margin: 0 auto;
+        }
+        
+        #frontpanel {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body onload="drawDisplays()">
+
+    <div id="container">
+        <h2>Goldeneye Beltpack Keyset :</h2>
+
+        <table id="frontpanel">
+            <tr>
+                <th><button style="height:50px; width:100%" onmousedown="optPress()" onmouseup="optRelease()">OPT</button></th>
+                <th><button style="height:50px; width:100%" onmousedown="encoderIncrement(1, -1)">DECREMENT</button></th>
+                <th><button style="height:50px; width:100%" onmousedown="encoderIncrement(1, 1)">INCREMENT</button></th>
+                <th><button style="height:50px; width:100%" onmousedown="menuPress()" onmouseup="menuRelease()">MENU</button></th>
+            </tr>
+            <tr>
+                <td><button style="height:50px; width:100%" onmousedown="talkPress(1)" onmouseup="talkRelease(1)">TALK</button></td>
+                <td rowspan="2" colspan="2">
+                    <canvas id="myDisplayCanvas_0" width="260" height="128" style="border:1px solid #d3d3d3"></canvas>
+                </td>
+                <td><button style="height:50px; width:100%" onmousedown="talkPress(2)" onmouseup="talkRelease(2)">TALK</button></td>
+            </tr>
+            <tr>
+                <td><button style="height:50px; width:100%" onmousedown="callPress(1)" onmouseup="callRelease(1)">CALL</button></td>
+                <td><button style="height:50px; width:100%" onmousedown="callPress(2)" onmouseup="callRelease(2)">CALL</button></td>
+            </tr>
+        </table>
+        <p>
+            <button onclick="drawDisplays()">Get Displays Again</button>
+        </p>
+
+        <p>
+            <button onclick="menuDisplays()">Get Menu Labels</button>
+        </p>
+    </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+    url="../_api/frontpanel";
+    urlformenu="../_api/frontpanelmenu";
+    urlbuttons="../_api/frontpanelbuttons";
+    
+    function postJSON(url, data) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        });
+    }    
+
+    function encoderIncrement(keysetId, value) {
+        postJSON(urlbuttons, { key:70, val: value, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function callPress(keysetId) {
+        postJSON(urlbuttons, { key:65, val: 1, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function callRelease(keysetId) {
+        postJSON(urlbuttons, { key:65, val: 0, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function talkPress(keysetId) {
+        postJSON(urlbuttons, { key:66, val: 1, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function talkRelease(keysetId) {
+        postJSON(urlbuttons, { key:66, val: 0, keyset: keysetId });
+        drawDisplays();
+    } 
+    
+    function menuPress() {
+        postJSON(urlbuttons, {key: 61, val: 1, keyset: 0 });
+        drawDisplays();
+    }
+
+    function menuRelease() {
+        postJSON(urlbuttons, {key: 61, val: 0, keyset: 0 });
+        drawDisplays();
+    }
+
+    function optPress() {
+        postJSON(urlbuttons, { key: 60, val: 1, keyset: 0 });
+        drawDisplays();
+    }
+
+    function optRelease() {
+        postJSON(urlbuttons, { key: 60, val: 0, keyset: 0 });
+        drawDisplays();
+    }
+
+    function drawDisplay(canvas, content) {
+        var c = document.getElementById(canvas);
+        var ctx = c.getContext("2d");
+        ctx.font = "3px Georgia";
+        ctx.fillStyle = 'blue';
+
+        if (content != "") {
+            ctx.clearRect(0, 0, 260, 128);
+            var i, j;
+            var res = content.split("C");
+            for (i = 0; i < res.length; ++i) {
+                for (j = 0; j < res[i].length; ++j) {
+                    if (res[i][j] === '#')
+                        ctx.fillText("#", j * 2-5, i * 2);
+                }
+            }
+        }
+    }
+
+    function drawDisplays()  {
+        jQuery.get(url, function( data ) {
+            drawDisplay("myDisplayCanvas_0", data.fifo_0);
+        });
+    }
+
+    function menuDisplays()  {
+        jQuery.get(urlformenu);
+    }
+</script>
+
+
+</body>
+</html>

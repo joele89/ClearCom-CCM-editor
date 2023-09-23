@@ -1,0 +1,27 @@
+<div class="endpoint-cfg-dialog col-xs-12">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel();"><span aria-hidden="true">&times;</span></button>
+
+  <div class="page-header-top endpoint-cfg-dialog-header-top">
+    <span translate>Wireless Transceiver Overview</span> {{endpoint.label}}
+  </div>
+  <div class="container-fluid">
+    <div class="dialog-editable-label" translate>Transceiver ID</div>
+    <div class="dialog-editable-label" translate>Transceiver Name</div>
+    <div class="dialog-editable-label" translate>Sync Offset</div>
+  </div>
+  <div ng-repeat="antenna in endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id']" ng-init="antennaId = ($index + 1)">
+
+      <div class="container-fluid">
+        <div class="dialog-editable-label">{{antennaId}}</div>
+        <div class="dialog-editable-entry">
+          <span id="deviceLabel" editable-text="antenna.label" buttons="no" e-minlength="1" e-maxlength="10" onbeforesave="$data.length > 0" onaftersave="updateLabel(antenna)">{{antenna.label || 'Enter Label for Antenna'}}</span>
+        </div>
+        <div class="dialog-editable-entry">
+              <span editable-select="antenna.settings.syncOffset" e-ng-options="s.value as s.text for s in syncOffsetValues" buttons="no" onaftersave="updateSettings(antenna)">{{showSyncOffset(antenna.settings.syncOffset)}}</span>
+        </div>
+      </div>
+
+  </div>
+</div>
+<div style="margin-bottom:17px"></div>
+

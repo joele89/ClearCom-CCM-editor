@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title>CCM - Authentication Failure</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+                color: #ccc;
+                background: #333;
+            }
+
+            p {
+                padding-left: 40px;
+                margin-bottom: 10px;
+            }
+
+            p.logo {
+                width: 100%;
+                background: #ccc;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            button {
+                text-align: center;
+                margin: 0 auto;
+                width:250px;
+                color: black;
+                background-color: white;
+            }
+        </style>
+        <script>
+
+        </script>
+    </head>
+
+    <body>
+        <p class="logo"><img src="/images/logo-full.png"/></p>
+        <br>
+        <h1>Authentication failure:</h1>
+        <p>You must enter a valid username and password before being allowed access to the CCM.</p>
+        <% if (platform && platform == 'wbs') {  %>
+            <p>PLEASE NOTE: To comply with security regulations this device is protected with a default password which is unique to the device. This device unique password can be found from the front panel menu of the device under <b>Administration -> CCM Access -> Default Password</b>. The default password must be used on a new device or following a reset to default. Once accessed the unique password can be changed to a user specified password in the CCM under: Device -> General -> Change Password.</p>
+            <p>If you cannot access the CCM or have forgotten the password, you can reset the password to the device unique password from the front panel menu: <b>Administration -> Reset -> Reset CCM Pass</b></p>
+        <% } else if (platform && platform == 'lq') {  %>
+            <p>If you have not set a password on this unit before, the default password will be available on the front panel menu: Networking->CCM Password</p>
+            <p>If you still cannot access the unit or have forgotten the password, you can reset the password back to default using the front panel menu: Administration->Reset CCM Pass</p>
+        <% } else { %>
+            <p>Please consult your user manual for how to find your default CCM password or how to reset your CCM password.</p>
+        <% } %>
+
+        <br>
+        <button onclick="window.location.reload(true)">
+            Click to try again
+        </button>
+    </body>
+</html>

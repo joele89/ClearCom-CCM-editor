@@ -1,0 +1,67 @@
+<style>
+  @-moz-document url-prefix() {
+    fieldset {
+      display: table-cell;
+    }
+  }
+
+  .table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+    background-color: #424242;
+  }
+
+  .gridStyle {
+    /*border: 1px solid rgb(212,212,212);*/
+    width: 680px;
+    height: 450px;
+    color: black;
+    font-size: 10px;
+    background: #2D2D2D;
+  }
+
+  .categoryStyle {
+    width: 400px;
+    border: 1px solid rgb(212, 212, 212);
+  }
+
+  .odd {
+    background-color: #2D2D2D;
+    color: black;
+  }
+
+  .even {
+    background-color: #575757;
+    color: black;
+  }
+
+  .grid-align-right {
+    text-align: right;
+  }
+
+  .header-text {
+    font-size: 10px;
+  }
+
+  .header-text:first-line {
+    font-size: 5px;
+  }
+</style>
+
+
+<div id="content" style="height: 512px; width: 450px; position: absolute">
+  <div ng-controller="deviceStatsCtrl">
+
+    <div class="collapsable-section-header-top">
+      Statistics
+    </div>
+
+    
+    <div class="table-responsive">
+
+      
+      <div class="gridStyle" ng-grid="gridOptions"></div>
+
+    </div>
+    
+  </div>
+</div>
+

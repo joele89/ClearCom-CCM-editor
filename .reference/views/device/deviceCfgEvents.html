@@ -1,0 +1,142 @@
+
+<div id="content">
+    <div ng-controller="deviceCfgEventsCtrl as ctrl">
+        
+        <div class="page-header-top">
+            <span translate>Events</span>
+            <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devEventLog'" id="devEventLogGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+        </div>
+
+        <div style="display: flex" class="fsIILogTableHeader">
+            <div style="width:30%">
+                <strong>From:</strong>
+                <div class="input-group" style="width:140px; padding-top:2px">
+                    <input type="text" class="form-control col-xs-2" data-uib-datepicker-popup="{{format}}" ng-model="ctrl.fsIIEventLogFromDate" is-open="ctrl.fromCalendarPopup.opened" data-datepicker-options="ctrl.dateOptions" ng-required="true" data-close-text="Close" data-alt-input-formats="altInputFormats">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="ctrl.openFromCalendar()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+                </div>
+                <div style="margin-top:2px" data-uib-timepicker ng-model="ctrl.fsIIEventLogFromDate" ng-change="ctrl.changed()" data-show-meridian="ismeridian" data-show-spinners="false"></div>
+            </div>
+            <div style="width:30%">
+                <strong>To:</strong>
+                <div ng-show="!ctrl.fsIIEventLogUseCurrentDatetime">
+                    <div class="input-group" style="width:140px; padding-top:2px" ng-class="{'loading-data-state': ctrl.fsIIEventLogUseCurrentDatetime}">
+                        <input type="text" class="form-control col-xs-2" data-uib-datepicker-popup="{{format}}" ng-model="ctrl.fsIIEventLogToDate" is-open="ctrl.toCalendarPopup.opened" data-datepicker-options="ctrl.dateOptions" ng-required="true" data-close-text="Close" data-alt-input-formats="altInputFormats">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="ctrl.openToCalendar()"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
+                    </div>
+                    <div ng-class="{'loading-data-state': ctrl.fsIIEventLogUseCurrentDatetime}" style="margin-top:2px" data-uib-timepicker ng-model="ctrl.fsIIEventLogToDate" ng-change="ctrl.changed()" data-show-meridian="ismeridian" data-show-spinners="false"></div>
+                </div>
+                <div>
+                    <input type="checkbox" ng-model="ctrl.fsIIEventLogUseCurrentDatetime"> Use current date and time
+                </div>
+            </div>
+            <div style="margin-top: 21px">
+                <button type="button" class="btn btn-success fsIILogTable-nav-button" ng-click="ctrl.getEventLog(0)">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                    <span>Reload logs</span>
+                </button>
+                <br>
+                <button style="margin-top:5px" ng-show="ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.exportLogFile();" type="button" class="btn btn-success fsIILogTable-nav-button">Export All Logs <span class="glyphicon glyphicon-export"></span></button>
+            </div>
+        </div>
+    <br>
+
+        <div style="display: flex" class="fsIIEventLogNavButtons">
+            <div style="width:50%">
+                
+                <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="ctrl.nbOfPages > 0 && ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.getEventLog(-10)">
+                    <span class="glyphicon glyphicon-fast-backward" style="margin-right:5px"></span>
+                </button>
+
+                <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="ctrl.nbOfPages > 0 && ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.getEventLog(-1)">
+                    <span class="glyphicon glyphicon-step-backward" style="margin-right:5px"></span>
+                    <span>Back</span>
+                </button>
+
+                <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="ctrl.nbOfPages > 0 && ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.getEventLog(1)">
+                    <span>Next</span>
+                    <span class="glyphicon glyphicon-step-forward" style="margin-right:5px"></span>
+                </button>
+                <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="ctrl.nbOfPages > 0 && ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.getEventLog(10)">
+                    <span class="glyphicon glyphicon-fast-forward" style="margin-right:5px"></span>
+                </button>
+            </div>
+            <div style="width:50%; text-align: right">
+                <span ng-show="ctrl.nbOfPages > 0 && ctrl.eventsForSpecificPage.length > 0">   Page {{ctrl.currentEventPage}} of {{ctrl.nbOfPages}}</span>
+            </div>
+        </div>
+        <div style="position:relative">
+            <div ng-show="ctrl.showSpinner" class="loading-spinner-surround"><span class="glyphicon glyphicon-refresh loading-spinner"></span></div>
+            <table class="fsIILogTable">
+                <thead>
+                    <tr class="fsIILogHeader">
+                        <th class="fsIILogHeader-id header-text">
+                            Id
+                            <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='id' && !ctrl.fsIIEventLogReverseSort"></span>
+                            <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='id' && ctrl.fsIIEventLogReverseSort"></span>
+                        </th>
+                        <th class="fsIILogHeader-eventCode header-text" ng-click="ctrl.updateSortColumn('eventCode')">
+                            Event Code
+                            <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='eventCode' && !ctrl.fsIIEventLogReverseSort"></span>
+                            <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='eventCode' && ctrl.fsIIEventLogReverseSort"></span>
+                        </th>
+                        <th class="fsIILogHeader-level header-text" ng-click="ctrl.updateSortColumn('level')">
+                            Level
+                            <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='level' && !ctrl.fsIIEventLogReverseSort"></span>
+                            <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='level' && ctrl.fsIIEventLogReverseSort"></span>
+                        </th>
+                        <th class="fsIILogHeader-desc header-text" ng-click="ctrl.updateSortColumn('description')">
+                            Description
+                            <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='description' && !ctrl.fsIIEventLogReverseSort"></span>
+                            <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='description' && ctrl.fsIIEventLogReverseSort"></span>
+                        </th>
+                        <th class="fsIILogHeader-datetime header-text" ng-click="ctrl.updateSortColumn('createdAt')">
+                            Date &amp; Time
+                            <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='createdAt' && !ctrl.fsIIEventLogReverseSort"></span>
+                            <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="ctrl.fsIIEventLogOrderByField=='createdAt' && ctrl.fsIIEventLogReverseSort"></span>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody ng-class="{'loading-data-state': ctrl.showSpinner}">
+                    <tr ng-hide="ctrl.eventsForSpecificPage.length > 0">
+                    <td colspan="5">There is no data to display.</td>
+                    </tr>
+
+                    <tr ng-repeat="eventLogEntry in ctrl.eventsForSpecificPage | orderBy:fsIIEventlogOrderByField:fsIIEventlogReverseSort" ng-class="$even ? 'even-row' : 'odd-row'">
+                        <td>{{ eventLogEntry.id }}</td>
+                        <td class="text-align-center">{{ eventLogEntry.eventCode }}</td>
+                        <td class="text-align-center">{{ eventLogEntry.level }}</td>
+                        <td>{{ ctrl.convertToReadableEvent(eventLogEntry) }}</td>
+                        <td>{{ eventLogEntry.timestamp | date:'yyyy-MM-dd HH:mm:ss.sss' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="text-align: center;  margin-top:10px">
+                <button style="padding:10px" ng-show="ctrl.eventsForSpecificPage.length > 0" ng-click="ctrl.purgeLogFiles();" type="button" class="btn btn-danger fsIILogTable-nav-button">Clear logs <span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<ul id="devEventLogPageGuide" class="guide-hidden" data-tourtitle="CCM Event Log">
+  
+  <li class="tlypageguide_left" data-tourtarget=".fsIILogTableHeader">
+    <div>
+      <p>This section allows you to filter and export the event log.</p>
+      <ul>
+        <li> From: select the start date and time of the events you want to see.</li>
+        <li> To: select the end date and time of the events you want to see. </li>
+        <li> Reload Logs: Apply the filters and refresh the data. </li>
+        <li> Export All Logs: Exports the logs as a .json file.</li>
+      </ul>
+    </div>
+  </li>
+  <li class="tlypageguide_left" data-tourtarget=".fsIIEventLogNavButtons">
+    <p>This section allows the user to navigate the pages of the event log. The fast forward button moves the event log on by 10 pages.</p>
+  </li>
+</ul>

@@ -1,0 +1,627 @@
+<div class="conn-page">
+  
+  <div class="conn-palette-area">
+    
+    <div class="conn-palette-header">
+      Ports
+      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='assignmentDevice'" id="assignmentDeviceGuideToggle" ng-click="ctrl.openGuide('assignmentDevice')" ng-src="../images/guide.png" style="cursor:pointer;z-index:100;height:20px">
+    </div>
+    
+  <div ng-if="ctrl.deviceType !== 'FSII'" class="conn-canvas-buttons conn-palette-group-by" style="display:block">
+    <div style="margin-bottom: 5px">Group By: </div>
+
+    <div style="margin-bottom: 5px">
+      <label>
+        <input type="radio" ng-model="ctrl.UserData.groupByDeviceAssignments" ng-value="true">
+          Device Index
+      </label>
+      <label>
+        <input type="radio" style="margin-left: 20px" ng-model="ctrl.UserData.groupByDeviceAssignments" ng-value="false">
+          Interface Type
+      </label>
+    </div>
+  </div>
+    
+    <div class="conn-palette">
+      <div ng-repeat="item in ctrl.portMasterGrouping() track by $index" class="conn-palette-device-container">
+        
+        <div ng-if="item.deviceId" class="conn-palette-device" ng-class="{ 'server-offline': !item.isReachable }">
+          <div class="device-label" ng-click="ctrl.hidePortsForDevice[item.deviceId] = !ctrl.hidePortsForDevice[item.deviceId];">
+            <span class="glyphicon" ng-class="ctrl.hidePortsForDevice[item.deviceId] ? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></span>
+            {{ item.label }}
+          </div>
+          <div class="conn-palette-sup">
+            <sup>{{ item.isMaster ? 'LM' : item.deviceId }}</sup>
+          </div>
+          <div class="conn-resource-groove" ng-if="ctrl.showResourceMeter()">
+            <div class="conn-resource-bar" ng-class="(device.usage < 70.0) ? 'device-resource-green' : ((item.usage<85.0) ? 'device-resource-yellow' : 'device-resource-red')" ng-style="{ 'width': item.usage+'%' }">
+            </div>
+          </div>
+        </div>
+        <div ng-if="!item.deviceId" class="conn-palette-device">
+          <div class="device-label" ng-click="ctrl.hidePortsForType[item.label] = !ctrl.hidePortsForType[item.label];">
+            <span class="glyphicon" ng-class="ctrl.hidePortsForType[item.label] ? 'glyphicon-chevron-right' : 'glyphicon-chevron-down'"></span>
+            {{ item.label }}
+          </div>
+        </div>
+        <div ng-hide="(ctrl.hidePortsForDevice[item.deviceId] && ctrl.UserData.groupByDeviceAssignments) ||
+                      (ctrl.hidePortsForType[item.label] && !ctrl.UserData.groupByDeviceAssignments)" class="conn-palette-ports">
+          
+          <div ng-repeat="port in ctrl.getDetailGrouping(item) track by port.res" class="conn-palette-port" uib-dropdown>
+            <div class="conn-palette-port-desc">
+              {{ port.desc }}
+            </div>
+
+            
+
+            <div class="conn-port available" ng-if="port.type !== 'SIP'" ng-class="ctrl.getCurrentPortConnectionStatusClass(port)" ng-click="(port.connections | keyLength) === 1 && !port.assigned && ctrl.selectFirstConnectionKey(port.connections)" uib-dropdown-toggle>
+
+              
+              <span class="conn-port-external" ng-class="port.externalConnectionStatus !== undefined && (port.externalConnectionStatus ? 'connected' : 'not-connected')"></span>
+
+              
+              <span class="conn-port-label">{{ port.label }}</span>
+
+              
+              <img class="conn-port-vox-image" ng-show="ctrl.deviceType !== 'FSII' && port.voxStatus !== undefined" ng-src="{{ port.voxStatus ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+            </div>
+
+            
+            <div class="conn-port-surround" ng-click="(port.connections | keyLength) === 1 && !port.assigned && ctrl.selectFirstConnectionKey(port.connections)" ng-if="port.type === 'SIP'">
+              <div class="conn-port-sip-header" ng-class="ctrl.getCurrentPortConnectionStatusClass(port)">
+                
+                <span class="conn-port-external" ng-class="port.externalConnectionStatus !== undefined && (port.externalConnectionStatus ? 'connected' : 'not-connected')"></span>
+                
+                <span class="port-label">{{ $ctrl.getConnectionDisplayString($ctrl.participant) }}</span>
+                
+                <span class="conn-port-sip-image">
+                  <img src="/images/Accounts/SIP_2.svg">
+                </span>
+              </div>
+
+              
+              <div ng-repeat="call in port.sipCalls | orderBy: 'id' track by call.id" class="conn-port-sip-call">
+                <div class="conn-sip-icon-surround">
+                  <img ng-show="call.liveStatus.inProgress && call.liveStatus.sipCallStatusCode === 180" class="sip-icon" src="../images/SIP/Calling.svg">
+                  <img ng-show="call.liveStatus.inProgress && call.liveStatus.sipCallStatusCode === 200" class="sip-icon" src="../images/SIP/MakeCall.svg">
+                  <img ng-show="!call.liveStatus.inProgress" class="sip-icon" src="../images/SIP/HangUp.svg">
+                </div>
+                <div class="conn-sip-label-surround">
+                  <div uib-dropdown>
+                    <div uib-dropdown-toggle is-open="status.isopen">
+                      <span class="conn-sip-uri-label">{{ctrl.getCallLabel(call)}}</span>
+                      <img class="conn-port-vox-image" ng-src="{{ call.liveStatus.vox.status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}" ng-show="ctrl.deviceType !== 'FSII' && call.liveStatus.inProgress">
+                    </div>
+                    <ul class="dropdown-menu" uib-dropdown-menu role="menu">
+                      <li ng-click="ctrl.hangUpSipCall(call)">
+                        <a href="#" style="display:flex; align-items: center">
+                          <span style="flex-grow:1">Hang Up
+                            <span class="sip-hang-up-address-label">{{call.uri}}</span>
+                          </span>
+                          <div style="fill:red; height:18px; width:20px" ng-include="'/images/SIP/HangUp_Dark.svg'">
+                          </div>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            
+            <ul ng-if="port.multiChannel" ng-show="(port.connections | keyLength) >= 2" uib-dropdown-menu style="margin-left: 30px">
+              <li ng-repeat="conn in ctrl.getConnectionsFromKeys(port.connections) track by conn.id" ng-click="ctrl.setActiveConnection(conn, true)">
+                <a ng-class="{ 'conn-selection-same-conn': conn.id === ctrl.activeConnectionId }">
+                  {{ conn.label }}
+                </a>
+              </li>
+            </ul>
+
+            
+            <div class="conn-palette-status">
+
+              
+              <div ng-show="port.online">
+
+                
+                <div class="icon-button" ng-if="!port.multiChannel" ng-show="port.assignable && !port.pending" ng-click="ctrl.associatePortToConnection(port.res, ctrl.activeConnectionId)">
+                  <svg style="width: 34px; height: 32px">
+                    <circle r="10" cx="50%" cy="50%" class="circle-button-single-channel-inner"/>
+                    <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"/>
+                    <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"/>
+                  </svg>
+                </div>
+
+                
+                <div ng-if="port.multiChannel" ng-show="ctrl.activeConnectionType !== 'direct'">
+                  
+                  <div class="icon-button" ng-show="port.assignable && !port.pending" ng-click="ctrl.associatePortToConnection(port.res, ctrl.activeConnectionId)">
+                    <svg style="width: 34px; height: 32px">
+                      <circle r="13" cx="50%" cy="50%" class="circle-button-multi-channel-outer"/>
+                      <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-inner"/>
+                      <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"/>
+                      <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"/>
+                      <g ng-show="port.connections | keyLength">
+                        <circle r="6" cx="27" cy="24" class="circle-button-multi-channel-num-of-channels"/>
+                        <text x="27" y="24" dy="0.34em" textLength="8px" lengthAdjust="spacingAndGlyphs" class="number-of-multi-channels">
+                          {{ port.connections | keyLength }}
+                        </text>
+                      </g>
+                    </svg>
+                  </div>
+
+                  
+                  <div ng-show="!port.pending && port.assigned">
+                    <svg style="width: 34px; height: 32px">
+                      <circle r="13" cx="50%" cy="50%" class="circle-button-multi-channel-outer"/>
+                      <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-inner-disabled"/>
+                      <circle r="6" cx="27" cy="24" class="circle-button-multi-channel-num-of-channels"/>
+                      <text x="27" y="24" dy="0.34em" textLength="8px" lengthAdjust="spacingAndGlyphs" class="number-of-multi-channels">
+                        {{ port.connections | keyLength }}
+                      </text>
+                    </svg>
+                  </div>
+                </div>
+
+                
+                <div ng-show="!port.compatible || !(port.assignable || port.inuse)" uib-popover="{{ctrl.getPortUnavailableMessage(port)}}" popover-placement="bottom" popover-trigger="outsideClick">
+                  <svg class="circle-unavailable" style="width: 34px; height: 32px">
+                    <circle r="10" cx="50%" cy="50%" class="circle-button-single-channel-inner"></circle>
+                    <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"></rect>
+                    <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"></rect>
+                  </svg>
+                </div>
+              </div>
+
+              
+              <div class="conn-palette-text-status">
+                
+                <span ng-if="!port.multiChannel" ng-show="port.online && port.inuse && port.compatible && !port.pending" class="inuse" translate>
+                  <img class="inuse-image-icon" src="/images/In-Use.svg">
+                </span>
+
+                
+                <span ng-show="port.online && port.pending && port.compatible" class="inprogress">. . .</span>
+
+                
+                <span ng-show="!port.online" class="offline" translate>Offline</span>
+              </div>
+
+            </div>
+
+          </div>
+          <span class="conn-port-empty-device-label" ng-show="device.ports.length === 0">Empty</span>
+        </div>
+
+        
+      </div>
+    </div>
+  </div>
+  
+
+  
+  <div class="conn-canvas-area">
+
+    <img ng-if="guideEnabled || currentGuide=='assignmentNav'" id="assignmentNavGuideToggle" ng-click="ctrl.openGuide('assignmentNav')" ng-src="../images/guide.png" style="cursor:pointer;z-index:100;height:20px; margin-bottom:10px">
+
+    
+    <div uib-tabset active="ctrl.currentTabIndex">
+      <div uib-tab ng-repeat="tab in ctrl.connectionTabs track by $index" select="ctrl.setActiveTab($index)" class="navTabs{{ tab.label }}" data-heading="{{ tab.label }}">
+      </div>
+    </div>
+
+    
+    <div class="conn-canvas-buttons">
+      
+      <div ng-show="ctrl.getConnectionCapabilities(ctrl.currentTab.type).dynamic">
+        <button id="channelAdd" class="btn btn-success btn-sm" ng-click="ctrl.addConnection(ctrl.currentTab.type)" ng-disabled="!ctrl.currentTab.type || ctrl.isAddConnectionDisabled || !ctrl.isMasterReachable">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
+      </div>
+      <img ng-if="guideEnabled || currentGuide===('assignment'+ctrl.currentTab.label)" id="assignmentGuideToggle" ng-click="ctrl.openGuide('assignment'+ctrl.currentTab.label)" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+
+      
+      <div ng-hide="ctrl.isMasterReachable">
+        <img src="/images/warning.png" class="warning-icon-inline" uib-popover="{{ ctrl.linkMasterOffLineWarning }}" popover-placement="bottom-left" popover-trigger="outsideClick">
+      </div>
+      
+      <div ng-if="ctrl.linkGroupCapabilities.roles" class="help-roles-hostnames">
+        <label>
+          <input type="radio" ng-model="ctrl.showRoleLabels" ng-value="'role'">
+            Roles
+        </label>
+        <label>
+          <input type="radio" style="margin-left: 20px" ng-model="ctrl.showRoleLabels" ng-value="'beltpackName'">
+            Beltpack Name
+        </label>
+        <label>
+          <input type="radio" style="margin-left: 20px" ng-model="ctrl.showRoleLabels" ng-value="'beltpackId'">
+          Beltpack ID
+        </label>
+      </div>
+      
+      <div ng-show="ctrl.showAll" class="help-hide-empty-channels">
+        <label>
+          <input type="checkbox" ng-model="ctrl.hideEmptyConnections" ng-change="ctrl.checkConnectionVisibility()">
+            {{ ctrl.currentTab.hideEmptyText }}
+        </label>
+      </div>
+      
+      <div class="icon-button pull-right help-show-all-connections" ng-click="ctrl.toggleShowAll()">
+        {{ ctrl.showAll ? ctrl.currentTab.showSingleText : ctrl.currentTab.showAllText }}
+        <img style="margin-left: 5px" width="24" height="24" ng-src="{{ ctrl.showAll ? '/images/zoom-in.png' : '/images/zoom-out.png' }}">
+      </div>
+    </div>
+
+    <div class="conn-canvas">
+      
+      <div class="conn-container-collection">
+        <div ng-repeat="conn in ctrl.connections | filter : ctrl.showConnection track by conn.id" ng-class="conn.type === 'group' ? 'conn-container-wrapper-gr' : 'conn-container-wrapper'">
+        <cc-connection-container connection="conn" roles="ctrl.roles" connection-capabilities="ctrl.getConnectionCapabilities(ctrl.currentTab.type)" connection-status="ctrl.connectionsWithLive[conn.id]" delete="ctrl.isMasterReachable" delete-callback="ctrl.deleteConnection(connection)" devices="ctrl.devices" disassociate-callback="ctrl.disassociatePortFromConnection(portRes, connectionId)" hang-up-sip-call-callback="ctrl.hangUpSipCall(call)" label-edit="ctrl.isMasterReachable" label-edit-callback="ctrl.saveConnectionLabel(connection, label)" show-bridge-options="ctrl.showBridgeOptions(portRes)" show-connection-bridge-options-icon="ctrl.showConnectionBridgeOptionsIcon" show-role-labels="ctrl.showRoleLabels" select="ctrl.setActiveConnection(connection)" selected="ctrl.activeConnectionId === conn.id">
+        </cc-connection-container>
+        </div>
+      </div>
+
+      
+      <div ng-hide="ctrl.showAll" class="conn-list">
+        <div ng-repeat="conn in ctrl.connections | filter : (ctrl.currentTab.type ? { type: ctrl.currentTab.type } : undefined) : true track by conn.id">
+          
+          <div class="conn-list-row" ng-class="ctrl.activeConnectionId === conn.id ? 'selected' : 'not-selected'">
+              <div ng-click="ctrl.setActiveConnection(conn)" class="conn-list-item" ng-class="ctrl.activeConnectionId === conn.id && 'selected'">
+                
+                <span class="conn-list-label">{{ conn.label }}</span>
+                
+                <span class="conn-list-count">{{ ctrl.connectionsWithLive[conn.id].participants | keyLength }}</span>
+              </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  
+<ul id="assignmentDevicePageGuide" class="guide-hidden" data-tourtitle="CCM Channel Assignment Device">
+  <li class="tlypageguide_top" data-tourtarget=".conn-palette-group-by">
+    <p>This is the port selector. Click radio button to see ports listed by device or interface type.</p>
+  </li>
+  <li class="tlypageguide_right" data-tourtarget=".conn-palette-device">
+    <p ng-hide="ctrl.deviceCapabilities.type.indexOf('FS') > -1">This represents a Device, identified by its Label and ID.</p>
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') == -1">All device bars are collapsible. Below each bar is the list of ports associated with it. These are either local ports
+      or ports associated to external system devices.</p>
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') > -1">All device bars are collapsible. Below each bar is the list of ports associated with it.</p>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget=".conn-palette-port">
+    <p>A port</p>
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') == -1">It is identified by its label (to re-name port navigate to Device/Ports). A VOX indicator shows whether audio is detected on the port.</p>
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') > -1">It is identified by its label (to re-name port navigate to Device/Ports).</p>
+    <p>Outline color provides information:</p>
+    <ul>
+      <li>Blue: available</li>
+      <li>Orange: associated with the currently selected channel</li>
+      <li>Grey: In use in another Channel (Clicking/touching a grey port will go to the Channel associated with that port</li>
+      <li>Yellow: The port is being reconfigured</li>
+      <li>Red: The port is unreachable and cannot be configured</li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".conn-palette-status">
+    <p>This is where you can have either the status of the port or an action button</p>
+    <ul ng-if="ctrl.deviceCapabilities.type.indexOf('FS') == -1">
+      <li>
+        The
+        <svg style="width: 34px; height: 32px;display:inline-block;vertical-align: middle">
+          <circle r="10" cx="50%" cy="50%" class="circle-button-single-channel-inner"/>
+          <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"/>
+          <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"/>
+        </svg>
+        sign indicates that the port can be added to the currently selected Channel or Group
+      </li>
+      <li ng-if="ctrl.linkGroupCapabilities.externalSystems">
+        The
+        <svg style="width: 34px; height: 32px;display:inline-block;vertical-align: middle">
+          <circle r="13" cx="50%" cy="50%" class="circle-button-multi-channel-outer"/>
+          <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-inner"/>
+          <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"/>
+          <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"/>
+          <g>
+            <circle r="6" cx="27" cy="24" class="circle-button-multi-channel-num-of-channels"/>
+            <text x="27" y="24" dy="0.34em" textLength="8px" lengthAdjust="spacingAndGlyphs" class="number-of-multi-channels">
+              2
+            </text>
+          </g>
+        </svg>
+        sign (with or without badge) indicates that the port is a multi-channel port and can be assigned to the selected Channel.
+        The small badge shows the number of Channels this port has been assigned to. Click on the port to jump to the Channel(s) it has been assigned to.
+      </li>
+      <li>
+        The
+        <img class="inuse-image-icon" src="/images/In-Use.svg" \>
+        sign indicates that the port is currently in use. Click on the port to jump to the Channel it has been assigned to.
+      </li>
+      <li>
+        The
+        <svg class="circle-unavailable" style="width: 34px; height: 32px;display:inline-block;vertical-align: middle">
+          <circle r="10" cx="50%" cy="50%" class="circle-button-single-channel-inner"></circle>
+          <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"></rect>
+          <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"></rect>
+        </svg>
+        sign indicates that the port cannot be assigned to the currently selected Channel or Group.
+      </li>
+      <li>
+        If no action is available for a port, then the port is not available for assignment.
+      </li>
+    </ul>
+    <ul ng-if="ctrl.deviceCapabilities.type.indexOf('FS') > -1">
+      <li>
+        The
+        <svg style="width: 34px; height: 32px; display:inline-block;vertical-align: middle">
+          <circle r="13" cx="50%" cy="50%" class="circle-button-multi-channel-outer"></circle>
+          <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-inner"></circle>
+          <rect x="16" y="10" rx="1" ry="1" width="2" height="12" class="circle-button-channel-segments"></rect>
+          <rect x="11" y="15" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"></rect>
+        </svg>
+        sign indicates that the port can be added to the currently selected Channel or Group.
+      </li>
+      <li>
+        The
+        <svg style="width: 34px; height: 32px; display:inline-block;vertical-align: middle">
+        <g>
+          <circle r="6" cx="27" cy="24" class="circle-button-multi-channel-num-of-channels"></circle>
+          <text x="27" y="24" dy="0.34em" textLength="8px" lengthAdjust="spacingAndGlyphs" class="number-of-multi-channels">
+            1
+          </text>
+        </g>
+        </svg>
+        indicates the number of channels or groups the port is already a member of.
+      </li>
+      <li>
+        The
+        <svg style="width: 34px; height: 32px; display:inline-block;vertical-align: middle">
+          <circle r="13" cx="50%" cy="50%" class="circle-button-multi-channel-outer"></circle>
+          <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-inner-disabled"></circle>
+        </svg>
+        sign indicates that the port is has already been added to the select channel or group.
+      </li>
+    </ul>
+  </li>
+ </ul>
+
+<ul id="assignmentNavPageGuide" class="guide-hidden" data-tourtitle="CCM Channel Assignment Navigation">
+  
+  <li class="tlypageguide_left" data-tourtarget=".navTabsAll">
+    <p>Select to see an overview of all Channels and Groups in use in the system.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".navTabsChannels">
+    <p>Select to configure regular Channels.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".navTabsGroups">
+    <p>Select to configure Groups. </p>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".navTabsDirects">
+    <p>Select to configure a direct point-to-point channel (for example, matrix to panel). A Direct Channel contains only two members, unlike a regular Channel. </p>
+  </li>
+</ul>
+
+<ul id="assignmentChannelsPageGuide" class="guide-hidden" data-tourtitle="CCM Channel Assignment">
+  <li class="tlypageguide_left" data-tourtarget=".help-show-all-connections">
+    <p>Toggle between showing all connections in the system, or only a single connection.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-roles-hostnames">
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') == -1">Select to view ports by their assigned role or by their hostname. This only affects ports and endpoints that support Role assignements.</p>
+    <p ng-if="ctrl.deviceCapabilities.type.indexOf('FS') > -1">Select how to view active beltpacks. View by Role, Name or ID.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-hide-empty-channels">
+    <p>Toggle between showing and hiding empty channels.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#channelAdd">
+    <p>Add a new Channel. New Channel will show at the bottom of the Channels list and become the selected Channel. </p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".conn-container.partyline">
+    <p>This represents a currently selected Channel.</p>
+    <p>It includes all the ports assigned to it and relevant information and status indicators.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".conn-list-item">
+    <p>Select the Channel to be configured.</p>
+  </li>
+  
+  <li class="tlypageguide_top guide-assignment-channel-label" data-tourtarget=".conn-container-label-section">
+    <p>This is where you find Channel or Group information and status indicators</p>
+    <ul>
+      <li>The label: Click label to re-name Channel or Group.</li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".help-single-channel">
+    <p>This is how normal ports (not Multi-Channel enabled) are represented when assigned to a channel. All ports in the channels are listed here and organized by port type and device ID.</p>
+    <div ng-if="ctrl.linkGroupCapabilities.externalSystems">
+      <p>This blue outline represents a Local Audio Mix</p>
+      <p style="margin-left:10px">Local Audio Mix (LAM) is generated for ports from the same LQ device that are assigned to the same channel.</p>
+      <p style="margin-left:10px">LAM ensures low latency at the best audio quality possible. When audio needs to be transported to another device, the whole local audio mix is transported, rather than individual audio streams, saving resources.</p>
+      <p style="margin-left:10px">These audio streams have configurable network settings on a device/LAM basis. Click on the LAM button in a Channel. </p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#nq-button"> This icon indicates the rate at which the device transmits and receives audio streams from the network it is connected to.Clicking this icon allows you to adjust these network settings, and also enable/disable Silence Suppression. Use the slider bar to adjust predefined settings up or down. Select Custom setting to adjust jitter buffer independent of bit rate and packet size.
+    <ul>
+      <li>
+        High:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 31 100" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+      <li>
+        Low:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 12 100" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+      <li>
+        Custom:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 3" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+    </ul>
+  </li>
+
+  
+  <li class="tlypageguide_bottom" data-tourtarget=".stack-button">
+    This is the Multi-Channel stack button. Clicking here shows all the Channel assignments for this port.
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".conn-container-delete">
+    <p>This is to delete the channel completely.</p>
+    <p>Note that all ports must be removed before Channel can be deleted.</p>
+  </li>
+</ul>
+
+
+<ul id="assignmentGroupsPageGuide" class="guide-hidden" data-tourtitle="CCM Group Assignment">
+  <li class="tlypageguide_left" data-tourtarget=".help-show-all-connections">
+    <p>Toggle between showing all connections in the system, or only a single connection.</p>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".help-roles-hostnames">
+    <p>Select to view beltpacks by their assigned role, beltpack name or beltpack ID. This only affects beltpacks labels.</p>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".help-hide-empty-channels">
+    <p>Toggle between showing and hiding empty groups.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".conn-container.group">
+    <p>This represents a currently selected Group.</p>
+    <p>It includes all the ports and beltpacks assigned to it and relevant information and status indicators.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".conn-list-item">
+    <p>Select the Group to be configured.</p>
+  </li>
+  
+  <li class="tlypageguide_top guide-assignment-channel-label" data-tourtarget=".conn-container-label-section">
+    <p>This is where you find the group label. Click/touch label to edit it.</p>
+  </li>
+  <li class="tlypageguide_right" data-tourtarget=".conn-container-gr-sub-header-left">
+    <p>Active Talkers in group.</p>
+  </li>
+  <li class="tlypageguide_right" data-tourtarget=".conn-container-gr-sub-header-right">
+    <p>Group Listeners in group.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".help-multi-channel">
+    <p>This represents a Multi-Channel enabled port in a group.</p>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget=".stack-button">
+    This is the Multi-Channel stack button. Clicking here shows all the Channel assignments for this port.
+  </li>
+
+</ul>
+
+
+<ul id="assignmentDirectsPageGuide" class="guide-hidden" data-tourtitle="CCM Direct Channel Assignment">
+  <li class="tlypageguide_left" data-tourtarget=".help-show-all-connections">
+    <p>Toggle between showing all connections in the system, or only a single connection.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-roles-hostnames">
+    <p>Select to view ports by their assigned role, Beltpack Name or Belpack ID. This only affects beltpacks.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-hide-empty-channels">
+    <p>Toggle between showing and hiding empty channels.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#channelAdd">
+    <p>Click this button to add a new Direct Channel.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".conn-container"> This is box represents the currently selected Direct channel </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".conn-list-item">
+    <p>This is where you select the Direct channel to be configured.</p>
+  </li>
+  
+  <li class="tlypageguide_top guide-assignment-channel-label" data-tourtarget=".conn-container-label-section">
+    <p>This identifies the Channel along with the options that are attached to it.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".conn-container-bridge">
+    <p>This represents a port participating in the channel</p>
+    <p>Only 2 ports can be assigned to a direct channel at one time. If you add a SIP port into a direct only ports on the same device can be added to the connection. The following combinations provide enhanced functionality</p>
+    <ul>
+      <li>4W-4W: If the 4W ports are on different LQ boxes then this will enable Matrix-Data allowing data messages to pass through the 4W ports via ethernet</li>
+      <li>SIP-IVC or SIP-4W: If the SIP account is paired with an IVC port or a 4W port on the same LQ box then you will be able to control your SIP account via a matrix</li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#nq-button">Network settings within a Channel are set on a per-device basis. Recommended network settings: Very Low/Low - Internet, Balanced/High - LAN/WAN, Very High - LAN only (20 kHz bandwidth). Custom setting allows independent setting of jitter buffer in case of network jitter.
+    <ul>
+      <li>
+        High:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 31 100" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+      <li>
+        Low:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 12 100" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+      <li>
+        Custom:
+        <svg width="24" height="24" style="margin-top:-6px">
+          <circle style="fill: #ffffff" r="3" cx="10" cy="15"/>
+          <circle class="conn-br-transport" stroke="#666666" r="7" cx="10" cy="15"/>
+          <circle class="conn-br-transport" style="stroke-dasharray: 3" stroke="#00debb" r="7" cx="10" cy="15"/>
+        </svg>
+      </li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget=".conn-container-delete">
+    <p>This is to delete the direct channel completely.</p>
+    <p>Note that all ports must be removed before the direct channel can be deleted.</p>
+  </li>
+</ul>
+
+<ul id="assignmentAllPageGuide" class="guide-hidden" data-tourtitle="CCM All Connection Assignment">
+  <li class="tlypageguide_left" data-tourtarget=".help-show-all-connections">
+    <p>Toggle between showing all connections in the system, or only a single connection.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-roles-hostnames">
+    <p>Select to view ports by their assigned role or by their hostname. This only affects ports and endpoints that support role assignments.</p>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget=".help-hide-empty-channels">
+    <p>Toggle between showing and hiding empty connections.</p>
+  </li>
+
+  <li class="tlypageguide_left" data-tourtarget=".conn-container-collection">
+    <p>This is the main area where ports are associated with connections. To view more information related to a specific connection type navigate to the connection type from the tab menu and open the help menu.</p>
+  </li>
+</ul>
+
+
+</div>

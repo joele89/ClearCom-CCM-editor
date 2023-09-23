@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<body onload="drawDisplay()">
+
+<table>
+    <tr>
+        <th></th>
+        <th><button style="height:50px; width:70px" onmousedown="upPress()" onmouseup="upRelease()">Up</button></th>
+        <th></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="leftPress()" onmouseup="leftRelease()">Left</button></th>
+        <th><button style="height:50px; width:70px" onmousedown="centerPress()" onmouseup="centerRelease()">Center</button></th>
+        <th><button style="height:50px; width:70px" onmousedown="rightPress()" onmouseup="rightRelease()">Right</button></th>
+    </tr>
+    <tr>
+        <th></th>
+        <th><button style="height:50px; width:70px" onmousedown="downPress()" onmouseup="downRelease()">Down</button></th>
+        <th></th>
+    </tr>
+</table>
+<p>
+    <button onclick="drawDisplay()">Get Display Again</button>
+
+</p><p>
+<canvas id="myCanvas" width="260" height="128" style="border:1px solid #d3d3d3; color: black"></canvas>
+
+</p>
+
+
+Display fifo:
+<p id="display">
+</p>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+    url="../_api/devices/0/frontpanel";
+
+    function postJSON(url, data) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        });
+    }
+
+    function centerPress() {
+        postJSON(url, { key:101,val: 1 });
+        drawDisplay();
+    }
+
+    function centerRelease() {
+        postJSON(url,{ key:101, val: 0 });
+        drawDisplay();
+    }
+
+    function upPress() {
+        postJSON(url,{ key:117, val: 1 });
+        drawDisplay();
+    }
+
+    function upRelease() {
+        postJSON(url, { key:117, val: 0 });
+        drawDisplay();
+    }
+
+    function downPress() {
+        postJSON(url, { key:100, val: 1 });
+        drawDisplay();
+    }
+
+    function downRelease() {
+        postJSON(url, { key:100, val: 0 });
+        drawDisplay();
+    }
+
+    function leftPress() {
+        postJSON(url, { key:108, val: 1 });
+        drawDisplay();
+    }
+
+    function leftRelease() {
+        postJSON(url, { key:108, val: 0 });
+        drawDisplay();
+    }
+
+    function rightPress() {
+        postJSON(url, { key:114, val: 1 });
+        drawDisplay();
+    }
+
+    function rightRelease() {
+        postJSON(url, { key:114, val: 0 });
+        drawDisplay();
+    }
+
+    var content="empty";
+
+    function drawDisplay()  {
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        ctx.font = "3px Georgia";
+
+
+        jQuery.get(url, function( data ) {
+            content = data.fifo_0;
+
+            document.getElementById("display").innerHTML = content;
+
+
+            if (content != "") {
+                ctx.clearRect(0, 0, 260, 128);
+                var i, j;
+                var res = content.split("C");
+                for (i = 0; i < res.length; ++i) {
+                    for (j = 0; j < res[i].length; ++j) {
+                        if (res[i][j] === '#')
+                            ctx.fillText("#", j * 2-5, i * 2);
+                    }
+                }
+            }
+
+        });
+
+    }
+</script>
+
+
+</body>
+</html>

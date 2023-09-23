@@ -1,0 +1,55 @@
+<div ng-show="ctrl.infoText" class="conn-container-direct-info">
+  <span class="glyphicon glyphicon-info-sign"></span>
+  <span>{{ ctrl.infoText }}</span>
+</div>
+<div class="conn-container-direct-associations" ng-class="!ctrl.infoText && 'no-info'">
+  
+  <div ng-repeat="bridge in ctrl.bridges | orderBy: 'sortId' track by $index" class="conn-container-direct-bridge-area">
+    <div class="conn-container-bridge border" ng-class="{ 'reverse': $odd }">
+      
+      <div ng-if="bridge.participants[0]" class="conn-container-port-row" ng-class="{ 'reverse': $odd }">
+        
+        <div class="conn-container-port-disassociate">
+          <svg class="icon-button" style="width: 26px; height: 26px" ng-show="bridge.participants[0].online && !bridge.participants[0].pending" ng-click="ctrl.disassociateCallback({ portRes: bridge.participants[0].res, connectionId: ctrl.connection.id })">
+            <circle r="10" cx="50%" cy="50%" class="circle-button-single-channel-inner"/>
+            <rect x="7" y="12" rx="1" ry="1" width="12" height="2" class="circle-button-channel-segments"/>
+          </svg>
+        </div>
+        
+        <cc-connection-participant participant="bridge.participants[0]" show-role-labels="ctrl.showRoleLabels" show-vox-status="ctrl.showVoxStatus" on-hangup-sip-call="ctrl.hangUpSipCallCallback({ call: call })">
+        </cc-connection-participant>
+      </div>
+      
+      <div ng-show="bridge.participants[0]" class="conn-container-bridge-icon-area" ng-class="{ 'align-left': $odd }">
+        
+        <div class="conn-br-device-id">
+          <span>{{ bridge.label }}</span>
+        </div>
+        
+        <div class="icon-button" id="nq-button" ng-click="ctrl.showBridgeOptions({ portRes: bridge.participants[0].res })" ng-show="!ctrl.hideBridgeOptions && bridge.participants[0].online && !bridge.participants[0].pending">
+          <svg width="18" height="18" style="display: block">
+            <circle ng-style="bridge.participants[0].silenceSupp ? { 'fill': '#ffffff' } : { 'fill': '#666666' }" r="3" cx="50%" cy="50%"/>
+            <circle class="conn-br-transport" stroke="#666666" r="7" cx="50%" cy="50%"/>
+            <circle class="conn-br-transport" ng-style="ctrl.showNetworkQuality(bridge.participants[0].networkQuality)" stroke="#00debb" r="7" cx="50%" cy="50%"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div ng-if="!bridge.participants[0]" class="conn-container-empty">
+        Not Assigned
+      </div>
+    </div>
+    
+    <div style="position: relative; height: 30px; align-self: center; width: 50%" ng-if="$even">
+      <div class="conn-container-direct-line-left"></div>
+      <div class="conn-container-arrow-box center">
+        
+        <div class="conn-container-arrow-left"></div>
+        
+        <div class="conn-container-arrow-right"></div>
+      </div>
+      <div class="conn-container-hline"></div>
+      <div class="conn-container-direct-line-right"></div>
+    </div>
+  </div>
+</div>

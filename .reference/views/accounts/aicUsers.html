@@ -1,0 +1,126 @@
+<div class="content">
+  <div ng-if="aicUsersCtrl.isUnlicensed()" style="font-size: 16px">
+    <p>The Agent-IC service is not licensed.</p>
+    <p style="color: #F4B183">Clients will be forced to connect in Demo mode only.</p>
+  </div>
+  <div class="page-header-top"><span translate>Agent-IC Users</span>
+    <img ng-if="guideEnabled || currentGuide=='aicUsers'" id="aicUsersGuideToggle" ng-click="aicUsersCtrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+  </div>
+  
+  <div class="ivc32-config-pane" style="padding-bottom: 20px;margin-left: 10px;width: 860px">
+    <div id="aicUserList" class="collapsable-section-header-sub">Agent-IC Users List</div>
+    <div class="collapsable-section-horizontal-divider"></div>
+
+    <table class="ports-table">
+      <tr>
+        <th></th>
+        <th class="port-id">#</th>
+        <th class="port-label" translate>Label</th>
+        <th class="login" translate>User ID</th>
+        <th class="password" translate>Password</th>
+        <th class="port-label" translate>Default Role</th>
+        <th class="assigned-device-id" translate>LQ Assignment</th>
+        <th class="form-cell">
+          <div class="status-area">Status</div>
+        </th>
+      </tr>
+      <tr ng-repeat="aicuser in aicUsersCtrl.aicUsers track by aicuser.id" id="aicUser{{$index}}" class="port-row">
+        <td class="command">
+          <button type="button" class="btn btn-gray btn-sm" ng-click="aicUsersCtrl.confirmRemoveUser(aicuser)" ng-disabled="!aicUsersCtrl.isMasterReachable">
+            <span class="glyphicon glyphicon-minus"></span>
+          </button>
+        </td>
+        <td class="port-id">
+          C{{ aicuser.id }}
+        </td>
+        <td class="editable-entry port-label">
+          <span editable-text="aicuser.label" e-form="rowform" e-name="label" ng-click="aicUsersCtrl.onEditableElementClick(this, $event)" ng-show="aicUsersCtrl.isMasterReachable" e-maxlength="{{ aicUsersCtrl.deviceCapability.labelLength }}" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="aicUsersCtrl.validateUserLabel($data)" e-ng-keydown="aicUsersCtrl.onUserKeyDown($event.keyCode, rowform)">{{aicuser.label || aicUsersCtrl.emptyString}}</span>
+          <span ng-hide="aicUsersCtrl.isMasterReachable">{{aicuser.label || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry login">
+          <span editable-text="aicuser.settings.login" e-form="rowform" e-name="login" ng-click="aicUsersCtrl.onEditableElementClick(this, $event)" e-maxlength="10" ng-show="aicUsersCtrl.isMasterReachable" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="aicUsersCtrl.validateUserLogin($data, aicuser.id)" e-ng-keydown="aicUsersCtrl.onUserKeyDown($event.keyCode, rowform)">{{aicuser.settings.login || aicUsersCtrl.emptyString}}</span>
+          <span ng-hide="aicUsersCtrl.isMasterReachable">{{aicuser.settings.login || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry password">
+          <span editable-text="aicuser.settings.password" e-form="rowform" e-name="password" ng-click="aicUsersCtrl.onEditableElementClick(this, $event)" e-maxlength="10" ng-show="aicUsersCtrl.isMasterReachable" e-ng-keydown="aicUsersCtrl.onUserKeyDown($event.keyCode, rowform)">{{aicuser.settings.password || aicUsersCtrl.emptyString}}</span>
+          <span ng-hide="aicUsersCtrl.isMasterReachable">{{aicuser.settings.password || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry assigned-device-id">
+          <span editable-select="aicuser.settings.defaultRole" ng-show="aicUsersCtrl.isMasterReachable" e-ng-options="s.value as s.text for s in aicUsersCtrl.assignableRoles" class="editable-text" e-form="rowform" e-name="defaultRole" ng-click="aicUsersCtrl.onEditableElementClick(this, $event)" e-ng-keydown="aicUsersCtrl.onUserKeyDown($event.keyCode, rowform)">{{aicUsersCtrl.showAssignedRole(aicuser.settings.defaultRole)}}</span>
+          <span ng-hide="aicUsersCtrl.isMasterReachable">{{aicUsersCtrl.showAssignedRole(aicuser.settings.defaultRole)}}</span>
+        </td>
+        <td class="editable-entry assigned-device-id">
+          <span editable-select="aicuser.settings.assignedDeviceId" ng-show="aicUsersCtrl.isMasterReachable" e-ng-options="s.value as s.text for s in aicUsersCtrl.assignableDevices" class="editable-text" e-form="rowform" e-name="assignedDeviceId" ng-click="aicUsersCtrl.onEditableElementClick(this, $event)" e-ng-keydown="aicUsersCtrl.onUserKeyDown($event.keyCode, rowform)">{{aicUsersCtrl.showAssignedDevice(aicuser.settings.assignedDeviceId)}}</span>
+          <span ng-hide="aicUsersCtrl.isMasterReachable">{{aicUsersCtrl.showAssignedDevice(aicuser.settings.assignedDeviceId)}}</span>
+        </td>
+        <td class="form-cell">
+          <form editable-form name="rowform" class="form-buttons form-inline" ng-show="rowform.$visible" onbeforesave="aicUsersCtrl.updateUser(this, aicuser.id, $data)" onhide="aicUsersCtrl.clearError(this)">
+            <button type="submit" ng-disabled="rowform.$waiting || !aicUsersCtrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+              <span class="glyphicon glyphicon-ok"></span>
+            </button>
+            <button type="button" ng-disabled="rowform.$waiting" ng-click="aicUsersCtrl.cancelUserEdit(this)" class="btn btn-default btn-sm">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </form>
+          <div ng-hide="rowform.$visible">
+            <div class="status-area">
+              <img src="/images/warning.png" ng-show="aicUsersCtrl.getConnectionWarning(aicuser)" class="warning-icon-inline" uib-popover="{{ aicUsersCtrl.getConnectionWarning(aicuser) }}" popover-placement="bottom" popover-trigger="outsideClick">
+              <img class="localPorts-status-led" style="float: left; margin: 7px 0px 0px 15px" ng-show="aicuser.liveStatus.connectionStatus === 'online'" src="/images/vox-active.png">
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="command">
+          <button ng-hide="aicUsersCtrl.pendingUser" type="button" class="btn btn-success btn-sm" ng-click="aicUsersCtrl.addPendingUser(this)" ng-disabled="!aicUsersCtrl.isMasterReachable" id="agentICAdd">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </td>
+        <td class="port-id">
+          <img ng-hide="aicUsersCtrl.isMasterReachable" src="/images/warning.png" class="warning-icon-inline" uib-popover="{{aicUsersCtrl.getLinkMasterOffLineWarning()}}" popover-placement="bottom" popover-trigger="outsideClick">
+        </td>
+        <td class="editable-entry port-label">
+          <span ng-show="aicUsersCtrl.pendingUser" e-maxlength="{{ aicUsersCtrl.deviceCapability.labelLength }}" editable-text="aicUsersCtrl.pendingUser.label" e-form="pendingUserForm" e-name="label" e-ng-keydown="aicUsersCtrl.onPendingUserKeyDown($event.keyCode, pendingUserForm)" onbeforesave="aicUsersCtrl.validateUserLabel($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error">{{aicUsersCtrl.pendingUser.label || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry login">
+          <span ng-show="aicUsersCtrl.pendingUser" e-maxlength="10" editable-text="aicUsersCtrl.pendingUser.settings.login" e-form="pendingUserForm" e-name="login" e-ng-keydown="aicUsersCtrl.onPendingUserKeyDown($event.keyCode, pendingUserForm)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="aicUsersCtrl.validateUserLogin($data)">{{aicUsersCtrl.pendingUser.settings.login || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry password">
+          <span ng-show="aicUsersCtrl.pendingUser" e-maxlength="10" editable-text="aicUsersCtrl.pendingUser.settings.password" e-form="pendingUserForm" e-name="password" e-ng-keydown="aicUsersCtrl.onPendingUserKeyDown($event.keyCode, pendingUserForm)">{{aicUsersCtrl.pendingUser.password || aicUsersCtrl.emptyString}}</span>
+        </td>
+        <td class="editable-entry assigned-device-id">
+          <span ng-show="aicUsersCtrl.pendingUser" editable-select="aicUsersCtrl.pendingUser.settings.defaultRole" e-ng-options="s.value as s.text for s in aicUsersCtrl.assignableRoles" class="editable-text" e-form="pendingUserForm" e-name="defaultRole" e-ng-keydown="aicUsersCtrl.onPendingUserKeyDown($event.keyCode, pendingUserForm)">{{aicUsersCtrl.showAssignedRole(aicUsersCtrl.pendingUser.settings.defaultRole)}}</span>
+        </td>
+        <td class="editable-entry assigned-device-id">
+          <span ng-show="aicUsersCtrl.pendingUser" editable-select="aicUsersCtrl.pendingUser.settings.assignedDeviceId" e-ng-options="s.value as s.text for s in aicUsersCtrl.assignableDevices" class="editable-text" e-form="pendingUserForm" e-name="assignedDeviceId" e-ng-keydown="aicUsersCtrl.onPendingUserKeyDown($event.keyCode, pendingUserForm)">{{aicUsersCtrl.showAssignedDevice(aicUsersCtrl.pendingUser.settings.assignedDeviceId)}}</span>
+        </td>
+        <td class="form-cell">
+          <form editable-form name="pendingUserForm" class="form-buttons form-inline" ng-show="pendingUserForm.$visible" onbeforesave="aicUsersCtrl.addUser(this, $data)" onaftersave="aicUsersCtrl.onUserAdded()" onshow="aicUsersCtrl.onPendingUserShown(this)" onhide="aicUsersCtrl.onPendingUserHidden(this)">
+            <button type="submit" ng-disabled="pendingUserForm.$waiting || !aicUsersCtrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+              <span class="glyphicon glyphicon-ok"></span>
+            </button>
+            <button type="button" ng-disabled="pendingUserForm.$waiting" ng-click="aicUsersCtrl.cancelAdd(this)" class="btn btn-default btn-sm">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </form>
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+<ul id="externalaicUsersPageGuide" class="guide-hidden" data-tourtitle="CCM External system IVC32">
+  
+  <li class="tlypageguide_left" data-tourtarget="#agentICAdd"> This is the section where you can add/remove Agent-IC accounts. A maximum of 8 accounts can be associated to an LQ device.</li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#aicUser0"> Every line represents an Agent-IC account. For each one of them, you must configure the following:
+    <ul>
+      <li>Label: User friendly account label. Any meaningful name is possible</li>
+      <li>User ID: The user id that an Agent-IC client will use to log on to an LQ device (must be unique)</li>
+      <li>Password: The password that an Agent-IC client will use to authenticate itself in conjunction with the user id </li>
+      <li>Default role: If set to NONE then the Agent-IC client will be allowed to choose any Role in the Link-Group.<br>Otherwise the client is forced into the selected Role</li>
+      <li>LQ Assignment: If set to NONE then the Agent-IC client will be allowed to connect to any device in the link-group (specified on the client in the server setting)<br> If an assignment is specified the client <strong>must</strong> enter the server address to the specified device in the client settings or authentication will fail</li>
+      <li>Status: Green status LED indicates that a client is online using this account. A yellow triangle indicates an error condition. Click triangle for details</li>
+    </ul>
+  </li>
+</ul>
+</div>

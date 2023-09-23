@@ -1,0 +1,91 @@
+<div class="device-container" ng-class="{ 'borderless': !dir.border }">
+    <div class="device-container-outer">
+        <div class="device-container-inner">
+            
+            <div ng-class="dir.isDeviceMaster() ? 'device-container-index-lm' : 'device-container-index'" ng-style="(dir.hasDeviceConflict() && dir.device.isHost) && {'color':'#CCC', 'background-color':'#FC0000'}">
+                <span ng-show="dir.linking">{{dir.isDeviceMaster() ? 'LM' : dir.device.device_id }}</span>
+            </div>
+            
+            <div ng-style="dir.linking ? { 'margin-top': '-6px' } : { 'padding-top': '10px' }">
+                    
+                    <div ng-if="!dir.selection" class="device-label" ng-class="{ 'device-error': dir.status == 'ERROR', 'device-ok': dir.status != 'ERROR'}">
+                        {{ dir.device.device_label }}
+                    </div>
+                    
+                    <div uib-dropdown ng-if="dir.selection" is-open="false" on-toggle="dir.toggleDevicesDropDown(true)">
+                        <div uib-dropdown-toggle class="device-selection-button" ng-show="dir.selection">
+                            <span class="device-selection-label">{{ dir.device.device_label }}</span>
+                            <span class="glyphicon glyphicon-triangle-bottom"></span>
+                        </div>
+                        <ul uib-dropdown-menu style="margin-top:-2px">
+                            <li style="margin-left:2px;margin-right:2px" ng-repeat="deviceInfo in dir.devicesList | filter:{device_isReachable:true}">
+                                <a ng-class="{'device-selection-same-device':dir.device.device_id==deviceInfo.device_id}" ng-click="dir.changeDevice({id: deviceInfo.device_id})">{{deviceInfo.device_id }} : {{deviceInfo.device_label}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                        <div class="device-left-outer">
+                        <div ng-class="(dir.status === 'ERROR') ? 'device-left-inner-offline' : 'device-left-inner'">
+                            
+                            <div class="device-model">
+                                {{ dir.device.deviceType_name }}
+                            </div>
+                            
+                            <div ng-class="{'device-ip-address-local': dir.device.isHost,
+                                    'device-ip-address-remote': !dir.device.isHost}">
+                                {{ dir.getDeviceIp() || "&nbsp;" }}
+                            </div>
+                            
+                            <div class="device-interfaces">
+                                <div ng-repeat="interface in dir.supportedInterfaces" ng-class="(dir.status === 'ERROR') ? 'device-interface-offline' : 'device-interface'">
+                                    <div ng-class="interface.active ? 'active' : 'empty'">
+                                        {{ interface.active ? interface.type : '&nbsp;'}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        
+                        <div class="device-right-outer">
+                        <div class="device-resource-groove" ng-if="dir.resourceMeter" ng-show="dir.status !== 'ERROR'">
+                            <div class="device-resource-bar" ng-class="(dir.device.device_usage<70.0)?'device-resource-green':((dir.device.device_usage<85.0)?'device-resource-yellow':'device-resource-red')" ng-style="{'height': dir.device.device_usage+'%'}">
+                            </div>
+                        </div>
+                        <div class="device-right-inner">
+                            <div class="device-status-outer">
+                                <div class="device-status-inner">
+                                    
+                                    <img ng-show="dir.status === 'OK'" ng-src="/images/ok.png">
+                                    <img ng-show="dir.status === 'WARNING'" ng-src="/images/warning.png">
+                                    <img ng-show="dir.status === 'ERROR'" ng-src="/images/failure.svg">
+                                    
+                                    <div ng-show="dir.psuMonitoring" class="device-psu-monitoring">
+                                        <img ng-src="/images/pwr1-off.png" class="primary" ng-if="dir.device.device_liveStatus.power>=4 && (dir.device.device_liveStatus.power==8)">
+                                        <img ng-src="/images/pwr1-on.png" class="primary" ng-if="dir.device.device_liveStatus.power==4 || dir.device.device_liveStatus.power==12">
+                                        <img ng-src="/images/pwr2-off.png" class="secondary" ng-if="dir.device.device_liveStatus.power>=4 && (dir.device.device_liveStatus.power==4)">
+                                        <img ng-src="/images/pwr2-on.png" class="secondary" ng-if="dir.device.device_liveStatus.power==8 || dir.device.device_liveStatus.power==12">
+                                        <img ng-src="/images/poe-on.png" class="single" ng-if="dir.device.device_liveStatus.power==1">
+                                        <img ng-src="/images/pwr-on.png" class="single" ng-if="dir.device.device_liveStatus.power==2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            
+            <div style="display: inline-block; width: 100%">
+                <div style="float: right; margin-right: 5px">
+                    
+                    <div class="icon-button" ng-show="dir.warnings" style="display: inline-block; width: 30px; text-align: center; cursor: pointer" uib-popover-html="dir.warnings" popover-placement="bottom" popover-trigger="outsideClick">
+                        <span style="vertical-align: middle; color: rgb(204, 204, 204); text-align: center; font-size: 20px" class="glyphicon glyphicon-bell"></span>
+                    </div>
+                    <a ng-if="dir.navTarget || dir.navOnClick" ng-class="dir.status === 'ERROR' && (dir.device.isHost || !dir.isMasterReachable) ? 'icon-button-disabled' : 'icon-button'" ng-href="{{ !(dir.status === 'ERROR' && (dir.device.isHost || !dir.isMasterReachable)) ? dir.navTarget : '' }}" ng-click="!(dir.status === 'ERROR' && (dir.device.isHost || !dir.isMasterReachable)) && dir.navOnClick()">
+                      
+                      <span class="glyphicon glyphicon-trash icon-button" ng-class="dir.isMasterReachable || 'icon-button-disabled'" ng-show="dir.status === 'ERROR' && !dir.device.isHost && !dir.isDeviceMaster()"></span>
+                      
+                      <img class="gear-icon" ng-hide="dir.status === 'ERROR' && !dir.device.isHost && !dir.isDeviceMaster()" src="/images/gear.png" width="24" height="24" style="margin-top:3px;margin-right: 2px">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

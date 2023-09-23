@@ -1,0 +1,96 @@
+<div id="device-config-menuPanel" ng-controller="deviceMenuCtrl as ctrl" style="height: 1000px;
+            width: 209px;
+            float: left; margin-top:-15px">
+
+  <div id="device-config-deviceOverview" style="margin-top: 10px;
+              margin-left: 14px;
+              border: 1px solid #232323">
+    <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devMenu'" id="devMenuGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    <cc-device-container device="ctrl.sharedVM.device" devices-list="ctrl.sharedVM.devicesList" supported-interfaces="ctrl.sharedVM.supportedInterfaceObject[ctrl.sharedVM.device.device_id]" status="{{
+                           ctrl.sharedVM.deviceStatus == ctrl.sharedVM.OK ? 'OK' :
+                           ctrl.sharedVM.deviceStatus == ctrl.sharedVM.WARNING ? 'WARNING' :
+                           'ERROR'
+                         }}" psu-monitoring="ctrl.sharedVM.deviceCapability.psuMonitoring && ctrl.sharedVM.device.device_isReachable" linking="ctrl.sharedVM.deviceCapability.linking" selection="ctrl.sharedVM.devicesList.length >= 2" resource-meter="ctrl.showResourceUsage()" change-device="ctrl.sharedVM.changeDevice(id)">
+    </cc-device-container>
+  </div>
+  
+  
+  <div style="margin-top:25px; margin-left:15px; width: auto">
+    <div class="button-config-container">
+      <div ng-if="ctrl.sharedVM.isSupportedByDeviceCapabilities(button.name)" ng-repeat="button in ctrl.sharedVM.configButtons">
+        
+        <div id="{{button.name}}" style="float: left; margin-right: 0px; margin-bottom: 0px">
+          <div class="button-config">
+            <img src="/images/warning.png" ng-show="button.warning" class="warning-icon">
+            
+            <a ng-href="{{ ($routeParams.deviceId != null && $routeSegment.getSegmentUrl(button.route, $routeParams)) || '/view/devices' }}" style="text-decoration: none">
+              <div class="inner" ng-class="{'selected': (button.route | routeSegmentEqualsTo)}">
+                <span class="button-text">{{button.text}}</span>
+                <img class="button-icon" ng-src="{{button.icon}}">
+              </div>
+            </a>
+          </div>
+        </div>
+        
+      </div>
+
+    </div>
+  </div>
+  
+<ul id="devMenuPageGuide" class="guide-hidden" data-tourtitle="CCM device Menu">
+  
+  <li class="tlypageguide_top" data-tourtarget=".device-selection-button">
+    <div>
+      <p>The device drop-down can be used to navigate between devices.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#General .inner">
+    <div>
+      <p>Open the General configuration section for the FreeSpeak II system.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#Network .inner">
+    <div>
+      <p>Open the Network configuration section (set IP address).</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget="#Linking .inner">
+    <div>
+      <p>Open the Linking configuration section.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#Station .inner">
+    <div>
+      <p>Open the Base Station configuration section.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget="#Ports .inner">
+    <div>
+      <p>Open the Base Station audio ports configuration section.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget="#Events .inner">
+    <div>
+      <p>Open the system event log section.</p>
+    </div>
+  </li>
+</ul>
+
+
+</div>
+
+
+<div id="divider" style="position: absolute;
+            height:80%;
+            width:3px;
+            margin-left:190px;
+            background-image: linear-gradient(to right,#030303 0,#404040 30%);
+            float:right">
+  &nbsp;
+</div>

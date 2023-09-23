@@ -1,0 +1,25 @@
+
+
+<div ng-controller="devCfgCommonCtrl as devCommonCtrl">
+
+  <div id="device-config-container">
+
+    <div id="device-config-header" style="margin-top: 30px">
+
+      <div ng-controller="devCfgBtnGroupCtrl as devGroupCtrl">
+
+        
+        <div ng-include="'views/device/deviceCfgMenuPane.html'"></div>
+        
+        <div class="device-config-pane">
+          <div app-view-segment="1"></div>
+        </div>
+      </div>
+
+      
+      <div id="footer" style="clear:both; text-align:center">&nbsp;</div>
+
+    </div>
+  </div>
+</div>
+

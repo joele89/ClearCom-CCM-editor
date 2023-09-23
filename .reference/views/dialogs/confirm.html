@@ -1,0 +1,20 @@
+<style>
+  .modal-dialog {
+    min-width: 350px;
+  }
+</style>
+
+    <div>
+  <div style="text-align:center" class="modal-header">
+    <h4 class="modal-title" style="white-space: pre-line">{{modalMessage.message}}</h4>
+    <h5 class="modal-question" ng-show="modalMessage.question">{{modalMessage.question}}</h5>
+  </div>
+  
+
+  <div class="modal-footer">
+    
+
+    <button style="float:right" class="btn btn-danger" ng-click="cancel()">{{modalMessage.cancel}}</button>
+    <button style="float:left; margin-right:10px" class="btn btn-success" ng-click="ok()" ng-focus="true">{{modalMessage.ok}}</button>
+  </div>
+    </div>

@@ -1,0 +1,182 @@
+<div data-expander data-expander-title="Keyset" data-page-name="roles" data-section="keyset" data-start-open="true">
+    <div style="float:right" ng-if="keysetType === 'LQ-AIC'" ng-click="$event.stopPropagation();">
+        <button ng-class="{ 'icon-button-disabled': disableArrow('left')}" ng-show="showArrows" ng-disabled="disableArrow('left')" ng-click="moveSelectedKey('left');" style="width:32px; margin-left:5px" class="btn btn-xs btn-green">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <button ng-class="{ 'icon-button-disabled': disableArrow('right')}" ng-show="showArrows" ng-disabled="disableArrow('right')" ng-click="moveSelectedKey('right');" style="width:32px; margin-left:5px" class="btn btn-xs btn-green">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </button>
+
+        <button ng-show="showArrows" ng-click="showArrows = !showArrows;" style="width:32px; margin-left:5px" class="btn btn-xs btn-blue">
+            <span class="glyphicon glyphicon-ok"></span>
+        </button>
+        <button ng-show="!showArrows" ng-disabled="keysets.length === maxNumberOfKeysets" ng-click="addKeyset();" style="width:32px; margin-left:5px" class="btn btn-xs btn-green">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+            <button ng-show="!showArrows" ng-click="showArrows = !showArrows; $event.stopPropagation();" style="width:32px; height:30px; margin-left:5px; padding-left:2px" class="btn btn-xs btn-green">
+            <img src="../images/arrange.png" style="height:20px; width:20px">
+        </button>
+        <button ng-show="!showArrows" ng-click="removeKeyset();" ng-disabled="keysets.length === 1" style="width:32px; margin-left:5px" class="btn btn-xs btn-red">
+            <span class="glyphicon glyphicon-trash" style="margin-right:3px"></span>
+        </button>
+    </div>
+    <div style="margin-bottom:10px">
+        <div class="role-settings-elements" ng-style="{ 'margin-bottom': keysetTypeIs(['LQ-AIC']) ? '-15px' : '0px'}">
+            
+            <div ng-if="keysetTypeIs(['FSII-BP'])" style="margin-left:10px">
+                
+                <div ng-repeat="keyset in [0, 1, 2, 3, 4]">
+                    <div style="float: left">
+                        <div style="text-align: center; width: 85px">{{ wbsKeyIndexToText[keyset] }}</div>
+                        <div ng-class="{ 'keyset-button-selected-WSBP':  indexSelectedKey == keyset,
+                            'keyset-button-unselected-WSBP': indexSelectedKey != keyset }" ng-click="selectKey(keyset)">
+                            <div class="keyset-button-inner">{{ getKeyAssignment(keyset) == '[Multiple Values]' ? '[MV]' : getKeyAssignment(keyset) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div ng-if="keysetTypeIs(['HMS-4X','HRM-4X','HKB-2X'])">
+                <div ng-repeat="keyset in [0, 1, 2, 3]">
+                    <div ng-class="{ 'keyset-button-selected':  indexSelectedKey == keyset,
+                            'keyset-button-unselected': indexSelectedKey != keyset }" ng-click="selectKey(keyset)">
+                        <div class="keyset-button-inner">{{ getKeyAssignment(keyset) == '[Multiple Values]' ? '[MV]' : getKeyAssignment(keyset) }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div ng-if="keysetTypeIs(['LQ-AIC'])" style="display:flex; justify-content: space-between; align-items:flex-start">
+                <div style="width: 400px; display:flex; flex-wrap: wrap">
+                    <div ng-repeat="keyset in keysets">
+                        <div style="text-align: center">{{ $index + 1 }}</div>
+                        <div ng-class="{ 'keyset-button-selected-WSBP':  indexSelectedKey == $index,
+                            'keyset-button-unselected-WSBP': indexSelectedKey != $index }" ng-click="selectKey($index)">
+                            <div class="keyset-button-inner">{{ getKeyAssignment($index) == '[Multiple Values]' ? '[MV]' : getKeyAssignment($index) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div ng-if="keysetTypeIs(['HBP-2X'])">
+                <div ng-repeat="keyset in [0, 1]">
+                    <div ng-class="{ 'keyset-button-selected':   indexSelectedKey == keyset,
+                            'keyset-button-unselected': indexSelectedKey != keyset }" ng-click="selectKey(keyset)">
+                        <div class="keyset-button-inner">{{ getKeysetWithIndex(keyset).stackedKeyEnabled ? getKeysetWithIndex(keyset).stackedKeyLabel : getKeyAssignment(keyset) }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div ng-if="keysetTypeIs(['Station'])" style="margin-left:15px">
+                <div ng-repeat="keyset in [0, 1, 2, 3]">
+                    <div ng-class="{ 'keyset-button-selected':  indexSelectedKey == keyset,
+                            'keyset-button-unselected': indexSelectedKey != keyset }" ng-click="selectKey(keyset)">
+                        <div class="keyset-button-inner">{{ getKeyAssignment(keyset) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div style="border-bottom: 1px solid #999; width:480px; display:inline-block"></div>
+
+        
+        <div style="margin-bottom:10px"></div>
+
+        <div ng-if="keysetTypeIs(['HBP-2X'])" class="role-settings-element">
+            <div class="editable-label" translate>Stacked Key&nbsp;:</div>
+            <div class="editable-entry">
+            <span editable-select="getKeysetWithIndex(indexSelectedKey).stackedKeyEnabled" buttons="no" e-ng-options="s.value as s.text for s in BoolToEnabledDisabled" onaftersave="updateStackedKeyState()">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).stackedKeyEnabled, BoolToEnabledDisabled) }}</span>
+            </div>
+        </div>
+
+        <div ng-if="keysetTypeIs(['HBP-2X']) && getKeysetWithIndex(indexSelectedKey).stackedKeyEnabled" class="role-settings-element">
+            <div class="editable-label" translate>Stacked Key Label&nbsp;:</div>
+            <div ng-switch="getKeysetWithIndex(indexSelectedKey).stackedKeyEnabled" class="editable-entry">
+            <div ng-switch-when="[Multiple Values]">-</div>
+            <div ng-switch-default>
+                <span editable-text="getKeysetWithIndex(indexSelectedKey).stackedKeyLabel" e-minlength="1" e-maxlength="30" onbeforesave="$data.length > 0" onaftersave="updateKeysets()">{{getKeysetWithIndex(indexSelectedKey).stackedKeyLabel || 'Enter Description for key'}}</span>
+            </div>
+            </div>
+        </div>
+
+        <div class="role-settings-element">
+            <div class="editable-label" translate>Key Assignment&nbsp;:</div>
+            <div class="editable-entry">
+                <span class="sudo-editable-entry" ng-click="showKeysetAssignment()">{{ getKeyAssignment(indexSelectedKey) }}</span>
+            </div>
+        </div>
+
+        <div ng-if="keysetTypeIs(['FSII-BP', 'Station']) && filterKeyActivationState().length > 0" class="role-settings-element">
+            <div class="editable-label" translate>Key Behavior&nbsp;:</div>
+            <div class="editable-entry">
+
+                <span editable-select="getKeysetWithIndex(indexSelectedKey).activationState" buttons="no" e-ng-options="s.value as s.text for s in filterKeyActivationState()" onbeforesave="updateLatchingParameter( getKeysetWithIndex(indexSelectedKey), $data )" onaftersave="updateKeysets()">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).activationState, filterKeyActivationState()) }}</span>
+            </div>
+        </div>
+
+        <div ng-if="keysetTypeIs(['FSII-BP', 'Station']) && filterKeyActivationState().length === 0" class="role-settings-element">
+            <div class="editable-label" translate>Key Behavior&nbsp;:</div>
+            <div class="editable-entry">
+                <span style="opacity: 0.5">Not set</span>
+            </div>
+        </div>
+
+        <div ng-if="keysetTypeIs(['LQ-AIC'])">
+            <div>
+                <div class="editable-label" translate>Primary Left Key&nbsp;:</div>
+                <div class="editable-entry">
+                    <a href="#" editable-select="getKeysetWithIndex(indexSelectedKey).keys[1].type" buttons="no" e-ng-options="s.value as s.text for s in aicLeftKeysSelection" onaftersave="updateKeysets(1)">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).keys[1].type,aicLeftKeysSelection) }}</a>
+                </div>
+            </div>
+            <div>
+                <div class="editable-label" translate>Primary Right Key&nbsp;:</div>
+                <div class="editable-entry">
+                    <span editable-select="getKeysetWithIndex(indexSelectedKey).keys[0].type" buttons="no" e-ng-options="s.value as s.text for s in aicRightKeysSelection" onaftersave="updateKeysets(0)">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).keys[0].type,aicRightKeysSelection) }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="editable-label" translate>Secondary Left Key&nbsp;:</div>
+                <div class="editable-entry">
+                    <span editable-select="getKeysetWithIndex(indexSelectedKey).keys[3].type" buttons="no" e-ng-options="s.value as s.text for s in aicLeftKeysSelection" onaftersave="updateKeysets(3)">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).keys[3].type,aicLeftKeysSelection) }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="editable-label" translate>Secondary Right Key&nbsp;:</div>
+                <div class="editable-entry">
+                    <span editable-select="getKeysetWithIndex(indexSelectedKey).keys[2].type" buttons="no" e-ng-options="s.value as s.text for s in aicRightKeysSelection" onaftersave="updateKeysets(2)">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).keys[2].type,aicRightKeysSelection) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="! keysetTypeIs(['LQ-AIC'])">
+            <div ng-if="filterTalkBtnMode().length > 0" class="role-settings-element">
+                <div class="editable-label" translate>Talk Latch&nbsp;:</div>
+                <div class="editable-entry">
+                    <span editable-select="getKeysetWithIndex(indexSelectedKey).talkBtnMode" buttons="no" e-ng-options="s.value as s.text for s in filterTalkBtnMode()" onaftersave="updateKeysets()">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).talkBtnMode, filterTalkBtnMode()) }}</span>
+                </div>
+            </div>
+
+            <div ng-if="filterTalkBtnMode().length === 0" class="role-settings-element">
+                <div class="editable-label" translate>Talk Latch&nbsp;:</div>
+                <div class="editable-entry">
+                <span style="opacity: 0.5">Not set</span>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="keysetTypeIs(['HBP-2X'])" ng-show="getKeysetWithIndex(indexSelectedKey).usbFlasherMode != undefined" class="role-settings-element">
+            <div class="editable-label" translate>USB Flasher Mode:</div>
+            <div class="editable-entry">
+                <span editable-select="getKeysetWithIndex(indexSelectedKey).usbFlasherMode" buttons="no" e-ng-options="s.value as s.text for s in keysetUsbFlasherMode" onaftersave="updateKeysets()">{{ getDisplayTextFromValue(getKeysetWithIndex(indexSelectedKey).usbFlasherMode, keysetUsbFlasherMode) }}</span>
+            </div>
+        </div>
+        
+    </div>
+    <div ng-show="errorText.length > 0" style="margin-top:35px; margin-left:15px">
+        <div class="alert alert-danger">
+            <a class="close" ng-click="clearError()">&times;</a>
+            <span translate>Error!&nbsp;</span>
+            {{errorText}}
+        </div>
+    </div>
+</div>

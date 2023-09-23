@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<body onload="drawDisplays()">
+
+<div style="float:left;margin:130px 20px 0px 0px">
+<table>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="hsetPress()" onmouseup="hsetRelease()">HDST</button></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="modePress()" onmouseup="modeRelease()">MODE</button></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="menuPress()" onmouseup="menuRelease()">MENU</button></th>
+    </tr>
+</table>
+</div>
+
+<div style="float:left;margin:10px">
+<th><table>
+    <tr align="center">
+        <h1>Keyset # 1</h1>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(1, -1)">Dec 1</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderPress(1)" onmouseup="encoderRelease(1)">Center 1</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(1, 1)">Inc 1</button></th>            
+        </table>
+    </tr>
+    <tr>
+        <th><canvas id="myDisplayCanvas_0" width="260" height="128" style="border:1px solid #d3d3d3"></canvas></th>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:120px" onmousedown="leftPress(1)" onmouseup="leftRelease(1)">A 1</button></th>
+            <th><button style="height:50px; width:120px" onmousedown="rightPress(1)" onmouseup="rightRelease(1)">B 1</button></th>
+        </table>
+    </tr>
+</table></th>
+</div>
+
+<div style="float:left;margin:10px">
+<th><table>
+    <tr align="center">
+        <h1>Keyset # 2</h1>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(2, -1)">Dec 2</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderPress(2)" onmouseup="encoderRelease(2)">Center 2</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(2, 1)">Inc 2</button></th>
+        </table>
+    </tr>
+    <tr>
+        <th><canvas id="myDisplayCanvas_1" width="260" height="128" style="border:1px solid #d3d3d3"></canvas></th>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:120px" onmousedown="leftPress(2)" onmouseup="leftRelease(2)">A 2</button></th>
+            <th><button style="height:50px; width:120px" onmousedown="rightPress(2)" onmouseup="rightRelease(2)">B 2</button></th>
+        </table>
+    </tr>
+</table></th>
+</div>
+
+<div style="float:left;margin:10px">
+<th><table>
+    <tr align="center">
+        <h1>Keyset # 3</h1>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(3, -1)">Dec 3</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderPress(3)" onmouseup="encoderRelease(3)">Center 3</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(3, 1)">Inc 3</button></th>
+        </table>
+    </tr>
+    <tr>
+        <th><canvas id="myDisplayCanvas_2" width="260" height="128" style="border:1px solid #d3d3d3"></canvas></th>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:120px" onmousedown="leftPress(3)" onmouseup="leftRelease(3)">A 3</button></th>
+            <th><button style="height:50px; width:120px" onmousedown="rightPress(3)" onmouseup="rightRelease(3)">B 3</button></th>
+        </table>
+    </tr>
+</table></th>
+</div>
+
+<div style="float:left;margin:10px">
+<th><table>
+    <tr align="center">
+        <h1>Keyset # 4</h1>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(4, -1)">Dec 4</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderPress(4)" onmouseup="encoderRelease(4)">Center 4</button></th>
+            <th><button style="height:50px; width:80px" onmousedown="encoderIncrement(4, 1)">Inc 4</button></th>
+        </table>
+    </tr>
+    <tr>
+        <th><canvas id="myDisplayCanvas_3" width="260" height="128" style="border:1px solid #d3d3d3"></canvas></th>
+    </tr>
+    <tr align="center">
+        <table>
+            <th><button style="height:50px; width:120px" onmousedown="leftPress(4)" onmouseup="leftRelease(4)">A 4</button></th>
+            <th><button style="height:50px; width:120px" onmousedown="rightPress(4)" onmouseup="rightRelease(4)">B 4</button></th>
+        </table>
+    </tr>
+</table></th>
+</div>
+
+<div style="float:left;margin:130px 0px 0px 20px">
+<table>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="saPress()" onmouseup="saRelease()">SA</button></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="allTalkPress()" onmouseup="allTalkRelease()">ALL TALK</button></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="rmkPress()" onmouseup="rmkRelease()">RMK</button></th>
+    </tr>
+</table>
+</div>
+
+<div style="clear:both"></div>
+<p>
+
+</p><hr width="75%" align="center">
+
+<p>
+    <button onclick="drawDisplays()">Get Displays Again</button>
+
+</p>
+
+<p>
+    <button onclick="menuDisplays()">Get Menu Labels</button>
+</p>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+    url="../_api/devices/0/frontpanel";
+    urlformenu="../_api/devices/0/frontpanelmenu";
+
+    function encoderPress(keysetId) {
+        jQuery.post(url, { key:102, val: 1, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function encoderRelease(keysetId) {
+        jQuery.post(url,{ key:102, val: 0, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function encoderIncrement(keysetId, value) {
+        jQuery.post(url,{ key:105, val: value, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function leftPress(keysetId) {
+        jQuery.post(url, { key:108, val: 1, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function leftRelease(keysetId) {
+        jQuery.post(url, { key:108, val: 0, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function rightPress(keysetId) {
+        jQuery.post(url, { key:114, val: 1, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function rightRelease(keysetId) {
+        jQuery.post(url, { key:114, val: 0, keyset: keysetId });
+        drawDisplays();
+    }
+
+    function modePress() {
+        jQuery.post(url, { key:111,val: 1 });
+        drawDisplays();
+    }
+
+    function modeRelease() {
+        jQuery.post(url,{ key:111, val: 0 });
+        drawDisplays();
+    }
+
+    function hsetPress() {
+        jQuery.post(url, { key:104,val: 1 });
+        drawDisplays();
+    }
+
+    function hsetRelease() {
+        jQuery.post(url,{ key:104, val: 0 });
+        drawDisplays();
+    }
+
+    function menuPress() {
+        jQuery.post(url, { key:109,val: 1 });
+        drawDisplays();
+    }
+
+    function menuRelease() {
+        jQuery.post(url,{ key:109, val: 0 });
+        drawDisplays();
+    }
+
+    function saPress() {
+        jQuery.post(url, { key:115,val: 1 });
+        drawDisplays();
+    }
+
+    function saRelease() {
+        jQuery.post(url,{ key:115, val: 0 });
+        drawDisplays();
+    }
+
+    function allTalkPress() {
+        jQuery.post(url, { key:97,val: 1 });
+        drawDisplays();
+    }
+
+    function allTalkRelease() {
+        jQuery.post(url,{ key:97, val: 0 });
+        drawDisplays();
+    }
+
+    function rmkPress() {
+        jQuery.post(url, { key:107,val: 1 });
+        drawDisplays();
+    }
+
+    function rmkRelease() {
+        jQuery.post(url,{ key:107, val: 0 });
+        drawDisplays();
+    }
+
+    function drawDisplay(canvas, content) {
+        var c = document.getElementById(canvas);
+        var ctx = c.getContext("2d");
+        ctx.font = "3px Georgia";
+        ctx.fillStyle = 'blue';
+
+        if (content != "") {
+            ctx.clearRect(0, 0, 260, 128);
+            var i, j;
+            var res = content.split("C");
+            for (i = 0; i < res.length; ++i) {
+                for (j = 0; j < res[i].length; ++j) {
+                    if (res[i][j] === '#')
+                        ctx.fillText("#", j * 2-5, i * 2);
+                }
+            }
+        }
+    }
+
+    function drawDisplays()  {
+        jQuery.get(url, function( data ) {
+            drawDisplay("myDisplayCanvas_0", data.fifo_0);
+            drawDisplay("myDisplayCanvas_1", data.fifo_1);
+            drawDisplay("myDisplayCanvas_2", data.fifo_2);
+            drawDisplay("myDisplayCanvas_3", data.fifo_3);
+        });
+    }
+
+    function menuDisplays()  {
+        jQuery.get(urlformenu, function( data ) {});
+    }
+</script>
+
+
+</body>
+</html>

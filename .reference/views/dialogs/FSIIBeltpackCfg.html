@@ -1,0 +1,253 @@
+<div class="endpoint-cfg-dialog">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel();"><span aria-hidden="true">&times;</span></button>
+
+  <div class="page-header-top endpoint-cfg-dialog-header-top">
+    <span translate>Wireless Beltpack</span> {{endpoint.label}}
+  </div>
+
+  <div uib-tabset>
+    <div uib-tab e-index="0" class="navTabsAll uib-tab" data-heading="Details">
+
+      <div>
+        <div>
+          <div ng-if="endpoint.updateRequired">
+            <p style="text-align:center; text-decoration:underline" translate>WARNING</p>
+            <p style="text-align:center" translate>The current firmware version is lower than other endpoints.<br>Upgrading is suggested.</p>
+          </div>
+          <div class="editable-label" translate>Device Name :</div>
+          <div class="editable-entry">
+            <span id="deviceLabel" editable-text="endpoint.label" e-minlength="1" e-maxlength="20" onbeforesave="$data.length > 0" onaftersave="updateLabel()">{{endpoint.label || 'Enter Label for Endpoint'}}</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="editable-label">Fixed Role :</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="changeRole()" translate>{{getRoleLabel()}}</span>
+            <a style="margin-left: 10px" class="role-details" ng-show="endpoint.role && endpoint.role.id" ng-href="/view/roles?initialId={{endpoint.role.id}}" ng-click="cancel();" translate>Details</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Model :</div>
+          <div class="editable-entry">{{endpoint.type|| 'No Model Name Detected'}}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Version :</div>
+          <div class="editable-entry">{{endpoint.versionSW || 'No Version Information Found'}}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Id :</div>
+          <div class="editable-entry">{{endpoint.id }}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Frequency Type :</div>
+          <div class="editable-entry">{{endpoint.frequencyType}}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>
+            <span ng-if="isOffline()" class="glyphicon glyphicon-remove-circle" style="font-size: 16px; color: #b62427; vertical-align: text-bottom"></span>
+            Status :</div>
+          <div class="editable-entry">{{endpoint.liveStatus.status || 'offline'}}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Transceiver ID :</div>
+          <div class="editable-entry">{{getAntennaIndex(endpoint.liveStatus.antennaIndex)}}</div>
+        </div>
+
+        <div>
+          <div class="editable-label" translate>Transceiver Label :</div>
+          <div class="editable-entry">{{getAntennaLabel(endpoint.liveStatus.antennaIndex)}}</div>
+        </div>
+
+        <div ng-if="endpoint.liveStatus.batteryType">
+          <div class="editable-label" translate>Battery Type :</div>
+          <div class="editable-entry">{{endpoint.liveStatus.batteryType}}</div>
+        </div>
+
+        <div ng-if="endpoint.liveStatus.batteryType">
+          <div class="editable-label" translate>Battery Level :</div>
+          <div ng-if="endpoint.liveStatus.batteryType == 'Li-Ion'" class="editable-entry">{{endpoint.liveStatus.longevity.hours}}:{{endpoint.liveStatus.longevity.minutes}} ({{endpoint.liveStatus.batteryLevel}}%)</div>
+          <div ng-if="endpoint.liveStatus.batteryType == 'AA'" class="editable-entry">{{endpoint.liveStatus.batteryLevel}}%</div>
+        </div>
+
+        <div ng-if="endpoint.liveStatus.frameErrorRate >= 0">
+          <div class="editable-label" translate>Error rate :</div>
+          <div class="editable-entry">{{endpoint.liveStatus.frameErrorRate}}</div>
+        </div>
+
+        <div ng-if="endpoint.liveStatus.RSSI">
+          <div class="editable-label" translate>RSSI :</div>
+          <div class="editable-entry">{{endpoint.liveStatus.RSSI}}</div>
+        </div>
+
+        <div style="margin-top:25px"></div>
+
+        <div style="margin: 0px 49px 12px">
+          <div data-expander data-expander-title="Maintenance" data-page-name="FSIIBeltpackCfg" data-section="maintenance">
+            <div class="role-settings-elements">
+              <div style="margin-left:15px">
+                <button type="button" class="btn-red" ng-click="deleteEndpoint()" translate>
+                  <span class="glyphicon glyphicon-arrow-left" style="margin-right:5px"></span>
+                  Unregister
+                </button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+
+      </div>
+    </div>    
+    
+
+    <div uib-tab e-index="1" class="navTabsAll uib-tab" data-heading="Event Log">
+
+      <div class="fsIILogSurround">
+        <div class="fsIILogHeaderSurround">
+          <div style="display:flex">
+            <div style="width:30%">
+              <strong>From:</strong>
+              <div class="input-group" style="width:140px; padding-top:2px">
+                <input type="text" class="form-control col-xs-2" data-uib-datepicker-popup="{{format}}" ng-model="fsIIEventLogFromDate" is-open="fromCalendarPopup.opened" data-datepicker-options="dateOptions" ng-required="true" data-close-text="Close" data-alt-input-formats="altInputFormats">
+                <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="openFromCalendar()"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+              </div>
+              <div style="margin-top:2px" data-uib-timepicker ng-model="fsIIEventLogFromDate" ng-change="changed()" data-show-meridian="ismeridian" data-show-spinners="false"></div>
+            </div>
+            <div style="width:30%">
+              <strong>To:</strong>
+              {{ctrl.fsIIEventLogUseCurrentDatetime}}
+              <div ng-show="!fsIIEventLogUseCurrentDatetime">
+                <div class="input-group" style="width:140px; padding-top:2px">
+                  <input type="text" class="form-control col-xs-2" data-uib-datepicker-popup="{{format}}" ng-model="fsIIEventLogToDate" is-open="toCalendarPopup.opened" data-datepicker-options="dateOptions" ng-required="true" data-close-text="Close" data-alt-input-formats="altInputFormats">
+                  <span class="input-group-btn">
+                          <button type="button" class="btn btn-default" ng-click="openToCalendar()"><i class="glyphicon glyphicon-calendar"></i></button>
+                      </span>
+                </div>
+                <div style="margin-top:2px" data-uib-timepicker ng-model="fsIIEventLogToDate" ng-change="changed()" data-show-meridian="ismeridian" data-show-spinners="false"></div>
+              </div>
+              <div>
+                <input type="checkbox" ng-model="fsIIEventLogUseCurrentDatetime"> Use current date and time
+              </div>
+            </div>
+            <div style="margin-top: 21px">
+              <button type="button" class="btn btn-success fsIILogTable-nav-button" ng-click="getEventLog(0)">
+                <span class="glyphicon glyphicon-refresh"></span>
+                <span>Reload logs</span>
+              </button>
+              <br>
+              <button style="margin-top:5px" ng-show="eventsForSpecificPage.length > 0" ng-click="exportLogFile();" type="button" class="btn btn-success fsIILogTable-nav-button">
+                <span class="glyphicon glyphicon-export"></span>
+                <span>Export All Logs</span>
+              </button>
+            </div>
+          </div>
+          <br>
+
+          
+          <div style="display:flex">
+            <div style="width:50%">
+              
+              <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="nbOfPages > 0 && eventsForSpecificPage.length > 0" ng-click="getEventLog(-10)">
+                  <span class="glyphicon glyphicon-fast-backward" style="margin-right:5px"></span>
+              </button>
+              
+              <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="nbOfPages > 0 && eventsForSpecificPage.length > 0" ng-click="getEventLog(-1)">
+                  <span class="glyphicon glyphicon-step-backward" style="margin-right:5px"></span>
+                  Back
+              </button>
+              
+              <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="nbOfPages > 0 && eventsForSpecificPage.length > 0" ng-click="getEventLog(1)">
+                  Next    
+                  <span class="glyphicon glyphicon-step-forward" style="margin-right:5px"></span>
+              </button>
+                            
+              <button type="button" class="btn btn-default fsIILogTable-nav-button" ng-show="nbOfPages > 0 && eventsForSpecificPage.length > 0" ng-click="getEventLog(10)">
+                  <span class="glyphicon glyphicon-fast-forward" style="margin-right:5px"></span>
+              </button>
+            </div>
+            <div style="width:50%; text-align: right">
+              <p ng-show="nbOfPages > 0 && eventsForSpecificPage.length > 0">Page {{currentEventPage}} of {{nbOfPages}}.</p>
+            </div>
+          </div>
+
+
+        </div>
+        
+
+        
+        <div>
+          <div ng-show="showSpinner" class="loading-spinner-surround"><span class="glyphicon glyphicon-refresh loading-spinner"></span></div>
+          <table class="fsIILogTable">
+            
+            <thead>
+              <tr class="fsIILogHeader">
+                <th class="fsIILogHeader-id header-text">
+                  Id
+                  <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='id' && !fsIIEventlogReverseSort"></span>
+                  <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='id' && fsIIEventlogReverseSort"></span>
+                </th>
+                <th class="fsIILogHeader-eventCode header-text" ng-click="updateSortColumn('eventCode')">
+                  Event Code
+                  <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='eventCode' && !fsIIEventlogReverseSort"></span>
+                  <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='eventCode' && fsIIEventlogReverseSort"></span>
+                </th>
+                <th class="fsIILogHeader-level header-text" ng-click="updateSortColumn('level')">
+                  Level
+                    <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='level' && !fsIIEventlogReverseSort"></span>
+                    <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='level' && fsIIEventlogReverseSort"></span>
+                </th>
+                <th class="fsIILogHeader-desc header-text" ng-click="updateSortColumn('description')">
+                  Description
+                    <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='description' && !fsIIEventlogReverseSort"></span>
+                    <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='description' && fsIIEventlogReverseSort"></span>
+                </th>
+                <th class="fsIILogHeader-datetime header-text" ng-click="updateSortColumn('createdAt')">
+                  Date &amp; Time
+                  <span class="glyphicon glyphicon-chevron-up fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='createdAt' && !fsIIEventlogReverseSort"></span>
+                  <span class="glyphicon glyphicon-chevron-down fsIIEventLogSortIcon" ng-show="fsIIEventlogOrderByField=='createdAt' && fsIIEventlogReverseSort"></span>
+                </th>
+              </tr>
+            </thead>
+            
+            <tbody ng-class="{'loading-data-state': showSpinner}">
+              <tr ng-hide="eventsForSpecificPage.length > 0">
+                <td colspan="5">There is no data to display.</td>
+              </tr>
+
+              <tr ng-repeat="eventLogEntry in eventsForSpecificPage" ng-class="$even ? 'even-row' : 'odd-row'">
+                <td>{{ eventLogEntry.id }}</td>
+                <td class="text-align-center">{{ eventLogEntry.eventCode }}</td>
+                <td class="text-align-center">{{ eventLogEntry.level }}</td>
+                <td>{{ convertToReadableEvent(eventLogEntry) }}</td>
+                <td>{{ eventLogEntry.timestamp | date:'yyyy-MM-dd HH:mm:ss.sss' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+
+
+        <div style="text-align: center;  margin-top:10px">
+          <button style="padding:10px" ng-show="eventsForSpecificPage.length > 0" ng-click="purgeLogFiles();" type="button" class="btn btn-danger fsIILogTable-nav-button">Clear logs <span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+
+      </div>
+      
+
+    </div>
+    
+
+  </div>
+  
+
+  <div style="margin-bottom:17px"></div>
+</div>

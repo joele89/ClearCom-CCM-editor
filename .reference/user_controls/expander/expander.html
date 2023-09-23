@@ -1,0 +1,8 @@
+<div class="collapsable-section-header-top">
+  <div class="collapsable-section-header-sub" data-ng-click="toggle()" style="margin-left:1px">
+    <span class="glyphicon" ng-class="showMe() ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+      <img ng-if="(guideEnabled || currentGuide===guideName) && guideSupported" ng-click="openGuide(guideName); $event.stopPropagation();" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    &nbsp;{{title}}
+  </div>
+  <div style="border-top:1px solid #cccccc; padding-top:10px" class="body" data-ng-show="showMe()" data-ng-transclude=""></div>
+</div>

@@ -1,0 +1,85 @@
+<div id="hn-endpoint-cfg-dialog" class="endpoint-cfg-dialog">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="cancel();"><span aria-hidden="true">&times;</span></button>
+
+  <div class="page-header-top endpoint-cfg-dialog-header-top">
+    <span translate>{{endpointTypeName}}</span> {{endpoint.label}}
+  </div>
+
+  <div style="margin-left: 10px; margin-right: 10px">
+    <div>
+      <div class="editable-label" translate>Hostname&nbsp;:</div>
+      <div class="editable-entry">
+            <span id="deviceLabel" editable-text="endpoint.label" e-required e-maxlength="16" onbeforesave="$data.length > 0" onaftersave="updateLabel()">{{endpoint.label || 'Enter Label for Endpoint'}}</span>
+      </div>
+    </div>
+
+    <div ng-show="labelError" style="margin-top:8px; margin-bottom:8px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="labelError = null">&times;</a>
+        {{labelError}}
+      </div>
+    </div>
+
+    <div class="with-inline-button">
+      <div class="editable-label">Selected Role&nbsp;:</div>
+      <div class="editable-entry">
+        <span class="sudo-editable-entry" ng-click="changeRole()" translate>{{getRoleLabel()}}</span>
+
+        <a style="margin-left: 10px" class="role-details" ng-show="endpoint.role && !endpoint.role.isDefault" ng-href="/view/roles?initialId={{endpoint.role.id}}" ng-click="cancel();" translate>Details</a>
+      </div>
+
+      
+    </div>
+
+    <div ng-show="roleError" style="margin-top:8px; margin-bottom:8px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="roleError = null">&times;</a>
+        {{roleError}}
+      </div>
+    </div>
+
+    <div>
+      <div class="editable-label" translate>Model :</div>
+      <div class="editable-entry">{{endpointTypeStr(endpoint.type, endpoint.revision)}}</div>
+    </div>
+
+    <div>
+      <div class="editable-label" translate>Connected to :</div>
+      <div class="editable-entry">{{device.device_label || "Unknown"}}</div>
+    </div>
+
+    <div style="margin-top:25px"></div>
+  </div>
+
+  
+  <div style="margin-bottom:17px"></div>
+  <div style="margin: 0px 49px 12px">
+    <div data-expander data-expander-title="Maintenance" data-page-name="HNEndpointCfg" data-section="maintenance">
+      <div class="role-settings-elements">
+        <div style="margin-left:15px">
+          <button type="button" class="btn-red" ng-click="resetToDefault()" translate>
+            <span class="glyphicon glyphicon-arrow-left" style="margin-right:2px"></span>
+            Reset To Default
+          </button>
+
+          <button type="button" class="btn-yellow" style="margin-left:5px" ng-click="reboot()" translate>
+            <span class="glyphicon glyphicon-repeat" style="margin-right:2px"></span>
+            REBOOT
+          </button>
+
+          
+          <form style="display:inline" action="{{ endpoint.res + '/snapshot' }}" method="get">
+            <input type="hidden" name="name" ng-value="supportInfoName">
+            <button type="submit" class="btn-blue" style="margin-left:5px" translate>
+              <span class="glyphicon glyphicon-camera" style="margin-right:2px"></span>
+              Support Info
+            </button>
+          </form>
+        </div>
+        <div style="margin-bottom:20px"></div>
+      </div>
+    </div>
+  </div>
+  
+
+</div>

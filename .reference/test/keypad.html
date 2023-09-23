@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<table>
+    <tr>
+        <th></th>
+        <th><button style="height:50px; width:70px" onmousedown="upPress()" onmouseup="upRelease()">Up</button></th>
+        <th></th>
+    </tr>
+    <tr>
+        <th><button style="height:50px; width:70px" onmousedown="leftPress()" onmouseup="leftRelease()">Left</button></th>
+        <th><button style="height:50px; width:70px" onmousedown="centerPress()" onmouseup="centerRelease()">Center</button></th>
+        <th><button style="height:50px; width:70px" onmousedown="rightPress()" onmouseup="rightRelease()">Right</button></th>
+    </tr>
+    <tr>
+        <th></th>
+        <th><button style="height:50px; width:70px" onmousedown="downPress()" onmouseup="downRelease()">Down</button></th>
+        <th></th>
+    </tr>
+</table>
+<p>
+
+</p><p>
+
+</p><p id="demo"></p>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+
+    url="../_api/1/devices/0/frontpanel";
+
+    function centerPress() {
+        document.getElementById("myP").style.color = "red";
+        document.getElementById("myP").innerHTML = "Center Pressed";
+
+        jQuery.post(url, { key:101,val: 1 });
+    }
+
+    function centerRelease() {
+        document.getElementById("myP").style.color = "green";
+        document.getElementById("myP").innerHTML = "Center Released";
+
+        jQuery.post(url,{ key:101, val: 0 });
+    }
+
+    function upPress() {
+        document.getElementById("myP").style.color = "red";
+        document.getElementById("myP").innerHTML = "Up Pressed";
+
+        jQuery.post(url,{ key:117, val: 1 });
+    }
+
+    function upRelease() {
+        document.getElementById("myP").style.color = "green";
+        document.getElementById("myP").innerHTML = "Up Released";
+
+        jQuery.post(url, { key:117, val: 0 });
+    }
+
+    function downPress() {
+        document.getElementById("myP").style.color = "red";
+        document.getElementById("myP").innerHTML = "Down Pressed";
+
+        jQuery.post(url, { key:100, val: 1 });
+    }
+
+    function downRelease() {
+        document.getElementById("myP").style.color = "green";
+        document.getElementById("myP").innerHTML = "Down Released";
+
+        jQuery.post(url, { key:100, val: 0 });
+    }
+
+    function leftPress() {
+        document.getElementById("myP").style.color = "red";
+        document.getElementById("myP").innerHTML = "Left Pressed";
+
+        jQuery.post(url, { key:108, val: 1 });
+    }
+
+    function leftRelease() {
+        document.getElementById("myP").style.color = "green";
+        document.getElementById("myP").innerHTML = "Left Released";
+
+        jQuery.post(url, { key:108, val: 0 });
+    }
+
+    function rightPress() {
+        document.getElementById("myP").style.color = "red";
+        document.getElementById("myP").innerHTML = "Right Pressed";
+
+        jQuery.post(url, { key:114, val: 1 });
+    }
+
+    function rightRelease() {
+        document.getElementById("myP").style.color = "green";
+        document.getElementById("myP").innerHTML = "Right Released";
+
+        jQuery.post(url, { key:114, val: 0 });
+    }
+</script>
+<p id="myP">
+    Click on the buttons
+</p>
+
+</body>
+</html>

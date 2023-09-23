@@ -1,0 +1,116 @@
+
+  
+  <div class="page-header-top">
+    <span translate>
+    Station</span>
+    <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devStation'" id="devStationGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+  </div>
+  <div data-keyset-assign class="keyset-assign" data-ng-model="ctrl.sharedVM.device.device_settings.keysets" data-keyset-type="'Station'" data-callback="ctrl.updateKeysets()" data-last-key-can-reply="'true'" data-can-call="'false'" data-index-selected-key="ctrl.selectedKey">
+  </div>
+
+  
+  <div data-expander data-expander-title="Groups" data-page-name="station" data-section="groups" data-start-open="true" class="groups-assign" ng-if="ctrl.sharedVM.device && ctrl.sharedVM.device.deviceType_name === 'FSII'">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div class="editable-label" translate>Group Membership&nbsp;:</div>
+        <div class="editable-entry">
+          <span class="sudo-editable-entry" ng-click="ctrl.showGroupsAssignment()">{{ctrl.getGroupsAssignment()}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander class="headset-details" data-expander-title="Headset" data-start-open="true" data-page-name="station" data-section="headset">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.headsetPort.port_settings.sidetoneGain != undefined">
+          <div class="editable-label" translate>Sidetone Gain&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.headsetPort.port_settings.sidetoneGain" e-ng-options="s.value as s.text for s in ctrl.sidetoneGains" buttons="no" onaftersave="ctrl.updateHeadsetSideToneGain()">{{ctrl.showHeadsetSidetoneGain(ctrl.headsetPort.port_settings.sidetoneGain)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-settings-element">
+        <div ng-show="ctrl.headsetPort.port_settings.headphoneLimit != undefined">
+          <div class="editable-label" translate>Headset Limit&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.headsetPort.port_settings.headphoneLimit" e-ng-options="s.value as s.text for s in ctrl.headphoneLimitValues" buttons="no" onaftersave="ctrl.updateHeadsetLimit()">{{ctrl.showHeadsetLimit(ctrl.headsetPort.port_settings.headphoneLimit)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-settings-element">
+        <div ng-show="ctrl.headsetPort.port_settings.sidetoneControl != undefined">
+          <div class="editable-label" translate>Sidetone Control&nbsp;:</div>
+          <div class="editable-entry">
+                        <span editable-select="ctrl.headsetPort.port_settings.sidetoneControl" e-ng-options="s.value as s.text for s in ctrl.sidetoneControlValues" buttons="no" onaftersave="ctrl.updateHeadsetSideToneCtrl()">{{ctrl.showHeadsetSidetoneCtrl(ctrl.headsetPort.port_settings.sidetoneControl)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-settings-element">
+        <div ng-show="ctrl.headsetPort.port_settings.headsetMicType != undefined">
+          <div class="editable-label" translate>Headset Mic Type&nbsp;:</div>
+          <div class="editable-entry">
+                        <span editable-select="ctrl.headsetPort.port_settings.headsetMicType" e-ng-options="s.value as s.text for s in ctrl.headsetMicTypeValues" buttons="no" onaftersave="ctrl.updateHeadsetMicType()">{{ctrl.showHeadsetMicType(ctrl.headsetPort.port_settings.headsetMicType)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander class="transceiver-ports-settings" data-expander-title="Transceiver Ports" data-start-open="true" data-page-name="station" data-section="antennaPorts">
+    <div class="role-settings-elements">
+      <div ng-click="ctrl.showFSIIAntennaCableLengths(ctrl.endpoints)" class="btn-link" style="text-align:right; cursor:pointer" translate>
+        Transceiver Sync Offset
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.sharedVM.device.device_settings.antennaPorts.antenna0 != undefined">
+          <div class="editable-label" translate>Ant 1&nbsp;:</div>
+          <div class="editable-entry">
+                        <span editable-select="ctrl.sharedVM.device.device_settings.antennaPorts.antenna0" e-ng-options="s.value as s.text for s in ctrl.antennaPortTypes" buttons="no" onaftersave="ctrl.updateAntennaPorts()">{{ctrl.showAntennaPortType(ctrl.sharedVM.device.device_settings.antennaPorts.antenna0)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-settings-element">
+        <div ng-show="ctrl.sharedVM.device.device_settings.antennaPorts.antenna1 != undefined">
+          <div class="editable-label" translate>Ant 2&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.sharedVM.device.device_settings.antennaPorts.antenna1" e-ng-options="s.value as s.text for s in ctrl.antennaPortTypes" buttons="no" onaftersave="ctrl.updateAntennaPorts()">{{ctrl.showAntennaPortType(ctrl.sharedVM.device.device_settings.antennaPorts.antenna1)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<ul id="devStationPageGuide" class="guide-hidden" data-tourtitle="CCM Station">
+  <li class="tlypageguide_left" data-tourtarget=".keyset-assign">
+    <p>Configure assignments and talk latch behavior on Keysets. Click a blue label to select a key. Click again to deselect.</p>
+  </li>
+  <li class="tlypageguide_left" data-tourtarget=".groups-assign">
+    <p>Assign the Base Station to groups so the station can hear announcements made to the group and reply back to the announcer.</p>
+  </li>
+  <li class="tlypageguide_left" data-tourtarget=".headset-details">
+    <p>Configure the headset settings for the the station.</p>
+    <ul>
+      <li>Sidetone Gain: Sets the sidetone gain in dB for the panel.</li>
+      <li>Headset Limit: Use this option to prevent the headset audio becoming too loud.</li>
+      <li>Sidetone Control
+        <ul>
+          <li>Tracking: The sidetone level will follow the MAIN volume.</li>
+          <li>Non-Tracking: The sidetone level will be fixed at the level specified by the sidetone gain.</li>
+          <li>Disabled: The sidetone will be permanently turned off.</li>
+        </ul>
+      </li>
+      <li>Headset Mic Type: The type of headset connected into the headset port on the Base Station. Selecting Automatic will detect the type autonomously.</li>
+    </ul>
+  </li>
+
+  <li class="tlypageguide_left" data-tourtarget=".transceiver-ports-settings">
+    <p>Switch between fiber and RJ45 (copper) connections. This is where you can adjust the sync offsets as well (ADVANCED).</p>
+  </li>
+</ul>

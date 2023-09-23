@@ -1,0 +1,60 @@
+
+<div class="conn-port" ng-if="$ctrl.participant.type !== 'SIP'" ng-class="$ctrl.getParticipantStatusClass()">
+  
+  <span class="conn-port-external" ng-class="{
+              'connected': $ctrl.participant.portLiveStatus.externalConnectionStatus !== undefined && $ctrl.participant.portLiveStatus.externalConnectionStatus === 'connected',
+              'not-connected': $ctrl.participant.portLiveStatus.externalConnectionStatus !== undefined && $ctrl.participant.portLiveStatus.externalConnectionStatus !== 'connected'
+              }"></span>
+  
+  <span>{{ $ctrl.getConnectionDisplayString($ctrl.participant) }}
+  </span>
+  
+  <img class="conn-port-vox-image" ng-if="$ctrl.participant.portLiveStatus.vox !== undefined && $ctrl.showVoxStatus" ng-src="{{ $ctrl.participant.portLiveStatus.vox.status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+</div>
+
+
+
+<div class="conn-port-surround" ng-if="$ctrl.participant.type === 'SIP'">
+  <div class="conn-port-sip-header" ng-class="$ctrl.getParticipantStatusClass()" ng-click="$ctrl.showSipDialOut()">
+    
+    <span class="conn-port-external" ng-class="{
+                'connected': $ctrl.participant.portLiveStatus.sipRegistrationStatusCode === 200,
+                'not-connected': $ctrl.participant.portLiveStatus.sipRegistrationStatusCode !== 200
+                }"></span>
+    
+    <span class="port-label">{{ $ctrl.getConnectionDisplayString($ctrl.participant) }}</span>
+    
+    <span class="conn-port-sip-image">
+      <img src="/images/Accounts/SIP_2.svg">
+    </span>
+  </div>
+
+  
+  <div ng-repeat="call in $ctrl.participant.sipCalls | orderBy: 'id' track by call.id" class="conn-port-sip-call">
+    <div class="conn-sip-icon-surround">
+      <img ng-show="call.liveStatus.inProgress && call.liveStatus.sipCallStatusCode === 180" class="sip-icon" src="../images/SIP/Calling.svg">
+      <img ng-show="call.liveStatus.inProgress && call.liveStatus.sipCallStatusCode === 200" class="sip-icon" src="../images/SIP/MakeCall.svg">
+      <img ng-show="!call.liveStatus.inProgress" class="sip-icon" src="../images/SIP/HangUp.svg">
+    </div>
+    <div class="conn-sip-label-surround" ng-class="{ 'selectable': call.liveStatus.inProgress }">
+      <div uib-dropdown>
+        <div uib-dropdown-toggle is-open="status.isopen">
+          <span class="conn-sip-uri-label">{{$ctrl.getCallLabel(call)}}</span>
+          <img class="conn-port-vox-image" ng-src="{{ call.liveStatus.vox.status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}" ng-show="call.liveStatus.inProgress">
+        </div>
+        <ul class="dropdown-menu" uib-dropdown-menu role="menu" ng-show="call.liveStatus.inProgress">
+          <li ng-click="$ctrl.hangupSipCall(call)">
+
+            <a href="#" style="display:flex; align-items: center">
+              <span style="flex-grow:1">Hang Up
+                <span class="sip-hang-up-address-label">{{call.uri}}</span>
+              </span>
+              <div style="fill:red; height:18px; width:20px" ng-include="'/images/SIP/HangUp_Dark.svg'">
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+
+<div id="content">
+
+  
+  <div class="page-header-top"><span translate>
+    Wireless</span></div>
+
+  <div ng-controller="deviceCfgWirelessCtrl as ctrl">
+
+    <div style="margin-left:15px">
+      <div>
+        <div class="editable-label" translate>OTA Registration:</div>
+        <div class="editable-entry">
+          <button class="btn btn-default" style="padding: 2px 6px" ng-click="ctrl.startOTA(port)" translate>Enable</button>
+        </div>
+      </div>
+
+
+      <div>
+        <div class="editable-label">OTA PIN:</div>
+        <div class="editable-entry">
+          <span id="otaPin" editable-text="ctrl.sharedVM.device.device_settings.otaPin" e-minlength="4" e-maxlength="4" e-onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) ||  event.charCode==13 || event.charCode==0)" e-pattern="\d{4}" e-title="Enter 4 numeric characters only" onbeforesave="$data.length > 0" onaftersave="ctrl.updateOTAPIN()">{{ctrl.sharedVM.device.device_settings.otaPin || 'Enter OTA PIN for Device'}}</span>
+        </div>
+      </div>
+
+      
+      <div>
+        <div class="editable-label" translate>Administration PIN:</div>
+        <div class="editable-entry">
+          <span id="adminPin" editable-text="ctrl.sharedVM.device.device_settings.adminPin" e-minlength="4" e-maxlength="4" e-onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) ||  event.charCode==13 || event.charCode==0)" e-pattern="\d{4}" e-title="Enter 4 numeric characters only" onbeforesave="$data.length > 0" onaftersave="ctrl.updateAdminPIN()">{{ctrl.sharedVM.device.device_settings.adminPin || 'Enter Admin PIN for Device'}}</span>
+        </div>
+      </div>
+
+      <div ng-show="ctrl.goodResponse" class="alert alert-success alert-dismissible" role="alert" style="margin-top:35px; margin-left:15px">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <strong>
+          <translate>Success</translate>
+          !</strong>&nbsp;
+        {{ctrl.goodResponse}}
+      </div>
+
+      <div ng-show="ctrl.generalErrorTitle != ''" id="model" style="margin-top:35px; margin-left:15px">
+        <div class="alert alert-danger">
+          <a class="close" ng-click="ctrl.generalErrorTitle = ''">&times;</a>
+          {{ctrl.generalErrorTitle}}<br>{{ctrl.generalErrorInfo}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
