@@ -72,7 +72,7 @@
                         <span id="navConnections" style="color:#262626" translate>Assignments</span>
                       </a>
                     </li>
-                    <li ng-if="ctrl.showAccounts()" ng-class="{myactive: ctrl.navbarActive.navButton == 'Accounts'}" style="border-right: 1px solid #2D2D2D">
+                    <li ng-if="ctrl.showAccounts()" ng-class="{myactive: ctrl.navbarActive.navButton == 'Accounts'}" style="border-right: 1px solid #2D2D2D; display: none">
                       <a ng-href="{{ 'accounts' | routeSegmentUrl }}" style="height: 44px">
                         <img src="/images/Navigation/Accounts.svg" style="height:16px; margin-right:3px; margin-top:-3px">
                         <span id="navExternal" style="color:#262626; vertical-align: top; display: inline-block" translate>Accounts</span>
@@ -81,11 +81,11 @@
                   </ul>
                   <ul class="nav navbar-nav navbar-right hidden-xs" data-no-collapse="true" style="margin-right: 0px">
                     <li style="margin-right:0px">
-                      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='Nav'" id="navGuideToggle" ng-click="ctrl.openGuide('nav')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+                      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='Nav'" id="navGuideToggle" ng-click="ctrl.openGuide('nav')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px;display:none">
                       <img ng-if="!ctrl.root.guideEnabled" src="../images/logo-full.png" style="margin:7px;height:30px">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name !== 'HMS-4X' && ctrl.hostDevice.deviceType_name !== 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/LQSeries_Online_Manual/UserGuide/Content/Home.htm')">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'HMS-4X'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://clearcom.com/DownloadCenter/manuals/HelixNetv4.0/HelixNet_Partyline_User_Guide_399G229A.pdf')">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/FreeSpeakII_Online_Manual/UserGuide/Content/Home.htm')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name !== 'HMS-4X' && ctrl.hostDevice.deviceType_name !== 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/LQSeries_Online_Manual/UserGuide/Content/Home.htm')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'HMS-4X'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://clearcom.com/DownloadCenter/manuals/HelixNetv4.0/HelixNet_Partyline_User_Guide_399G229A.pdf')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/FreeSpeakII_Online_Manual/UserGuide/Content/Home.htm')">
                     </li>
                     <li style="margin-right:0px;height:30px">
                       <div style="height: 44px; border: solid 1px transparent; border-left-color: black"></div>
@@ -104,7 +104,7 @@
                     </li>
                     <li style="margin-right:-4px;padding:0px">
                       <div class="icon-button" id="toggleGuide" ng-click="ctrl.toggleGuide()">
-                        <img ng-class="{'navHelpNoResource': !ctrl.showResourceMeter(), 'navHelpResource': ctrl.showResourceMeter()}" id="navHelp" ng-src="../images/help.png" style="margin-top:10px;margin-left:8px;height:24px">
+                        <img ng-class="{'navHelpNoResource': !ctrl.showResourceMeter(), 'navHelpResource': ctrl.showResourceMeter()}" id="navHelp" ng-src="../images/help.png" style="margin-top:10px;margin-left:8px;height:24px" src="../images/help.png" class="navHelpNoResource">
                       </div>
                     </li>
                     <li style="margin:0px;padding:0px;margin-right:4px;margin-left:4px">
@@ -174,6 +174,10 @@
             <hr>Select a specific section identified with <img src="images/guide.png" height="16"> for additional help
           </li>
         </ul>        
+
+
+
+        
       </ccmnavbar>
       <div><input type="file" id="upload" onchange="decode(this)" /></div>
       <div app-view-segment="0"></div>
