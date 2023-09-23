@@ -31,7 +31,9 @@
     </script>
 
     <div class="moonraker">
-      <ccmnavbar ng-include="views/navbar.html"></ccmnavbar>
+      <ccmnavbar>
+        <ng-include src="views/navbar.html"></ng-include>
+      </ccmnavbar>
       <div app-view-segment="0"></div>
     </div>
 
@@ -40,7 +42,7 @@
     <!--script src="scripts/scripts.082c856c.js"></script-->
 
     <script>
-      $(document).ready(function() { tl.pg.init({ /* optional preferences go here */ }); });
+      //$(document).ready(function() { tl.pg.init({ /* optional preferences go here */ }); });
     </script>
 
     <div id="default">
