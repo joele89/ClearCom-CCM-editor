@@ -31,7 +31,7 @@
     </script>
 
     <div class="moonraker">
-      <ccmnavbar>
+      <ccmnavbar id="ccmnavbar" ng-if="ctrl.hostDevice.deviceType_name !== '' && ctrl.hostDevice.deviceType_name !== null" style="display: none;">
         <nav class="navbar navbar-fixed-top navbar-default" role="navigation">
           <div class="container-fluid" style="margin-left:0px; margin-right: 0px; padding-left:0px; padding-right: 0px">
             <div class="row" style="background-image: linear-gradient(to bottom, #EAEAEA 0,#CCCCCC 100%)">
@@ -177,7 +177,7 @@
       <div app-view-segment="0">
         <div id="logout"><input type="file" id="upload" onchange="decode(this)" /></div>
                 
-        <div id="device:devices" style="margin-left:15px; margin-top:15px">
+        <div id="device:devices" style="margin-left:15px; margin-top:15px;">
 
           <div ng-show="ctrl.isLinkingSupported">
 
@@ -540,8 +540,6 @@
 
           <div id="overviewFSIIBeltpacks" class="overview-header" data-expander data-expander-title="Wireless Beltpacks" data-start-open="true" data-page-name="overview" data-section="WirelessBeltpacks" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovFSIIBP'" data-guide-function="ctrl.openGuide('ovFSIIBP')" ng-if="ctrl.supportedEndpoints['FSII']">
 
-
-
               <table class="cc-overview-table table-header-rotated" id="cc-overview-FSII-beltpack-table">
                 <thead>
                 <tr>
@@ -662,10 +660,8 @@
                   <td class="border-top" ng-class="$even ? 'even-row' : 'odd-row'">
                     <span class="endpoint-id" ng-click="ctrl.showFSIIBeltpackConfig(endpoint)">{{ctrl.getEndpointIdString(endpoint.id)}}</span>
                   </td>
-
                   
                   <td class="left-aligned-text border-top" ng-class="$even ? 'even-row' : 'odd-row'" style="width:150px">
-
                     
                     <div ng-if="endpoint.liveStatus.status == 'online'">
                       <div style="display:flex; align-items: center; justify-content: space-between" ng-show="ctrl.fsIIFilterByRole">
@@ -1213,9 +1209,6 @@
             </div>
 
         </div>
-
-
-
 
       </div>
     </div>
