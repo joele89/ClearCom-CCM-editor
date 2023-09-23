@@ -108,7 +108,7 @@
                       </div>
                     </li>
                     <li style="margin:0px;padding:0px;margin-right:4px;margin-left:4px">
-                      <div ng-if="ctrl.showResourceMeter()" class="device-resource-groove" style="height: 35px">
+                      <div ng-if="ctrl.showResourceMeter()" class="device-resource-groove" style="height: 35px; display:none">
                         <div class="device-resource-bar" ng-class="(ctrl.hostDevice.device_usage<70.0)?'device-resource-green':((ctrl.hostDevice.device_usage<85.0)?'device-resource-yellow':'device-resource-red')" ng-style="{'height': ctrl.hostDevice.device_usage+'%'}">
                         </div>
                       </div>
