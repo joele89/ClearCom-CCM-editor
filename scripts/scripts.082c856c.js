@@ -4030,7 +4030,7 @@ var ConnectionContainerCtrl = function() {
         }, a
     }();
 */
-
+/*
 angular.module("userControlsDirectives").component("ccConnectionParticipant", {
     bindings: {
         participant: "<",
@@ -4061,7 +4061,7 @@ angular.module("userControlsDirectives").component("ccConnectionParticipant", {
 }), angular.module("moonraker").controller("errorCtrl", ["$location", function(a) {
     console.log("error controler"), "/view/devices" != a.path() && (a.path("/view/devices"), window.location.reload(!0))
 }]);
-
+*/
 /*
 var CCUtils = function() {
     function a() {}
