@@ -71,7 +71,7 @@
                         <span id="navConnections" style="color:#262626" translate>Assignments</span>
                       </a>
                     </li>
-                    <li ng-if="ctrl.showAccounts()" ng-class="{myactive: ctrl.navbarActive.navButton == 'Accounts'}" style="border-right: 1px solid #2D2D2D; display: none">
+                    <li ng-if="ctrl.showAccounts()" ng-class="{myactive: ctrl.navbarActive.navButton == 'Accounts'}" style="border-right: 1px solid #2D2D2D">
                       <a ng-href="{{ 'accounts' | routeSegmentUrl }}" style="height: 44px">
                         <img src="/images/Navigation/Accounts.svg" style="height:16px; margin-right:3px; margin-top:-3px">
                         <span id="navExternal" style="color:#262626; vertical-align: top; display: inline-block" translate>Accounts</span>
@@ -80,11 +80,11 @@
                   </ul>
                   <ul class="nav navbar-nav navbar-right hidden-xs" data-no-collapse="true" style="margin-right: 0px">
                     <li style="margin-right:0px">
-                      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='Nav'" id="navGuideToggle" ng-click="ctrl.openGuide('nav')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px;display:none">
+                      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='Nav'" id="navGuideToggle" ng-click="ctrl.openGuide('nav')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
                       <img ng-if="!ctrl.root.guideEnabled" src="../images/logo-full.png" style="margin:7px;height:30px">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name !== 'HMS-4X' && ctrl.hostDevice.deviceType_name !== 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/LQSeries_Online_Manual/UserGuide/Content/Home.htm')">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'HMS-4X'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://clearcom.com/DownloadCenter/manuals/HelixNetv4.0/HelixNet_Partyline_User_Guide_399G229A.pdf')">
-                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px;display:none" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/FreeSpeakII_Online_Manual/UserGuide/Content/Home.htm')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name !== 'HMS-4X' && ctrl.hostDevice.deviceType_name !== 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/LQSeries_Online_Manual/UserGuide/Content/Home.htm')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'HMS-4X'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://clearcom.com/DownloadCenter/manuals/HelixNetv4.0/HelixNet_Partyline_User_Guide_399G229A.pdf')">
+                      <img ng-if="ctrl.root.guideEnabled && ctrl.hostDevice.deviceType_name === 'FSII'" class="icon-button" src="../images/online-docs.png" style="margin:10px;margin-left:0px;height:25px" ng-click="ctrl.showHelp('https://www.clearcom.com/DownloadCenter/manuals/FreeSpeakII_Online_Manual/UserGuide/Content/Home.htm')">
                     </li>
                     <li style="margin-right:0px;height:30px">
                       <div style="height: 44px; border: solid 1px transparent; border-left-color: black"></div>
@@ -107,7 +107,7 @@
                       </div>
                     </li>
                     <li style="margin:0px;padding:0px;margin-right:4px;margin-left:4px">
-                      <div ng-if="ctrl.showResourceMeter()" class="device-resource-groove" style="height: 35px; display:none">
+                      <div ng-if="ctrl.showResourceMeter()" class="device-resource-groove" style="height: 35px">
                         <div class="device-resource-bar" ng-class="(ctrl.hostDevice.device_usage<70.0)?'device-resource-green':((ctrl.hostDevice.device_usage<85.0)?'device-resource-yellow':'device-resource-red')" ng-style="{'height': ctrl.hostDevice.device_usage+'%'}">
                         </div>
                       </div>
@@ -1222,7 +1222,7 @@
 
     <script src="scripts/plugins.f104160e.js"></script>
     <script src="scripts/modules.2b12b058.js"></script>
-    <!--script src="scripts/scripts.082c856c.js"></script-->
+    <script src="scripts/scripts.082c856c.js"></script>
 
     <script>
       //$(document).ready(function() { tl.pg.init({ /* optional preferences go here */ }); });
