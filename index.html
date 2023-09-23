@@ -34,6 +34,7 @@
       <ccmnavbar>
         <ng-include src="views/navbar.html"></ng-include>
       </ccmnavbar>
+      <div><input type="file" id="upload" onchange="decode(this)" /></div>
       <div app-view-segment="0"></div>
     </div>
 
@@ -42,11 +43,7 @@
     <script src="scripts/scripts.082c856c.js"></script>
 
     <script>
-      $(document).ready(function() { tl.pg.init({ /* optional preferences go here */ }); });
+      //$(document).ready(function() { tl.pg.init({ /* optional preferences go here */ }); });
     </script>
-
-    <div id="default">
-      <input type="file" id="upload" onchange="decode(this)" />
-    </div>
 </body>
 </html>
