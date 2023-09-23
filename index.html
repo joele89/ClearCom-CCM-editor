@@ -173,14 +173,12 @@
         <div style="font-size: small">In this page you will generate and maintain accounts to external systems. Once accounts are generated, ports will be available to be assigned to Channels in the usual way in the <b>Assignments</b> page.</div>
             <hr>Select a specific section identified with <img src="images/guide.png" height="16"> for additional help
           </li>
-        </ul>        
-
-
-
-        
+        </ul>
       </ccmnavbar>
-      <div><input type="file" id="upload" onchange="decode(this)" /></div>
-      <div app-view-segment="0"></div>
+      <div app-view-segment="0">
+        <div id="logout"><input type="file" id="upload" onchange="decode(this)" /></div>
+        
+      </div>
     </div>
 
     <script src="scripts/plugins.f104160e.js"></script>
