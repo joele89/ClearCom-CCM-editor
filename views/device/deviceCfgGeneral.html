@@ -1,0 +1,912 @@
+<style>
+  .password {
+    width: 100px;
+  }
+
+  #activatableLicensesTable td {
+    height:50px;
+    padding:5px;
+  }
+</style>
+
+<div>
+  
+  <div class="page-header-top">
+    General
+    <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide==='devGeneral'" id="devGeneralGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+
+  </div>
+
+  <div id="deviceGeneral" style="margin-left:15px">
+
+    <div>
+      <div class="editable-label" translate>Name&nbsp;:</div>
+      <div class="editable-entry">
+        <span id="deviceLabel" editable-text="ctrl.sharedVM.device.device_label" e-required e-maxlength="{{ctrl.sharedVM.deviceCapability.labelLength}}" onbeforesave="$data.length > 0" onaftersave="ctrl.updateLabel()">{{ctrl.sharedVM.device.device_label || 'Enter Label for Device'}}</span>
+      </div>
+    </div>
+
+    <div ng-if="ctrl.hasLinkGroupRoleCapability(ctrl.sharedVM.device.deviceType_name)" class="with-inline-button">
+      <div class="editable-label">Selected Role&nbsp;:</div>
+      <div class="editable-entry">
+        <span class="sudo-editable-entry" ng-click="ctrl.changeRole()" translate>{{ctrl.getRoleLabel()}}</span>
+
+        <a style="margin-left: 10px" class="role-details" ng-show="ctrl.sharedVM.device.role && !ctrl.sharedVM.device.role.isDefault" ng-href="/view/roles?initialId={{ctrl.sharedVM.device.role.id}}" ng-click="ctrl.cancel();" translate>Details</a>
+      </div>
+    </div>
+
+    
+    <div>
+      <div class="editable-label" translate>Model&nbsp;:</div>
+      <div class="editable-entry">{{ctrl.sharedVM.device.deviceType_name == "FSII" ? 'FSII-base-II' : ctrl.sharedVM.device.deviceType_name}}</div>
+    </div>
+    
+    <div>
+      <div class="editable-label">
+        <span ng-if="ctrl.sharedVM.device.hxIIBPversionSW">{{ ctrl.sharedVM.device.deviceType_name }} </span><span translate>Version&nbsp;:</span>
+      </div>
+      <div class="editable-entry">
+        <span>{{ctrl.sharedVM.device.versionSW || 'No Version Information Found'}} hw: {{ctrl.sharedVM.device.versionHW || 'No Information Found'}}</span>
+        <span ng-show="ctrl.sharedVM.hostHasBadVersion && ctrl.sharedVM.device.isHost" style="color:#FC0000"><br>The version of this device is incompatible with that of the Link-Master.</span>
+      </div>
+    </div>
+
+    
+    <div ng-if="ctrl.sharedVM.device.hxIIBPversionSW">
+      <div class="editable-label" translate>HXII-BP Version&nbsp;:</div>
+      <div ng-style="(ctrl.showUpgrade || ctrl.upgradeComplete) && {'border':'1px solid #2D2D2D', 'color':'#ffffff'} || {'color':'#f7f7f7'}" class="editable-entry">
+        <span>{{ctrl.sharedVM.device.hxIIBPversionSW || 'No Version Information Found'}}</span>
+      </div>
+    </div>
+
+    <div ng-show="(ctrl.sharedVM.device.hxIIBPversionSW && (ctrl.sharedVM.device.hxIIBPversionSW !== 'none') && (ctrl.sharedVM.device.versionSW !== ctrl.sharedVM.device.hxIIBPversionSW))" class="devices-warning">
+      <img ng-src="../../images/warning.png" style="vertical-align: initial">
+      <div style="max-width: 90%">
+        Version mismatch detected between HMS-4X and HXII-BP. Please upgrade either version to resolve the mismatch.
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="ctrl.goodResponse != ''" role="alert" style="margin-top:35px; margin-left:-5px; margin-right: 10px">
+    <div class="alert alert-success alert-dismissible">
+      <a class="close" ng-click="ctrl.goodResponse = ''">&times;</a>
+      <strong>
+        <translate>Success!</translate>
+      </strong>
+      &nbsp;{{ ctrl.goodResponse }}
+    </div>
+  </div>
+
+  
+  <div ng-show="ctrl.generalErrorTitle != ''" id="model" style="margin-top:35px; margin-left:-5px; margin-right: -10px">
+    <div class="alert alert-danger">
+      <a class="close" ng-click="ctrl.generalErrorTitle = ''">&times;</a>
+      {{ ctrl.generalErrorTitle }}<br>{{ ctrl.generalErrorInfo }}
+    </div>
+  </div>
+
+  <div style="margin-bottom:25px"></div>
+
+  
+
+  <div>
+    
+    <div data-expander data-expander-title="Wireless" data-start-open="{{!ctrl.changePassword}}" data-page-name="general" data-section="wireless" id="deviceWireless" ng-if="ctrl.sharedVM.deviceCapability.type === 'FSII'">
+
+        <div class="role-settings-elements">
+          
+          <div>
+            <div class="editable-label" translate>OTA Registration:</div>
+            <div class="editable-entry">
+              <button class="btn btn-default" style="padding: 2px 6px" ng-click="ctrl.startOTA(port)" translate>Enable</button>
+            </div>
+        </div>
+
+        
+        <div>
+          <div class="editable-label">OTA System Id:</div>
+          <div class="editable-entry">
+              <span id="wirelessId" editable-text="ctrl.sharedVM.device.device_settings.wirelessId" e-minlength="3" e-maxlength="3" e-onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) || ((event.charCode >= 65 && event.charCode <= 70) || ((event.charCode >= 97 && event.charCode <= 102) ||  event.charCode==13 || event.charCode==0)" e-pattern="[0-9a-fA-F]+" e-title="Enter 3 hexadecimal characters only" onbeforesave="ctrl.validateWirelessSystemId($data)" onaftersave="ctrl.updateWirelessSystemId()">{{ctrl.sharedVM.device.device_settings.wirelessId }}</span>
+          </div>
+        </div>
+
+        
+        <div>
+          <div class="editable-label">OTA PIN:</div>
+          <div class="editable-entry">
+              <span id="otaPin" editable-text="ctrl.sharedVM.device.device_settings.otaPin" e-minlength="4" e-maxlength="4" e-onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) ||  event.charCode==13 || event.charCode==0)" e-pattern="\d{4}" e-title="Enter 4 numeric characters only" onbeforesave="$data.length > 0" onaftersave="ctrl.updateOTAPIN()">{{ctrl.sharedVM.device.device_settings.otaPin || 'Enter OTA PIN for Device'}}</span>
+          </div>
+        </div>
+
+        
+        <div>
+          <div class="editable-label" translate>Administration PIN:</div>
+          <div class="editable-entry">
+              <span id="adminPin" editable-text="ctrl.sharedVM.device.device_settings.adminPin" e-minlength="4" e-maxlength="4" e-onkeypress="return ((event.charCode >= 48 && event.charCode <= 57) ||  event.charCode==13 || event.charCode==0)" e-pattern="\d{4}" e-title="Enter 4 numeric characters only" onbeforesave="$data.length > 0" onaftersave="ctrl.updateAdminPIN()">{{ctrl.sharedVM.device.device_settings.adminPin || 'Enter Admin PIN for Device'}}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.sharedVM.device.device_settings.aaBatteryType != undefined">
+          <div class="editable-label" translate>AA Battery Type:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.sharedVM.device.device_settings.aaBatteryType" e-ng-options="s.value as s.text for s in ctrl.aaBatteryTypeFSIIValues" buttons="no" onaftersave="ctrl.updateBatteryType()">{{ctrl.getDisplayTextFromValue(ctrl.sharedVM.device.device_settings.aaBatteryType, ctrl.aaBatteryTypeFSIIValues)}}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.sharedVM.device.device_settings.dspPlcState != undefined">
+          <div class="editable-label" translate>Audio RF Filter:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.sharedVM.device.device_settings.dspPlcState" e-ng-options="s.value as s.text for s in ctrl.dspPlcStateValues" buttons="no" onaftersave="ctrl.updateDspPlcState()">{{ctrl.getDisplayTextFromValue(ctrl.sharedVM.device.device_settings.dspPlcState, ctrl.dspPlcStateValues)}}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.sharedVM.device.device_settings.roleSorting != undefined">
+          <div class="editable-label" translate>Role sorting:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.sharedVM.device.device_settings.roleSorting" e-ng-options="s.value as s.text for s in ctrl.roleSortingFSIIValues" buttons="no" onaftersave="ctrl.updateRoleSorting()">{{ctrl.getDisplayTextFromValue(ctrl.sharedVM.device.device_settings.roleSorting, ctrl.roleSortingFSIIValues)}}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+
+    
+    <div data-expander data-expander-title="GPIO" data-start-open="{{!ctrl.changePassword}}" data-page-name="general" data-section="gpio" id="deviceGPIO" ng-if="ctrl.sharedVM.deviceCapability.type === 'FSII'">
+          <div class="role-settings-elements">
+            <div style="display: flex">
+              <div id="GPIO-surround">
+                <label>GPI</label>
+                <div class="gpio-line" ng-repeat="gpi in ctrl.gpios.gpis">
+                  <div class="gpio-small-name">{{ gpi.id + 1}}</div>
+                  <div class="gpio-entry" ng-click="ctrl.SelectGPIO(gpi, false)" ng-class="{'gpio-selected': ctrl.GPIOIsSelected(gpi.id, false)}">
+                    <div>
+                      <span>{{ gpi.label }}</span>
+                      <img class="gpi-status-icon" ng-src="{{ gpi.liveStatus.status ? '/images/vox-inactive.png' : '/images/vox-active.png' }}">
+                    </div>
+                  </div>
+                </div>
+                <hr style="border-color: #555555">
+                <label>GPO</label>
+                <div class="gpio-line" ng-repeat="gpo in ctrl.gpios.gpos">
+                  <div class="gpio-small-name">{{ gpo.id + 1}}</div>
+                  <div class="gpio-entry" ng-click="ctrl.SelectGPIO(gpo, true)" ng-class="{'gpio-selected': ctrl.GPIOIsSelected(gpo.id, true)}">
+                    <div>
+                      <span>{{ gpo.label }}</span>
+
+                      <img class="gpo-status-icon" ng-src="{{ gpo.liveStatus.status ? '/images/closed_gpio.png' : '/images/opened_gpio.png' }}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="GPIO-form-surround">
+                <div>
+                  <div class="editable-label-with-apply" translate>
+                    Label :
+                  </div>
+                  <div class="editable-entry-with-apply">
+                      <span editable-text="ctrl.selectedGPIO.label" e-maxlength="10" onbeforesave="$data.length > 0" onaftersave="ctrl.updateGPIOLabel()">{{ ctrl.selectedGPIO.label }}</span>
+                  </div>
+                </div>
+                <div ng-if="ctrl.selectedGPIO.isGPO">
+                  <div class="editable-label-with-apply" translate>
+                    Triggering Events :
+                  </div>
+                  <div class="command editable-entry-with-apply">
+                    <table>
+                      <tr>
+                        <th style="width:50px"></th>
+                        <th style="width:85px">Key Target</th>
+                        <th style="width:85px">On Behavior</th>
+                        <th></th>
+                      </tr>
+                      <tr ng-repeat="event in ctrl.selectedGPIO.events">
+                        <td style="width:50px">
+                          <button type="button" class="btn btn-gray btn-sm" ng-click="ctrl.removeGPOEvent(event)">
+                          <span class="glyphicon glyphicon-minus"></span>
+                          </button>
+                        </td>
+                        <td style="width:85px">
+                          <span class="sudo-editable-entry" ng-click="ctrl.changeGPOEntity(event, true, true)" translate>{{ctrl.getEntityNameFromEntityRes(event.res)}}</span>
+                        </td>
+                        <td style="width:85px">
+                          <span editable-select="event.action" e-ng-options="s.value as s.text for s in ctrl.filterGPIOTriggerValues(event)" onaftersave="ctrl.updateGPOAction(event)" buttons="no">{{ctrl.getDisplayTextFromValue(event.action, ctrl.gpioTriggerValues)}}
+                          </span>
+                        </td>
+                        <td> </td>
+                      </tr>
+                      <tr ng-show="ctrl.pendingGPIOEvent" style="margin-left:35px">
+                        <td></td>
+                        <td><span class="sudo-editable-entry" ng-click="ctrl.changeGPOEntity(ctrl.pendingGPIOEvent, false, true)" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingGPIOEvent.res)}}</span></td>
+                        <td><span editable-select="ctrl.pendingGPIOEvent.targetAction" e-ng-options="s.value as s.text for s in ctrl.gpioTriggerValues" buttons="no">{{ctrl.getDisplayTextFromValue(ctrl.pendingGPIOEvent.targetAction, ctrl.gpioTriggerValues)}}</span></td>
+                        <td><span>
+                        <button type="submit" ng-click="ctrl.saveGPOEventAdd()" class="btn btn-primary btn-sm" uib-popover="" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                          <span class="glyphicon glyphicon-ok"></span>
+                          </button>
+                        <button type="button" ng-click="ctrl.cancelGPIOEventAdd()" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                      </span></td>
+                      </tr>
+                      <tr ng-hide="ctrl.pendingGPIOEvent || ctrl.selectedGPIO.events.length >= 10">
+
+                        <td colspan="4">
+                        <div>
+                          <button type="button" class="btn btn-success btn-sm" ng-click="ctrl.newGPIOEvent()">
+                            <span class="glyphicon glyphicon-plus"></span>
+                          </button>
+                        </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+                <div ng-if="!ctrl.selectedGPIO.isGPO">
+                  <div class="editable-label-with-apply" translate>
+                    Events :
+                  </div>
+                  <div class="command editable-entry-with-apply">
+                    <table>
+                      <tr>
+                        <th style="width:50px"></th>
+                        <th style="width:85px">Source</th>
+                        <th style="width:85px">Destination</th>
+                        <th></th>
+                      </tr>
+                      <tr ng-repeat="event in ctrl.selectedGPIO.events">
+                        <td style="width:50px">
+                          <button type="button" class="btn btn-gray btn-sm" ng-click="ctrl.removeGPIEvent(event)">
+                            <span class="glyphicon glyphicon-minus"></span>
+                          </button>
+                        </td>
+                        <td style="width:85px">
+                          <span class="sudo-editable-entry" ng-click="ctrl.changeGPIEntity(event, 'source', true)" translate>{{ctrl.getEntityNameFromEntityRes(event.source)}}</span>
+                        </td>
+                        <td style="width:85px">
+                          <span class="sudo-editable-entry" ng-click="ctrl.changeGPIEntity(event, 'destination', true)" translate>{{ctrl.getEntityNameFromEntityRes(event.destination)}}</span>
+                        </td>
+                        <td></td>
+                      </tr>
+                      <tr ng-show="ctrl.pendingGPIOEvent" style="margin-left:35px">
+                        <td></td>
+                        <td>
+                          <span class="sudo-editable-entry" ng-click="ctrl.changeGPIEntity(ctrl.pendingGPIOEvent, 'source', false)" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingGPIOEvent.source)}}</span>
+                        </td>
+                        <td>
+                          <span class="sudo-editable-entry" ng-click="ctrl.changeGPIEntity(ctrl.pendingGPIOEvent, 'destination', false)" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingGPIOEvent.destination)}}</span>
+                        </td>
+                        <td><span>
+                        <button type="submit" ng-click="ctrl.saveGPIEventAdd()" class="btn btn-primary btn-sm" uib-popover="" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                          <span class="glyphicon glyphicon-ok"></span>
+                          </button>
+                        <button type="button" ng-click="ctrl.cancelGPIOEventAdd()" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                      </span></td>
+                      </tr>
+                      <tr ng-hide="ctrl.pendingGPIOEvent || ctrl.selectedGPIO.events.length >= 10">
+                        <td colspan="4">
+                          <div>
+                            <button type="button" class="btn btn-success btn-sm" ng-click="ctrl.newGPIOEvent()">
+                              <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+     </div>
+    </div>
+    
+
+    
+    <div data-expander data-expander-title="Control Events" data-start-open="{{!ctrl.changePassword}}" data-page-name="general" data-section="networkevents" id="deviceNetworkEvents" ng-if="ctrl.sharedVM.deviceCapability.type === 'FSII'">
+         <div class="role-settings-elements">
+          <div id="network-events-surround">
+            <table style="width:100%">
+              <thead>
+                <tr>
+                  <th style="width:35px"></th>
+                  <th style="width:100px">Source</th>
+                  <th style="width:100px">Destination</th>
+                  <th style="width:100px">Action Type</th>
+                  <th>Action Details</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="ev in ctrl.sharedVM.device.device_settings.events">
+                  <td>
+                    <button type="button" class="btn btn-gray btn-sm" ng-click="ctrl.removeNetworkEvent(ev.id)">
+                      <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                  </td>
+                  <td><span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventEntity(ev, 'source', true)" translate>{{ctrl.getEntityNameFromEntityRes(ev.sourceRes)}}</span></td>
+                  <td><span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventEntity(ev, 'destination', true)" translate>{{ctrl.getEntityNameFromEntityRes(ev.destinationRes)}}</span></td>
+                  <td>
+                    <span editable-select="ev.action.type" e-ng-options="s.value as s.text for s in ctrl.networkEventActionTypes" onaftersave="ctrl.updateNetworkEventActionType(ev)" buttons="no">{{ctrl.getDisplayTextFromValue(ev.action.type, ctrl.networkEventActionTypes)}}
+                      </span>
+                  </td>
+                  <td>
+                    <div ng-if="ev.action.type == 'call'">{{ctrl.getEntityNameFromEntityRes(ev.destinationRes)}} receives call</div>
+                    <div ng-if="ev.action.type == 'gpo'">
+                      <span editable-select="ev.action.details.gpoId" e-ng-options="s.id as s.label for s in ctrl.sharedVM.device.device_settings.gpos" onaftersave="ctrl.updateNetworkEventActionGPO(ev)" buttons="no">{{ctrl.getDisplayTextFromValue(ev.action.details.gpoId, ctrl.sharedVM.device.device_settings.gpos, 'label', 'id')}}
+                      </span>
+                    </div>
+                    <div ng-if="ev.action.type == 'xpt'">
+                      <span>Source: <span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventCrosspoint(ev, 'source', true)" translate>{{ctrl.getEntityNameFromEntityRes(ev.action.details.sourceRes)}}</span></span>
+                      <span style="padding-left: 10px">Destination: <span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventCrosspoint(ev, 'destination', true)" translate>{{ctrl.getEntityNameFromEntityRes(ev.action.details.destinationRes)}}</span></span>
+                    </div></td>
+                  <td></td>
+                </tr>
+                <tr ng-show="ctrl.pendingNetworkEvent" style="margin-left:35px">
+                  <td></td>
+                  <td><span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventEntity(ctrl.pendingNetworkEvent, 'source', false)" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingNetworkEvent.sourceRes)}}</span></td>
+                  <td><span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventEntity(ctrl.pendingNetworkEvent, 'destination', false)" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingNetworkEvent.destinationRes)}}</span></td>
+                  <td>
+                    <span editable-select="ctrl.pendingNetworkEvent.action.type" e-ng-options="s.value as s.text for s in ctrl.networkEventActionTypes" buttons="no">{{ctrl.getDisplayTextFromValue(ctrl.pendingNetworkEvent.action.type, ctrl.networkEventActionTypes)}}
+                      </span>
+                  </td>
+                  <td style="width:auto">
+                    <div ng-if="ctrl.pendingNetworkEvent.action.type == 'call'"></div>
+                    <div ng-if="ctrl.pendingNetworkEvent.action.type == 'gpo'">
+                       <span editable-select="ctrl.pendingNetworkEvent.action.details.gpoId" e-ng-options="s.id as s.label for s in ctrl.sharedVM.device.device_settings.gpos" buttons="no">{{ctrl.getDisplayTextFromValue(ctrl.pendingNetworkEvent.action.details.gpoId, ctrl.sharedVM.device.device_settings.gpos, 'label', 'id')}}
+                      </span>
+                    </div>
+                    <div ng-if="ctrl.pendingNetworkEvent.action.type == 'xpt'">
+                        <span>Source: <span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventCrosspoint(ctrl.pendingNetworkEvent, 'source')" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingNetworkEvent.action.details.sourceRes)}}</span></span>
+                        <span style="padding-left: 10px">Destination: <span class="sudo-editable-entry" ng-click="ctrl.changeNetworkEventCrosspoint(ctrl.pendingNetworkEvent, 'destination')" translate>{{ctrl.getEntityNameFromEntityRes(ctrl.pendingNetworkEvent.action.details.destinationRes)}}</span></span>
+                    </div>
+                  </td>
+                  <td style="width:80px">
+                    <span>
+                      <button type="submit" ng-click="ctrl.saveNetworkEventAdd()" class="btn btn-primary btn-sm" uib-popover="" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                          <span class="glyphicon glyphicon-ok"></span>
+                      </button>
+                      <button type="button" ng-click="ctrl.cancelNetworkEventAdd()" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-remove"></span>
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+                <tr ng-hide="ctrl.pendingNetworkEvent">
+                  <td>
+                    <button type="button" class="btn btn-success btn-sm" ng-click="ctrl.newNetworkEvent()">
+                      <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                  </td>
+                  <td colspan="5"> </td>
+                </tr>
+              </tbody>
+              </table>
+          </div>
+      </div>
+    </div>
+    
+
+    
+    <div id="devicePassword" data-expander data-expander-title="Change Password" data-page-name="general" data-section="changePassword" data-start-open="{{ctrl.changePassword}}" ng-show="ctrl.sharedVM.device.isHost">
+
+      <div class="role-settings-elements">
+        <div ng-show="ctrl.changePassword" class="alert alert-warning" role="alert">
+          <button type="button" class="close" ng-click="ctrl.changePassword = false"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <translate>The default password is in use. It is strongly recommended to change this password.</translate> 
+        </div>
+        <form name="changePassword">
+          
+          <button ng-show="ctrl.changePasswordSettings.oldPassword || ctrl.changePasswordSettings.newPassword || ctrl.changePasswordSettings.confirmPassword" ng-disabled="ctrl.changePasswordSettings.newPassword != ctrl.changePasswordSettings.confirmPassword || ctrl.changePasswordSettings.newPassword.length == 0" class="btn btn-success btn-sm btn-apply" style="float:right" ng-click="ctrl.applyPassword();">
+            <span translate>Apply</span>
+          </button>
+          
+          <button ng-show="ctrl.changePasswordSettings.oldPassword || ctrl.changePasswordSettings.newPassword || ctrl.changePasswordSettings.confirmPassword" class="btn btn-danger btn-sm btn-cancel" style="float:right; margin-right:10px" ng-click="ctrl.cancelPassword();">
+            <span translate>Cancel</span>
+          </button>
+          
+          <div>
+            <div class="editable-label-with-apply" translate>
+              Old password :
+            </div>
+            <div class="editable-entry-with-apply password-entry">
+              <input id="oldPassword" type="password" ng-model="ctrl.changePasswordSettings.oldPassword" placeholder="{{ 'Enter old password' | translate }}" maxlength="16">
+            </div>
+          </div>
+          
+          <div style="margin-top:15px">
+            <div class="editable-label-with-apply" translate>
+              New password :
+            </div>
+            <div class="editable-entry-with-apply password-entry">
+              <input id="newPassword" type="password" ng-model="ctrl.changePasswordSettings.newPassword" placeholder="{{ 'Enter new password' | translate }}" maxlength="16">
+            </div>
+          </div>
+          
+          <div style="margin-top:15px">
+            <div class="editable-label-with-apply" translate>
+              Confirm password :
+            </div>
+            <div class="editable-entry-with-apply password-entry">
+              <input id="confirmPassword" type="password" ng-model="ctrl.changePasswordSettings.confirmPassword" placeholder="{{ 'Confirm new password' | translate }}" maxlength="16">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+    
+    <div data-expander data-expander-title="Save / Restore System Settings" data-page-name="general" data-section="saveRestore" ng-if="ctrl.sharedVM.deviceCapability.saveRestore" id="deviceSaveRestore">
+
+      <div class="role-settings-elements">
+        <div class="role-settings-element">
+          <div style="text-align: center; margin-right:25%">
+            
+              <button type="submit" class="btn btn-green" translate ng-disabled="ctrl.backupInProgress" ng-click="ctrl.backupTimer()">
+                <span class="glyphicon glyphicon-export" style="margin-right:3px"></span>
+                Save
+              </button>
+
+            
+            <button type="button" class="btn btn-red" style="margin-left:5px" onclick="$('#backup-file-select').click()" ng-disabled="ctrl.restoreDisabled" translate>
+              <span class="glyphicon glyphicon-import" style="margin-right:3px" ng-show="!ctrl.restoreDisabled"></span>
+              {{ ctrl.restoreCaption }}
+            </button>
+            
+            <input id="backup-file-select" name="file" nv-file-select="" uploader="ctrl.backupUploader" type="file" accept=".cca" style="display: none">
+          </div>
+        </div>
+        
+        <div ng-show="ctrl.restoreMessage != ''" class="alert" ng-class="{ 'alert-success': ctrl.restoreSuccess, 'alert-danger': !ctrl.restoreSuccess }" role="alert">
+          <button type="button" class="close" ng-click="ctrl.restoreMessage = ''">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <strong ng-hide="ctrl.restoreSuccess">
+            <translate>Error!</translate>
+          </strong>
+          &nbsp;{{ ctrl.restoreMessage }}
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div id="deviceLicense" data-expander data-expander-title="License" ng-if="ctrl.sharedVM.deviceCapability.licensing" data-page-name="general" data-section="license" ng-class="{'license-helixnet': ctrl.sharedVM.deviceCapability.type.indexOf('LQ') == -1, 'license-lq': ctrl.sharedVM.deviceCapability.type.indexOf('LQ') != -1}">
+
+      <div class="role-settings-elements" ng-if="ctrl.sharedVM.deviceCapability.type.indexOf('LQ') === -1">
+        <div class="role-settings-element">
+          <div class="editable-label" translate>System ID&nbsp;:</div>
+          <div class="read-only-entry">{{ctrl.sharedVM.device.systemId}}</div>
+        </div>
+        <div class="role-settings-element">
+          <div class="editable-label" translate>License Code&nbsp;:</div>
+          <div class="editable-entry">
+            <span id="devicePasscode" editable-text="ctrl.sharedVM.device.licensePasscode" e-maxlength="16" onaftersave="ctrl.updateLicensePasscode()">{{ctrl.sharedVM.device.licensePasscode || 'Enter License Code'}}</span>
+          </div>
+        </div>
+        <div class="role-settings-element" ng-show="ctrl.sharedVM.device.licensedFeatures && ctrl.sharedVM.device.licensedFeatures.length > 0">
+          <div class="editable-label">Features&nbsp;:</div>
+          <div class="read-only-entry">{{ctrl.getLicensedFeatures()}}</div>
+        </div>
+        <div ng-show="ctrl.licenseError" class="role-settings-element alert alert-danger" role="alert">
+          <button type="button" class="close" ng-click="ctrl.licenseError = null"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <strong><translate>Error!</translate></strong>&nbsp;{{ctrl.licenseError}}
+        </div>
+      </div>
+
+      
+      <div style="color:#ccc" ng-if="ctrl.sharedVM.deviceCapability.type.indexOf('LQ') !== -1" ng-controller="deviceCfgLicenseCtrl as licCtrl">
+        <div>
+          
+          <div class="role-settings-element">
+            <div class="editable-label">Features&nbsp;:</div>
+            <div class="read-only-entry">
+              <div ng-repeat="feature in licCtrl.baseFeatures | orderBy: licCtrl.featureOrdering()">
+                  <span>{{ licCtrl.printFeatureText(feature) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="role-settings-elements">
+          
+          <div ng-show="(licCtrl.errorResponse !== '')" class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" ng-click="licCtrl.errorResponse = ''">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+            <strong>
+              <translate>Error</translate>:
+            </strong>
+            &nbsp;{{ licCtrl.errorResponse }}
+          </div>
+
+          
+          <div ng-show="licCtrl.goodResponse != ''" class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" ng-click="licCtrl.goodResponse = ''">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+            <strong>
+              <translate>Success!</translate>
+            </strong>
+            &nbsp;{{ licCtrl.goodResponse }}
+          </div>
+
+          <div>
+            <div class="btn-group" style="float:right" ng-hide="licCtrl.isLicensingOpen()">
+              <button type="button" class="btn btn-green" ng-click="licCtrl.showAddOnlineLicense()" style="margin-right: 5px">Add licenses online</button>
+              <button type="button" class="btn btn-green" ng-click="licCtrl.showAddOfflineLicense()">Add licenses offline</button>
+            </div>
+          </div>
+          <div style="clear:right"></div>
+          <div ng-show="licCtrl.addNewOnlineLicenseVisible">
+            <div class="collapsable-section-header-sub" style="cursor: default; margin-top: 15px">Online activation</div>
+            <div class="horizontal-divider"></div>
+            <div>
+              <div class="editable-label">
+                <span translate>Ticket</span>
+                :
+              </div>
+              <div class="editable-entry" ng-class="invalidExternalIpMessage ? 'input-invalid' : ''" style="max-width: 100%">
+                <span editable-text="licCtrl.ticketId" e-style="width:250px;" onshow="licCtrl.setEditing('ticket', true)" onhide="licCtrl.setEditing('ticket', false)" e-placeholder="{{ 'Enter Ticket ID' | translate }}" onaftersave="licCtrl.validateTicket()">{{ licCtrl.ticketId || "Enter Ticket ID" }}</span>
+              </div>
+            </div>
+            <div>
+              <div style="margin-top:10px" ng-show="licCtrl.activatableLicenses.length > 0">
+                <div style="border-bottom: 1px solid white; display:inline">Select additional capabilities to enable on this device:</div>
+                <table id="activatableLicensesTable">
+                  <tr ng-repeat="license in licCtrl.activatableLicenses track by $index">
+                    <td>
+                        <span style="color:red" ng-if="!licCtrl.isLicenseSelectable(license)">*</span>
+                        <input type="checkbox" ng-disabled="!licCtrl.isLicenseSelectable(license)" ng-model="licCtrl.licensesForActivation[license.name].selected">
+                    </td>
+                    <td>
+                      <span style="font-style: italic">{{ licCtrl.licenseTypeToFriendlyName(license.name) }}</span>
+                    </td>
+                    <td>
+                        <h-number value="licCtrl.licensesForActivation[license.name].qty" ng-show="licCtrl.licensesForActivation[license.name].selected" min="0" max="{{ licCtrl.getMaximum(license)}}" step="1"></h-number>
+                    </td>
+                    <td>
+                      <span ng-show="licCtrl.licensesForActivation[license.name].selected" style="font-style: italic">Available: {{ licCtrl.licensesForActivation[license.name].available - licCtrl.licensesForActivation[license.name].qty }}</span>
+                    </td>
+                    <td>
+                      <span ng-show="licCtrl.licensesForActivation[license.name].selected" style="font-style: italic">Licensed: {{ licCtrl.licensesForActivation[license.name].licensed + licCtrl.licensesForActivation[license.name].qty }} (max: {{ licCtrl.getMaximumForLicenseType(license) }})</span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div ng-show="!licCtrl.ticketHasActivations" style="margin-top:10px">
+                The current ticket has no more activations remaining.
+              </div>
+            </div>
+            <div ng-if="!licCtrl.isLicenseSelectable()">
+              <span style="color:red">*</span>
+              <span style="color:dimgray">A conflict between licenses is preventing you from activating licenses of this type.</span>
+              </div>
+            <div style="float:right; margin-top:20px">
+              <div style="display: inline-block; margin-right: 15px" ng-show="licCtrl.activatableLicenses.length > 0">
+                <span style="color:red">*WARNING*:</span> Ticket Activation is <u>permanent.</u><br>
+                Capabilities applied to this device cannot be undone.<br>
+                Please verify selection before clicking <strong>Activate*</strong>
+              </div>
+              <button class="btn btn-green" ng-disabled="licCtrl.activationInProgress || !licCtrl.hasLicenseSelected()" ng-click="licCtrl.updateActivationInformation()" translate ng-show="licCtrl.activatableLicenses.length > 0">
+                Activate
+              </button>
+              <button class="btn btn-red" ng-click="licCtrl.hideAddOnlineLicense()" translate>
+                Cancel
+              </button>
+            </div>
+            <div style="clear:right"></div>
+          </div>
+          <div ng-show="licCtrl.addNewOfflineLicenseVisible">
+            <div class="collapsable-section-header-sub" style="cursor: default; margin-top: 15px">Offline activation</div>
+            <div class="horizontal-divider"></div>
+            <div class="role-settings-elements">
+              
+              <div style="width:500px; height:50px; margin-left: 35px">
+                <div class="upgrade-circle" style="position: absolute">
+                  1
+                </div>
+                <div style="position: absolute; margin-left: 35px">
+                  <button class="btn btn-blue" style="display:inline" ng-click="licCtrl.downloadContextFile()" ng-disabled="licCtrl.contextFileDownloadInProgress" translate>
+                    <span class="glyphicon glyphicon-download" style="margin-right:2px"></span>
+                    Get Context File
+                  </button>
+                </div>
+              </div>
+              
+              <div style="width:500px; height:45px; margin-left: 35px">
+                <div class="upgrade-circle" style="position: absolute">
+                  2
+                </div>
+                <div style="position: absolute; margin-left: 35px">
+                  <form>
+                    <button type="submit" class="btn btn-green" ng-disabled="licCtrl.activationInProgress" onclick="$('#send-update-select').click()" translate>
+                      <span class="glyphicon glyphicon-upload" style="margin-right:2px"></span>
+                      Send Update File
+                    </button>
+                    <input id="send-update-select" name="file" nv-file-select="" uploader="licCtrl.contextUploader" type="file" style="display: none">
+                  </form>
+                </div>
+                <span style="position: absolute; margin-left: 150px; margin-top:7px">{{ devUpgradeCtrl.upgrade.version }}</span>
+              </div>
+              <button ng-click="licCtrl.hideAddOfflineLicense()" class="btn btn-red" style="float:right" translate>
+                Cancel
+              </button>
+              <div style="clear:right"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div id="deviceUprade" data-expander data-expander-title="Upgrade" data-page-name="general" data-section="upgrade" ng-if="!ctrl.clientInfoService.isMobile()" ng-show="ctrl.sharedVM.device.isHost">
+
+      <div class="role-settings-elements" style="margin-left:20%" ng-controller="deviceUpgradeCtrl as devUpgradeCtrl">
+        <form id="image_upload" style="margin-top:25px">
+          
+
+          
+          <div style="width:500px; height:50px; margin-left: 35px">
+            <div class="upgrade-circle" style="position: absolute">
+              1
+            </div>
+            <div style="position: absolute; margin-left: 35px">
+              <span ng-show="!devUpgradeCtrl.upload.progress">
+                <button type="button" class="btn btn-sm" ng-class="devUpgradeCtrl.disableUpload ? 'btn-default' : 'btn-primary'" onclick="$('#file-select').click()" style="width:100px" translate ng-disabled="devUpgradeCtrl.disableUpload">
+                  Select File
+                </button>
+              </span>
+
+              <div ng-show="devUpgradeCtrl.upload.progress" class="progress" style="width:100px; height:30px">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ devUpgradeCtrl.upload.progress }}" aria-valuemin="0" aria-valuemax="100" ng-style="{ width: (devUpgradeCtrl.upload.progress + '%'), transition:'none' }">
+                </div>
+              </div>
+            </div>
+            <div style="position: absolute; margin-left: 50px; margin-top:7px;color:#000000; background: transparent; font-size:12px">
+              {{ devUpgradeCtrl.upload.result }}
+            </div>
+            <div ng-show="(devUpgradeCtrl.upload.file.name != '')" style="position: absolute; margin-left: 150px; margin-top:7px">
+              {{ devUpgradeCtrl.upload.file.name }} ({{ (devUpgradeCtrl.upload.file.size/1000000).toFixed(2) }} MB)
+            </div>
+          </div>
+          
+          <input id="file-select" name="file" nv-file-select="" uploader="devUpgradeCtrl.uploader" type="file" ng-attr-accept="{{ devUpgradeCtrl.fileExtensionsFilter }}" style="display: none">
+        </form>
+
+        
+        <div style="width:500px; height:45px; margin-left: 35px">
+          <div class="upgrade-circle" style="position: absolute">
+            2
+          </div>
+          <div style="position: absolute; margin-left: 35px">
+              <span ng-show="!devUpgradeCtrl.upgrade.status">
+                <button type="button" class="btn btn-sm" ng-class="devUpgradeCtrl.disableUpgrade ? 'btn-default' : 'btn-primary'" ng-click="devUpgradeCtrl.startUpgrade()" ng-disabled="devUpgradeCtrl.disableUpgrade" style="width:100px" translate>
+                  Upgrade
+                </button>
+              </span>
+
+            <div ng-show="devUpgradeCtrl.upgrade.status" class="progress" style="width:100px; height:30px">
+              <div class="progress-bar" role="progressbar" aria-valuenow="{{ devUpgradeCtrl.upgrade.progress }}" aria-valuemin="0" aria-valuemax="100" style="text-align: center" ng-style="{width: (devUpgradeCtrl.upgrade.progress + '%'), transition:'none' }">
+              </div>
+            </div>
+            
+            <div style="width: 100px; height: 30px; margin-top: -50px; position: absolute; text-align: center">
+                <span id="devUpgradeCtrl.upgrade_status" ng-show="devUpgradeCtrl.upgrade.status" style="position: absolute; display: block; width: 100%; color:#000000; font-size: 12px; margin-top:7px; z-index: 2">{{ devUpgradeCtrl.upgrade.status }}</span>
+            </div>
+          </div>
+          <span style="position: absolute; margin-left: 150px; margin-top:7px">{{ devUpgradeCtrl.upgrade.version }}</span>
+        </div>
+        <div ng-show="(devUpgradeCtrl.errorResponse != '')" class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" ng-click="devUpgradeCtrl.errorResponse = ''">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <strong>
+            <translate>Error</translate>:
+          </strong>
+          &nbsp;{{ devUpgradeCtrl.errorResponse }}
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div id="deviceMaintenance" data-expander data-expander-title="Maintenance" data-page-name="general" data-section="maintenance">
+
+        <div ng-show="ctrl.successSyncDateTime != ''" role="alert" style="margin-top:35px; margin-left:-5px; margin-right: 10px">
+            <div class="alert alert-success alert-dismissible">
+              <a class="close" ng-click="ctrl.successSyncDateTime = ''">&times;</a>
+              <strong>
+                <translate>Success!</translate>
+              </strong>
+              &nbsp;{{ ctrl.successSyncDateTime }}
+            </div>
+        </div>
+
+        <div ng-if="ctrl.sharedVM.device.device_isUsbLogging">
+         <div class="editable-label" translate>Logging to USB is in effect</div>
+        </div>
+
+        <div class="role-settings-elements" style="text-align: center; margin-right:15%">
+          <button type="button" class="btn-red" ng-click="ctrl.resetToDefault()" translate>
+            <span class="glyphicon glyphicon-arrow-left" style="margin-right:2px"></span>
+            Reset To Default
+          </button>
+
+          <button type="button" class="btn-yellow" style="margin-left:5px" ng-click="ctrl.reboot()" translate>
+            <span class="glyphicon glyphicon-repeat" style="margin-right:2px"></span>
+            REBOOT
+          </button>
+
+          <button ng-show="!ctrl.clientInfoService.isMobile() && ctrl.sharedVM.device.isHost" style="margin-left:5px" type="button" class="btn-blue" ng-click="ctrl.snapshot()" translate>
+            <span class="glyphicon glyphicon-camera" style="margin-right:2px"></span>
+            Support Info
+          </button>
+
+          <button type="button" class="btn-yellow" style="margin-left:5px" ng-click="ctrl.setDateTime()" translate>
+            <span class="glyphicon glyphicon-time" style="margin-right:2px"></span>
+            Sync Clock
+          </button>
+        </div>
+        <div ng-if="ctrl.snapshotStatus" style="color:#CCC; margin-top:15px">
+          {{ ctrl.snapshotStatus }}
+        </div>
+        <div ng-show="!ctrl.clientInfoService.isMobile() && ctrl.sharedVM.device.isHost && ctrl.snapshotUrl" style="margin-top:15px">
+
+          <a ng-href="{{ctrl.snapshotUrl + '?name=' + ctrl.snapshotName}}" target="_self" download="{{ctrl.snapshotName}}" style="text-decoration:underline; color:#3274AD; margin-left: 10px">
+            Download File
+          </a>
+        </div>
+    </div>
+    
+  </div>
+
+  <div ng-show="ctrl.getDeviceStatus() == ERROR" class="alert alert-danger" role="alert" translate>
+    The device is currently unreachable.
+  </div>
+
+  
+<ul id="devGeneralPageGuide" class="guide-hidden" data-tourtitle="CCM General">
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceGeneral">
+    <div>
+      <p>This section allows you to display/configure the following elements</p>
+      <ul>
+        <li> Name: click/touch here to give device a useful name. </li>
+        <li ng-if="(ctrl.sharedVM.deviceCapability.type.indexOf('LQ') == -1) && ctrl.sharedVM.deviceCapability.type.indexOf('FS') == -1"> Selected Role: the role currently associated with this device that controls the applied settings. </li>
+        <li> Model: model of the device. </li>
+        <li> Version: software and hardware version of device.</li>
+      </ul>
+    </div>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceWireless">
+    <div>
+      <p>This Section allows you to manage administrative wireless options </p>
+      <ul>
+        <li>OTA Registration: Opens the system up for Over The Air wireless registration of beltpacks.</li>
+        <li>OTA System Id: The wireless DECT identifier for the system. This must be unique to the operating area. Only change this value if absolutely required.</li>
+        <li>OTA PIN: A four-digit PIN code to allow FreeSpeak II beltpacks to register wirelessly with transceiver. The default PIN code is 0000, but Clear-Com strongly recommends that you change this for security reasons.</li>
+        <li>Administration PIN: A four-digit PIN that protects the FreeSpeak II beltpacks admin menu options.</li>
+        <li>AA Battery Type: Select between Alkaline and NiMH.</li>
+        <li>Audio RF Filter: Provides audio packet filtering, to address audio dropouts.  Enable this mode when users are experiencing choppy audio on the system.</li>
+        <li>Role Sorting: Select the order roles are displayed on the beltpack when it connects.</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceGPIO">
+    <div>
+      <p>This section allows you to configure the General Purpose Inputs and Outputs (GPIO). Up to 10 events can be trigger by one GPI and each GPO can be triggered by up to 10 trigger events.</p>
+      <ul>
+        <li>GPI selector. Click on a GPI on the left. Then click the green + to select a source and destination. When the GPI is activated, a talk route will be created between the source and the destination.
+            <ul>
+              <li>Label: the user-friendly name for this input.</li>
+              <li>Event Source: When the input is activated this will be the talker for the new crosspoint. Please note that the microphone will not be automatically opened.</li>
+              <li>Event destination: When the input is activated this will be the listener for the new crosspoint.</li>
+            </ul>
+        </li>
+        </ul>
+        <p>Example: a footswitch connected to GPI1 can make a crosspoint from the Station (source) to Channel 1 (destination).</p>
+      <ul>
+        <li>GPO Selector: Click a GPO on the left. Then click the + to select a Key Target and On Behavior. When the action (Talk, Talk & Listen or Call) arrives at the target, the GPO is energised (activated).</li>
+        <ul>
+          <li>Label: the user-friendly name for this output.</li>
+          <li>Key Target: whenever the route is made to this target the output is activated.</li>
+          <li>Key Behavior: the type of key press event to trigger the GPO.
+            <ul>
+              <li>Talk: either a Talk or a Talk & Force Listen key being depressed to the target</li>
+              <li>Talk & Listen: a beltpack with a Talk & Listen key to the target.</li>
+              <li>Call: a call signal to the target.</li>
+            </ul>
+          </li>
+        </ul>
+      </ul>
+      <p>Example: a stage announce light connected to GPO1 can be triggered when someone is talking to the stage announce port by setting Key Target to Stage Announce and the Key On Behavior to Talk.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceNetworkEvents">
+    <div>
+      <p>This section allows you to configure Control Events from audio routes. When a source is routed to a destination (an Event) you must select one of three possible action types. Up to 10 Control Events are possible.</p>
+      <p>Click + to add a new Control Event. Select the Source, Destination, and Action Type, then [Enter] key or click the blue check mark.</p>
+      <p>Action Types:</p>
+      <ul>
+          <li>Xpt: when the source is routed to the destination, a new crosspoint is made between a new source and a new destination. Please note that the microphone will not be automatically opened.
+          </li><li>GPO: when the source is routed to the destination, the output relay specified in Action Details will be energized (activated). Once the route is disabled, the relay will de-energise. A relay can be set to be energized by more than one trigger or Control Event.</li>
+          <li>Call: when the source is routed to the destination, a call signal is sent to the destination.</li>
+        </ul>
+      <p>Note: if a Group or Channel is chosen as the source, then anyone talking to the Group or Channel will trigger the event.</p>
+    </div>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#devicePassword">
+    <div>
+      <p ng-if="(ctrl.sharedVM.deviceCapability.type.indexOf('LQ') > -1)">This section allows you to change the CCM password of the host device (the device the browser is currently pointed at).</p>
+      <p ng-if="(ctrl.sharedVM.deviceCapability.type.indexOf('FS') > -1)">This section allows you to change the CCM password of the Base Station.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceSaveRestore">
+    <div>
+      <p>This Section allows you to perform save and restore functionality on the device</p>
+      <ul>
+        <li>Save: download a file containing current configuration details (Base Station, transceiver, beltpack, Role and connection settings). It can be used to restore your configuration if needed.</li>
+        <li>Restore: uploads and restores a previously saved system configuration file.</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".license-helixnet">
+    <div>
+      <p>This section allows you to activate features using license codes.</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".license-lq">
+    <div>
+      <p>This section allows you to activate features using license codes</p>
+      <ul>
+        <li>Features: A summary of available features and their current activation status</li>
+        <li>Add license online (recommended): Clicking this will begin the process of activating features while the device is connected to the internet</li>
+        <li>Add license offline: Clicking this will begin the process of activating features if the device does not have an internet connection</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceUprade">
+    <div>
+      <p>This section allows you to upgrade the firmware of the device.</p>
+      <ul>
+        <li> Click Select File to upload a firmware file from a local directory.</li>
+        <li> Once the file is uploaded, click Upgrade to initiate the upgrade process. All devices will automatically re-boot after upgrade.</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#deviceMaintenance">
+    <div>
+      <p>This Section allows you to perform maintenance functions.</p>
+      <ul>
+        <li> Reset to Default: use this button to reset the configuration to factory default. </li>
+        <li> Reboot: use this button to reboot the device.</li>
+        <li ng-show="!ctrl.clientInfoService.isMobile() && ctrl.sharedVM.device.isHost"> Support Info: use this button to download the logs and information required to capture a fault condition. </li>
+        <li ng-show="(ctrl.sharedVM.deviceCapability.type.indexOf('FS') > -1)"> Sync Clock: Sync the Base Station clock with the clock of the CCM client device. This ensures accuracy of the timestamp on the 'Support Info Files'.</li>
+      </ul>
+    </div>
+  </li>
+</ul>
+
+
+</div>

@@ -1,0 +1,186 @@
+
+<div class="content">
+  <div class="page-header-top"><span translate>IVC Devices</span>
+    <img ng-if="guideEnabled || currentGuide=='externalIVC'" id="externalIVCGuideToggle" ng-click="ivc32Ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+  </div>
+  
+  <div class="ivc32-list-pane">
+    <ul>
+      <li ng-class="{ 'selected': ivc.id == ivc32Ctrl.selectedExternalDevice.id, 'warning': ivc32Ctrl.hasWarning(ivc) }" ng-repeat="ivc in ivc32Ctrl.externalDevices | orderBy: 'id'" ng-click="ivc32Ctrl.selectExternalDevice(ivc)">
+         <div class="ivc-id">{{ ivc.desc }}</div>
+         <div class="ivc-label">{{ ivc.label }}</div>
+      </li>
+    </ul>
+    <div>
+      <button id="ivcAdd" type="button" class="btn btn-success btn-sm" ng-click="ivc32Ctrl.addExternalDeviceDevice('IVC')" ng-disabled="!ivc32Ctrl.isMasterReachable">
+        <span class="glyphicon glyphicon-plus"></span>
+      </button>
+      <img ng-hide="ivc32Ctrl.isMasterReachable" src="/images/warning.png" class="warning-icon-inline" uib-popover="{{ivc32Ctrl.getLinkMasterOffLineWarning()}}" popover-placement="bottom" popover-trigger="outsideClick">
+    </div>
+  </div>
+
+  <div class="ivc32-config-pane" ng-show="ivc32Ctrl.selectedExternalDevice != null">
+    
+    <div class="collapsable-section-header-top" style="padding-bottom: 20px">
+      <div id="ivc32-delete-button" ng-click="ivc32Ctrl.isMasterReachable && ivc32Ctrl.confirmRemoveExternalDevice()">
+        <span class="glyphicon glyphicon-trash icon-button" ng-class="ivc32Ctrl.isMasterReachable || 'icon-button-disabled'"></span>
+      </div>
+      <div id="ivcCard" style="margin-right: 32px">
+        <div class="collapsable-section-header-sub">Device Settings</div>
+        <div class="collapsable-section-horizontal-divider"></div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>Label&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="ivc32Ctrl.selectedExternalDevice.label" e-required e-maxlength="{{ ivc32Ctrl.deviceCapability.labelLength }}" onbeforesave="ivc32Ctrl.saveLabel($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.label || ivc32Ctrl.emptyString }}</span>
+          <span ng-hide="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.label || ivc32Ctrl.emptyString }}</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>IP / Hostname&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="ivc32Ctrl.selectedExternalDevice.settings.ip" e-maxlength="255" onbeforesave="ivc32Ctrl.saveIp($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.settings.ip || ivc32Ctrl.emptyString }}</span>
+          <span ng-hide="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.settings.ip || ivc32Ctrl.emptyString }}</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>IP Port&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-number="ivc32Ctrl.selectedExternalDevice.settings.port" e-required e-min="1" e-max="65535" onbeforesave="ivc32Ctrl.savePort($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.settings.port }}</span>
+          <span ng-hide="ivc32Ctrl.isMasterReachable">{{ ivc32Ctrl.selectedExternalDevice.settings.port }}</span>
+        </div>
+      </div>
+    </div>
+
+
+
+    
+    <div class="collapsable-section-header-top" style="padding-bottom: 20px">
+      <div id="ivcPorts" class="collapsable-section-header-sub">Ports Settings</div>
+      <div class="collapsable-section-horizontal-divider"></div>
+
+      <table class="ports-table">
+        <tr>
+          <th></th>
+          <th class="port-id">#</th>
+          <th class="port-label" translate>Label</th>
+          <th class="login" translate>User ID</th>
+          <th class="password" translate>Password</th>
+          <th class="assigned-device-id" translate>LQ Assignment</th>
+          <th class="form-cell"><div class="status-area">Status</div></th>
+        </tr>
+        <tr ng-repeat="port in ivc32Ctrl.selectedExternalDevice.ports" id="ivcPort{{$index}}" class="port-row">
+          <td class="command">
+            <button type="button" class="btn btn-gray btn-sm" ng-click="ivc32Ctrl.confirmRemovePort(port)" ng-disabled="!ivc32Ctrl.isMasterReachable">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+          </td>
+          <td class="port-id">
+            {{ port.desc }}
+          </td>
+          <td class="editable-entry port-label">
+            <span editable-text="port.label" e-form="rowform" e-name="label" ng-click="ivc32Ctrl.onEditableElementClick(this, $event)" ng-show="ivc32Ctrl.isMasterReachable" e-maxlength="{{ ivc32Ctrl.deviceCapability.labelLength }}" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="ivc32Ctrl.validatePortLabel($data)" e-ng-keydown="ivc32Ctrl.onPortKeyDown($event.keyCode, rowform)">{{port.label || ivc32Ctrl.emptyString}}</span>
+            <span ng-hide="ivc32Ctrl.isMasterReachable">{{port.label || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry login">
+            <span editable-text="port.settings.login" e-form="rowform" e-name="login" ng-click="ivc32Ctrl.onEditableElementClick(this, $event)" e-maxlength="10" ng-show="ivc32Ctrl.isMasterReachable" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="ivc32Ctrl.validatePortLogin($data, port.id)" e-ng-keydown="ivc32Ctrl.onPortKeyDown($event.keyCode, rowform)">{{port.settings.login || ivc32Ctrl.emptyString}}</span>
+            <span ng-hide="ivc32Ctrl.isMasterReachable">{{port.settings.login || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry password">
+            <span editable-text="port.settings.password" e-form="rowform" e-name="password" ng-click="ivc32Ctrl.onEditableElementClick(this, $event)" e-maxlength="10" ng-show="ivc32Ctrl.isMasterReachable" e-ng-keydown="ivc32Ctrl.onPortKeyDown($event.keyCode, rowform)">{{port.settings.password || ivc32Ctrl.emptyString}}</span>
+            <span ng-hide="ivc32Ctrl.isMasterReachable">{{port.settings.password || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry assigned-device-id">
+            <span editable-select="port.settings.assignedDeviceId" ng-show="ivc32Ctrl.isMasterReachable" e-ng-options="s.value as s.text for s in ivc32Ctrl.assignableDevices | filter:{ivc: true}" class="editable-text" e-form="rowform" e-name="assignedDeviceId" ng-click="ivc32Ctrl.onEditableElementClick(this, $event)" e-ng-keydown="ivc32Ctrl.onPortKeyDown($event.keyCode, rowform)">{{ivc32Ctrl.showAssignedDevice(port.settings.assignedDeviceId)}}</span>
+            <span ng-hide="ivc32Ctrl.isMasterReachable">{{ivc32Ctrl.showAssignedDevice(port.settings.assignedDeviceId)}}</span>
+          </td>
+          <td class="form-cell">
+            <form editable-form name="rowform" class="form-buttons form-inline" ng-show="rowform.$visible" onbeforesave="ivc32Ctrl.updatePort(this, port.id, $data)" onhide="ivc32Ctrl.clearError(this)">
+              <button type="submit" ng-disabled="rowform.$waiting || !ivc32Ctrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                <span class="glyphicon glyphicon-ok"></span>
+              </button>
+              <button type="button" ng-disabled="rowform.$waiting" ng-click="ivc32Ctrl.cancelPortEdit(this)" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </form>
+            <div ng-hide="rowform.$visible || !port.settings.assignedDeviceId">
+              <div class="status-area">
+                <img src="/images/warning.png" ng-show="ivc32Ctrl.getConnectionWarning(port)" class="warning-icon-inline" uib-popover="{{ ivc32Ctrl.getConnectionWarning(port) }}" popover-placement="bottom" popover-trigger="outsideClick">
+                <img class="localPorts-status-led" style="float: left; margin: 7px 0px 0px 15px" ng-show="port.liveStatus.externalConnectionStatus === 'connected' && !ivc32Ctrl.getConnectionWarning(port)" src="/images/vox-active.png">
+              </div>
+              <div class="port-link">
+                <a ng-href="{{ ivc32Ctrl.isDeviceReachable(port.settings.assignedDeviceId) ?
+                    '/view/device/' + port.settings.assignedDeviceId + '/ports?externalDeviceId=' + port.externalDeviceId + '&amp;externalPortId=' + port.id :
+                    '' }}">
+                  <img src="/images/gear.png" class="icon-button" width="24" height="24" ng-class="ivc32Ctrl.isDeviceReachable(port.settings.assignedDeviceId) || 'icon-button-disabled'">
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="command">
+            <button ng-hide="ivc32Ctrl.pendingPort" type="button" class="btn btn-success btn-sm" ng-click="ivc32Ctrl.addPendingPort(this)" ng-disabled="!ivc32Ctrl.isMasterReachable">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </td>
+          <td class="port-id">
+          </td>
+          <td class="editable-entry port-label">
+            <span ng-show="ivc32Ctrl.pendingPort" e-maxlength="{{ ivc32Ctrl.deviceCapability.labelLength }}" editable-text="ivc32Ctrl.pendingPort.label" e-form="pendingPortForm" e-name="label" e-ng-keydown="ivc32Ctrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)" onbeforesave="ivc32Ctrl.validatePortLabel($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error">{{ivc32Ctrl.pendingPort.label || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry login">
+            <span ng-show="ivc32Ctrl.pendingPort" e-maxlength="10" editable-text="ivc32Ctrl.pendingPort.settings.login" e-form="pendingPortForm" e-name="login" e-ng-keydown="ivc32Ctrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="ivc32Ctrl.validatePortLogin($data)">{{ivc32Ctrl.pendingPort.settings.login || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry password">
+            <span ng-show="ivc32Ctrl.pendingPort" e-maxlength="10" editable-text="ivc32Ctrl.pendingPort.settings.password" e-form="pendingPortForm" e-name="password" e-ng-keydown="ivc32Ctrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)">{{port.settings.password || ivc32Ctrl.emptyString}}</span>
+          </td>
+          <td class="editable-entry assigned-device-id">
+            <span ng-show="ivc32Ctrl.pendingPort" editable-select="ivc32Ctrl.pendingPort.settings.assignedDeviceId" e-ng-options="s.value as s.text for s in ivc32Ctrl.assignableDevices | filter:{ivc: true}" class="editable-text" e-form="pendingPortForm" e-name="assignedDeviceId" e-ng-keydown="ivc32Ctrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)">{{ivc32Ctrl.showAssignedDevice(ivc32Ctrl.pendingPort.settings.assignedDeviceId)}}</span>
+          </td>
+          <td class="form-cell">
+            <form editable-form name="pendingPortForm" class="form-buttons form-inline" ng-show="pendingPortForm.$visible" onbeforesave="ivc32Ctrl.addPort(this, $data)" onaftersave="ivc32Ctrl.onPortAdded()" onshow="ivc32Ctrl.onPendingPortShown(this)" onhide="ivc32Ctrl.onPendingPortHidden(this)">
+              <button type="submit" ng-disabled="pendingPortForm.$waiting || !ivc32Ctrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                <span class="glyphicon glyphicon-ok"></span>
+              </button>
+              <button type="button" ng-disabled="pendingPortForm.$waiting" ng-click="ivc32Ctrl.cancelAdd(this)" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </form>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+<ul id="externalIVCPageGuide" class="guide-hidden" data-tourtitle="CCM External system IVC32">
+  
+  <li class="tlypageguide_left" data-tourtarget="#ivcAdd">Click the + button to add a new IVC card</li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#ivcCard">This is the section where you can configure settings for an IVC card
+  <ul>
+    <li>Label: Give the IVC card a meaningful name</li>
+    <li>IP Address: IP or DNS name of the IVC card</li>
+    <li>IP Port: TCP Port to use to access the IVC card </li>
+    <li>Delete this IVC card by clicking on the trash can</li>
+  </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#ivcPorts">This is the section where you can add/remove IVC-32 ports. A maximum of 8 accounts can be associated to an LQ device. User ID and password must be identical to the details configured in the EHX software. </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#ivcPort0"> Every line represents an IVC account. For each one of them, you must configure the following:
+    <ul>
+      <li>Label: User friendly account label. Any meaningful name is possible</li>
+      <li>User ID: Enter the User ID identical to the one configured in EHX</li>
+      <li>Password: Password identical to the one configured in EHX (blank is a possible choice)</li>
+      <li>LQ Assignment:  This is the LQ Device that will be responsible for connecting that port to the IVC-32 card</li>
+      <li>Status: Green status LED indicates successful connection. A yellow triangle indicates an error condition. Click triangle for details</li>
+      <li>Click the gear icon to navigate to the port settings related to this account in the Device > Ports page</li>
+    </ul>
+  </li>
+</ul>
+
+</div>

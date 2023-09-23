@@ -1,0 +1,76 @@
+<div class="external-devices-page">
+  <div id="accounts-button-container" class="button-config-container">
+
+    <div id="externalDeviceButtons" style="float: left; margin-right: 0px; margin-bottom: 0px; margin-top:-15px">
+      <div style="float:left">
+        <img ng-if="guideEnabled || currentGuide==='accMenu'" id="accountsGuideToggle" ng-click="accountsCtrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:-15px;margin-left:8px;height:20px">
+      </div>
+      <div id="agent-ic-account-button" class="button-config" ng-if="accountsCtrl.showAIC()" style="margin-top:15px">
+        <a ng-href="{{ 'accounts.aicusers' | routeSegmentUrl }}" style="text-decoration: none">
+          <div class="inner" ng-class="{'selected': ( 'accounts.aicusers' | routeSegmentEqualsTo)}">
+            <span class="button-text">Agent-IC</span>
+            <img class="button-icon" src="/images/Accounts/Agent-IC.svg" style="max-height: 28px">
+          </div>
+        </a>
+      </div>
+
+       <div id="sip-account-button" class="button-config" ng-if="accountsCtrl.showSip()">
+           <a ng-href="{{ 'accounts.sip' | routeSegmentUrl }}" style="text-decoration: none">
+               <div class="inner" ng-class="{'selected': ( 'accounts.sip' | routeSegmentEqualsTo)}">
+                 <span class="button-text">SIP</span>
+                 <img class="button-icon" src="/images/Accounts/SIP_1.svg" style="max-height: 28px">
+               </div>
+           </a>
+       </div>
+
+      <div id="ivc-account-button" class="button-config" ng-if="accountsCtrl.showIvc32()">
+        <a ng-href="{{ 'accounts.ivc32' | routeSegmentUrl }}" style="text-decoration: none">
+          <div class="inner" ng-class="{'selected': ( 'accounts.ivc32' | routeSegmentEqualsTo)}">
+            <span class="button-text">IVC</span>
+            <img class="button-icon" src="/images/Accounts/IVC.svg" style="max-height: 28px">
+          </div>
+        </a>
+      </div>
+
+
+
+    </div>
+
+  </div>
+
+  
+  <div id="divider" style="position: absolute;
+              height:80%;
+              width:3px;
+              margin-left:100px;
+              background-image: linear-gradient(to right,#030303 0,#404040 30%);
+              float:right">
+    &nbsp;
+  </div>
+
+  
+  <div style="margin-left: 109px">
+    <div app-view-segment="1"></div>
+  </div>
+  
+<ul id="accMenuPageGuide" class="guide-hidden" data-tourtitle="CCM accounts menu">
+  
+  <li class="tlypageguide_right" data-tourtarget="#agent-ic-account-button">
+    <div>
+      <p>Open the Agent-IC account configuration section</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#sip-account-button">
+    <div>
+      <p>Open the SIP account configuration section</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#ivc-account-button">
+    <div>
+      <p>Open the IVC account configuration section</p>
+    </div>
+  </li>
+</ul>
+</div>

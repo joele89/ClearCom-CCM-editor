@@ -1,0 +1,578 @@
+
+<div class="page-header-top">
+  <span translate>Audio Ports</span>
+  <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devPorts'" id="devPortsGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+</div>
+
+
+<div ng-show="ctrl.errorResponse.length" class="alert alert-danger alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <strong>
+    <translate>Error!</translate>&nbsp;
+  </strong>
+  <br>
+  <div ng-repeat="msg in ctrl.errorResponse">
+      {{ msg }}
+  </div>
+</div>
+
+
+<div class="ports-list" ng-show="ctrl.CurrentAudioInterface && ctrl.CurrentPort">
+  <div class="port-type" ng-repeat="interfaceType in ctrl.InterfaceTypes">
+    <span>{{interfaceType}}</span>
+
+    <div ng-class="{'interface': interfaceType !== '2-Wire' && interfaceType !== 'IVC' && interfaceType !== 'SIP',
+                    'interfaceSelected': interfaceType !== '2-Wire' && interfaceType !== 'IVC' && interfaceType !== 'SIP' && ctrl.IsInterfaceSelected(ctrl.InterfacesOfType[interfaceType])}">
+
+      <div ng-repeat="intface in ctrl.InterfacesOfType[interfaceType] | orderBy: 'externalDeviceId'">
+        <div ng-class="{ 'interface': interfaceType === '2-Wire' || interfaceType === 'IVC' || interfaceType === 'SIP', 'interfaceSelected': (interfaceType === '2-Wire' || interfaceType == 'IVC' || interfaceType == 'SIP') && ctrl.IsInterfaceSelected(intface),
+                         'interface-warning': interfaceType === '2-Wire' && ctrl.interfaceHasWarning(intface) }">
+
+          <div class="port-line" ng-repeat="port in ctrl.getPortsOfInterface(intface) | orderBy: 'port_externalPortId'">
+
+            <div class="port-small-name">{{port.port_desc}}</div>
+
+            <div class="port" ng-class="{'portSelected': ctrl.PortIsSelected[port.port_id],
+                            'portOffline': ctrl.getPortWarningMessage(port.port_id)}">
+
+            <span class="port-state" ng-class="{'connected': ctrl.portHasWarning(port) !== undefined && !ctrl.portHasWarning(port),
+                             'not-connected': ctrl.portHasWarning(port) !== undefined && ctrl.portHasWarning(port)}">
+            </span>
+
+            <input type="checkbox" ng-change="ctrl.SelectPort(port, false)" ng-model="ctrl.PortIsSelected[port.port_id]">
+             <div ng-click="ctrl.SelectPort(port, true)">
+                 <span>{{ port.port_label }}</span>
+                 <img ng-show="port.audioInterfaceType_shortName === '2W'" class="port-power-status-icon" style="" ng-src="{{ctrl.retrievePortTypeLiveStatus(port.audioInterface_id_AudioInterface)}}">
+             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="port-config" ng-show="ctrl.CurrentAudioInterface && ctrl.CurrentPort">
+  <style scoped>
+    .editable-input.editable-has-buttons {
+      width: 110px;
+    }
+  </style>
+  
+  <div id="interfaces2W" data-expander data-expander-title="Interface Settings" data-start-open="true" data-page-name="ports" data-section="interface" ng-show="ctrl.CurrentAudioInterface.audioInterface_settings | keyLength">
+
+    <div class="role-settings-elements">
+      
+      <div ng-show="ctrl.CurrentAudioInterface.audioInterface_settings.power !== undefined">
+        <div class="editable-label localPorts-label" translate>Power :</div>
+        <div class="editable-entry localPorts-entry" style="vertical-align: bottom">
+          <span editable-select="ctrl.CurrentAudioInterface.audioInterface_settings.power" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('power', true)">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentAudioInterface.audioInterface_settings.power, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+        </div>
+        
+        <div ng-hide="ctrl.SelectedAudioInterfaceIds.length > 1" class="localPorts-config-right">
+          <span class="localPorts-gpio-status-label">Status</span>
+          <img class="localPorts-status-led" ng-src="{{ ctrl.CurrentAudioInterface.audioInterface_liveStatus.powerSense ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+        </div>
+        
+        <img src="/images/warning.png" ng-show="ctrl.getCurrentLimiterWarningMessage()" class="warning-icon-inline" uib-popover="{{ ctrl.getCurrentLimiterWarningMessage() }}" popover-placement="bottom" popover-trigger="outsideClick">
+      </div>
+
+      
+      <div ng-show="ctrl.CurrentAudioInterface.audioInterface_settings.mode !== undefined">
+        <div class="editable-label localPorts-label" translate>Mode :</div>
+        <div class="editable-entry localPorts-entry">
+          <span editable-select="ctrl.CurrentAudioInterface.audioInterface_settings.mode" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.mode" onaftersave="ctrl.updateProperty('mode', true)">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentAudioInterface.audioInterface_settings.mode, ctrl.Properties.mode) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="interfacesIVC" data-expander data-expander-title="Accounts" data-start-open="true" data-page-name="ports" data-section="accounts" ng-show="ctrl.showExternalDeviceSettingsSection()">
+    <div class="role-settings-elements">
+      <div style="float: right; margin: -38px -6px 0px 0px; cursor: pointer">
+          <a ng-href="/view/accounts/{{(ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'IVC' && 'ivc32') ||
+                                              (ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'SIP' && 'sip')}}/{{ ctrl.CurrentPort.port_externalDeviceId }}">
+              <img class="icon-button" width="24" height="24" src="/images/gear.png">
+          </a>
+      </div>
+
+      
+      <div>
+          <div class="editable-label localPorts-label" translate>{{(ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'SIP' && 'SIP Server Label&nbsp;:') ||
+                                                                   (ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'IVC' && 'IVC-32 Label&nbsp;:')}}
+          </div>
+          <div class="editable-entry localPorts-entry" style="vertical-align: bottom">
+              <span>{{ ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].label }}</span>
+          </div>
+      </div>
+
+      
+      <div>
+          <div class="editable-label localPorts-label" translate>{{(ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'SIP' && 'Registrar / Proxy&nbsp;:') ||
+                                                                   (ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].type === 'IVC' && 'Eclipse Server&nbsp;:')}}
+          </div>
+          <div class="editable-entry localPorts-entry" style="vertical-align: bottom">
+              <span>{{ ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].settings.ip }}:{{ ctrl.externalDevices[ctrl.CurrentPort.port_externalDeviceId].settings.port }}</span>
+          </div>
+      </div>
+    </div>
+  </div>
+  
+  <div data-expander data-expander-title="Port Settings" data-start-open="true" data-page-name="ports" data-section="settings">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div id="portsCommon">
+
+          
+          <div ng-show="ctrl.CurrentPort.port_externalDeviceId == null">
+            <div class="editable-label localPorts-label" translate>Label :</div>
+            <div ng-show="ctrl.SelectedPortIds.length !== 1" class="editable-entry localPorts-entry">{{ ctrl.CurrentPort.port_label }}</div>
+            <div ng-show="ctrl.SelectedPortIds.length === 1" class="editable-entry localPorts-entry">
+                <span editable-text="ctrl.CurrentPort.port_label" e-required e-maxlength="{{ ctrl.deviceCapabilities.labelLength }}" onaftersave="ctrl.updateProperty('label')">{{ ctrl.CurrentPort.port_label || 'Enter Label for Port' }}</span>
+            </div>
+            <img src="/images/warning.png" ng-show="ctrl.SelectedPortIds.length === 1 && ctrl.getPortWarningMessage(ctrl.SelectedPortIds[0])" class="warning-icon-inline" style="float: right" uib-popover="{{ ctrl.getPortWarningMessage(ctrl.SelectedPortIds[0]) }}" popover-placement="bottom" popover-trigger="outsideClick">
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_externalDeviceId != null">
+              <div class="editable-label localPorts-label" translate>{{(ctrl.CurrentPort.audioInterfaceType_shortName === 'SIP' && 'SIP Account Label&nbsp;:') ||
+                                                                       (ctrl.CurrentPort.audioInterfaceType_shortName === 'IVC' && 'External Port Label&nbsp;:') ||
+                                                                        'External Port Label&nbsp;:'}}
+              </div>
+
+              <div class="editable-entry localPorts-entry">
+                  <span>{{ ctrl.CurrentPort.port_label }}</span>
+              </div>
+
+              <div ng-hide="ctrl.SelectedPortIds.length > 1 || ctrl.CurrentPort.audioInterfaceType_shortName !== 'SIP'" class="localPorts-config-right">
+                <span class="localPorts-gpio-status-label">Status</span>
+                <div ng-hide="ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === -1 || ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 0 ||
+                              ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 1 || ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="{{ ctrl.externalSipConnectionWarning }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Failed_to_Register.svg'">
+                </div>
+                <div ng-show="ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === -1 || ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 0" class="sip-icon-inline" uib-popover="{{ ctrl.externalSipConnectionWarning }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Not_Registered.svg'">
+                </div>
+                <div ng-show="ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 1" class="sip-icon-inline" uib-popover="{{ ctrl.externalSipConnectionWarning }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registering.svg'">
+                </div>
+                <div ng-show="ctrl.CurrentPort.liveStatus.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="Online" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registered_2.svg'">
+                </div>
+              </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.multiChannel !== undefined && ctrl.showMultiChannelSupportSetting()">
+              <div class="editable-label localPorts-label" translate>Multi Channel Support :</div>
+              <div class="editable-entry localPorts-entry">
+                  <span editable-select="ctrl.CurrentPort.port_settings.multiChannel" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateProperty('multiChannel')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.multiChannel, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+              </div>
+          </div>
+
+          
+          <div ng-if="ctrl.CurrentPort.port_connections !== undefined && ctrl.sharedVM.device.deviceType_name === 'FSII'">
+            <div class="editable-label localPorts-label" translate>Channel Assignment :</div>
+            <div ng-switch="ctrl.CurrentPort.port_settings.multiChannel" class="editable-entry localPorts-entry">
+                <div ng-switch-when="[Multiple Values]">-</div>
+                <div ng-switch-default>
+                    <span class="sudo-editable-entry" ng-click="ctrl.showAssignment('partyline')">{{ ctrl.getCurrentConnectionLabels('partyline') || 'Unassigned' }}</span>
+                </div>
+            </div>
+          </div>
+
+          
+          <div ng-if="ctrl.IsCapabilitySupportedByPorts('groups')">
+              <div class="editable-label localPorts-label" translate>Group Membership :</div>
+              <div class="editable-entry localPorts-entry">
+                  <span class="sudo-editable-entry" ng-click="ctrl.showAssignment('group')">{{ ctrl.getCurrentConnectionLabels('group') || 'Unassigned' }}</span>
+              </div>
+          </div>
+
+          <div ng-show="ctrl.IsCapabilitySupportedByPorts('programOutput')">
+            <div class="editable-label localPorts-label" translate>Program Output :</div>
+            <div class="editable-entry localPorts-entry">
+                <span editable-select="ctrl.CurrentPort.port_settings.programOutput" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.programOutput" onaftersave="ctrl.updateProperty('programOutput')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.programOutput, ctrl.Properties.programOutput) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.pgmOutputEnabled !== undefined">
+            <div class="editable-label localPorts-label" translate>Program Output Enabled :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.pgmOutputEnabled" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.programOutputEnabled" onaftersave="ctrl.updateProperty('pgmOutputEnabled')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.pgmOutputEnabled, ctrl.Properties.programOutputEnabled) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-if="ctrl.device.deviceType_name !== 'HMS-4X' && ctrl.devices[1].deviceType_name === 'HMS-4X'">
+            <div class="editable-label localPorts-label" translate>Program Output Enabled :</div>
+            <div class="editable-entry localPorts-entry">
+              <span>Mute</span>
+            </div>
+          </div>
+
+          <div ng-show="ctrl.IsCapabilitySupportedByPorts('gpoTriggerEnabled')">
+            <div class="editable-label localPorts-label" translate>GPO Trigger :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.gpoTriggerEnabled" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('gpoTriggerEnabled')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.gpoTriggerEnabled, BoolToEnabledDisabled) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.inputGain !== undefined && ctrl.Properties.inputGain.length">
+            <div class="editable-label localPorts-label" translate>Input Gain :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.inputGain" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.inputGain" onaftersave="ctrl.updateProperty('inputGain')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.inputGain, ctrl.Properties.inputGain) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.outputGain !== undefined && ctrl.Properties.outputGain.length">
+            <div class="editable-label localPorts-label" translate>Output Gain :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.outputGain" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.outputGain" onaftersave="ctrl.updateProperty('outputGain')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.outputGain, ctrl.Properties.outputGain) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.micLevel !== undefined">
+            <div class="editable-label localPorts-label" translate>Output Level :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.micLevel" e-ng-options="s.value as s.label for s in ctrl.Properties.micLevel" buttons="no" onaftersave="ctrl.updateProperty('micLevel')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.micLevel, ctrl.Properties.micLevel) }}</span>
+            </div>
+          </div>
+
+          
+          <div ng-show="ctrl.CurrentPort.port_settings.callSignal !== undefined">
+            <div class="editable-label localPorts-label" translate>RX Call Signal :</div>
+            <div class="editable-entry localPorts-entry">
+              <span editable-select="ctrl.CurrentPort.port_settings.callSignal" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('callSignal')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.callSignal, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <div id="portsIVC" class="localPorts-section-divider" ng-show="ctrl.CurrentAudioInterface.audioInterfaceType_shortName === 'IVC'">REMOTE</div>
+
+        
+        <div ng-show="ctrl.CurrentAudioInterface.audioInterfaceType_shortName === 'IVC'">
+          <div class="editable-label localPorts-label" translate>Network Quality :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.externalNetworkQuality" e-ng-options="s.value as s.label for s in ctrl.Properties.externalNetworkQuality" buttons="no" onshow="ctrl.SetVisible('externalConnectionStatus', false)" onhide="ctrl.SetVisible('externalConnectionStatus', true)" onaftersave="ctrl.updateProperty('externalNetworkQuality')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.externalNetworkQuality, ctrl.Properties.externalNetworkQuality) }}</span>
+          </div>
+
+          
+          <div ng-hide="ctrl.SelectedPortIds.length > 1 || !ctrl.Visible.externalConnectionStatus" class="localPorts-config-right">
+            <span class="localPorts-gpio-status-label">Status</span>
+            <img class="localPorts-status-led" ng-src="{{ ctrl.CurrentPort.liveStatus.externalConnectionStatus === 'connected' ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+          </div>
+
+          
+          <img src="/images/warning.png" ng-show="ctrl.externalConnectionWarning" class="warning-icon-inline" uib-popover="{{ ctrl.externalConnectionWarning }}" popover-placement="bottom" popover-trigger="outsideClick">
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentAudioInterface.audioInterfaceType_shortName === 'IVC'">
+          <div class="editable-label localPorts-label" translate>Silence Suppression :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.externalSilenceSuppression" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateProperty('externalSilenceSuppression')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.externalSilenceSuppression, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+
+        
+        <div id="portsVox" class="localPorts-section-divider" ng-show="ctrl.CurrentPort.port_settings.vox !== undefined">VOX</div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.vox.state !== undefined">
+          <div class="editable-label localPorts-label" translate>VOX Mode :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.vox.state" e-ng-options="s.value as s.label for s in ctrl.Properties.vox.state" buttons="no" onshow="ctrl.SetVisible('voxStatus', false)" onhide="ctrl.SetVisible('voxStatus', true)" onaftersave="ctrl.updateProperty('vox.state')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.vox.state, ctrl.Properties.vox.state) }}</span>
+          </div>
+          
+          <div ng-hide="ctrl.SelectedPortIds.length > 1 || !ctrl.Visible.voxStatus || ctrl.CurrentPort.liveStatus.vox === undefined" class="localPorts-config-right">
+            <span class="localPorts-gpio-status-label">Status</span>
+            <img class="localPorts-status-led" ng-src="{{ ctrl.CurrentPort.liveStatus.vox.status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.vox.delay !== undefined">
+        <div class="editable-label localPorts-label" translate>VOX Off Delay :</div>
+          <div ng-switch="ctrl.CurrentPort.port_settings.vox.state" class="editable-entry localPorts-entry">
+            <div ng-switch-when="disabled">Not set</div>
+            <div ng-switch-when="codec">Not set</div>
+            <div ng-switch-when="[Multiple Values]">-</div>
+            <div ng-switch-default>
+              <span editable-select="ctrl.CurrentPort.port_settings.vox.delay" e-ng-options="s.value as s.label for s in ctrl.Properties.vox.delay" buttons="no" onaftersave="ctrl.updateProperty('vox.delay')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.vox.delay, ctrl.Properties.vox.delay) }}</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.vox !== undefined && ctrl.Properties.vox.threshold.length">
+          <div class="editable-label localPorts-label" translate>VOX Threshold :</div>
+          <div ng-switch="ctrl.CurrentPort.port_settings.vox.state" class="editable-entry localPorts-entry">
+            <div ng-switch-when="disabled">Not set</div>
+            <div ng-switch-when="codec">Not set</div>
+            <div ng-switch-when="adaptive">Not set</div>
+            <div ng-switch-when="[Multiple Values]">-</div>
+            <div ng-switch-default>
+              <span editable-select="ctrl.CurrentPort.port_settings.vox.threshold" e-ng-options="s.value as s.label for s in ctrl.Properties.vox.threshold" buttons="no" onaftersave="ctrl.updateProperty('vox.threshold')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.vox.threshold, ctrl.Properties.vox.threshold) }}</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.vox !== undefined && ctrl.Properties.vox.events.length">
+          <div class="editable-label localPorts-label" translate>VOX Action Triggers :</div>
+          <div ng-switch="ctrl.CurrentPort.port_settings.vox.state" class="editable-entry localPorts-entry">
+            <div ng-switch-when="disabled">Not set</div>
+            <div ng-switch-when="[Multiple Values]">-</div>
+            <div ng-switch-default>
+              <span editable-select="ctrl.CurrentPort.port_settings.vox.events[0].value" e-ng-options="s.value as s.label for s in ctrl.Properties.vox.events" buttons="no" onaftersave="ctrl.updateProperty('vox.events')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.vox.events[0].value, ctrl.Properties.vox.events) }}</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <div id="ports2W" class="localPorts-section-divider" ng-show="ctrl.CurrentAudioInterface.audioInterfaceType_shortName === '2W'">2-Wire</div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.mode !== undefined">
+          <div class="editable-label localPorts-label" translate>Mode :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.mode" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.portMode" onaftersave="ctrl.updateProperty('mode')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.mode, ctrl.Properties.portMode) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.rmkInputEnabled !== undefined">
+          <div class="editable-label localPorts-label" translate>RMK Input :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.rmkInputEnabled" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('rmkInputEnabled')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.rmkInputEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.rmkOutputEnabled !== undefined">
+          <div class="editable-label localPorts-label" translate>RMK Output :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.rmkOutputEnabled" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('rmkOutputEnabled')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.rmkOutputEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.termination !== undefined">
+          <div class="editable-label localPorts-label" translate>Termination :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.termination" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateProperty('termination')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.termination, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.SelectedPortIds.length == 1 &&
+                    ctrl.CurrentAudioInterface.audioInterfaceType_shortName === '2W'">
+          <div class="editable-label localPorts-label" translate>Auto-Nulling :</div>
+          <div ng-show="(ctrl.PortInfo[ctrl.CurrentPort.port_id].nulling || 'Idle') !== 'Idle'" class="editable-entry localPorts-entry">
+            {{ ctrl.PortInfo[ctrl.CurrentPort.port_id].nulling || 'Idle' }}
+          </div>
+          <div ng-show="(ctrl.PortInfo[ctrl.CurrentPort.port_id].nulling || 'Idle') === 'Idle'" class="editable-entry localPorts-entry">
+            <div style="float: left">
+              <input type="button" class="btn localPorts-btn" ng-disabled="ctrl.CurrentAudioInterface.audioInterface_liveStatus.powerSense !== undefined && !ctrl.CurrentAudioInterface.audioInterface_liveStatus.powerSense" value="Start Nulling" ng-click="ctrl.startNulling(ctrl.CurrentPort)" translate>
+            </div>
+            <img class="info-icon-inline" ng-src="/images/info.svg" ng-show="ctrl.CurrentAudioInterface.audioInterface_liveStatus.powerSense !== undefined && !ctrl.CurrentAudioInterface.audioInterface_liveStatus.powerSense" uib-popover="Nulling only available when port is powered or external power is sensed" popover-placement="bottom" popover-trigger="outsideClick">
+          </div>
+        </div>
+
+        
+        <div id="ports4W" class="localPorts-section-divider" ng-show="ctrl.CurrentPort.port_settings.pinout !== undefined ||
+                      (ctrl.CurrentPort.port_settings.serial.baudRate !== undefined && ctrl.sharedVM.device.deviceType_name !== 'FSII')">
+          4-Wire
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.pinout !== undefined">
+          <div class="editable-label localPorts-label" translate>Port Function :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.pinout" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.pinout" onaftersave="ctrl.updateProperty('pinout')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.pinout, ctrl.Properties.pinout) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.serial.baudRate !== undefined && ctrl.sharedVM.device.deviceType_name !== 'FSII' ">
+          <div class="editable-label localPorts-label" translate>Baud Rate :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.serial.baudRate" buttons="no" e-ng-options="s.value as s.label for s in ctrl.Properties.serial.baudRate" onaftersave="ctrl.updateProperty('serial.baudRate')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.serial.baudRate, ctrl.Properties.serial.baudRate) }}</span>
+          </div>
+        </div>
+
+        
+        <div id="gpioEvent" class="localPorts-section-divider" ng-show="ctrl.CurrentPort.port_settings.gpis !== undefined || ctrl.CurrentPort.port_settings.gpos !== undefined || ctrl.CurrentPort.port_settings.gpoTriggerEnabled !== undefined">
+          GPIO
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.gpis !== undefined && ctrl.Properties.gpi.events.length">
+          <div class="editable-label localPorts-label" translate>GPI Action Triggers :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.gpis[0].events[0].value" e-ng-options="s.value as s.label for s in ctrl.Properties.gpi.events" buttons="no" onshow="ctrl.SetVisible('gpiStatus', false)" onhide="ctrl.SetVisible('gpiStatus', true)" onaftersave="ctrl.updateGpioEvent('gpi')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.gpis[0].events[0].value, ctrl.Properties.gpi.events) }}</span>
+          </div>
+          <div ng-hide="ctrl.SelectedPortIds.length > 1 || !ctrl.Visible.gpiStatus" class="localPorts-config-right">
+            <span class="localPorts-gpio-status-label">Status</span>
+            <img class="localPorts-status-led" ng-src="{{ ctrl.CurrentPort.liveStatus.gpis[0].status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.gpos !== undefined && ctrl.Properties.gpo.events.length">
+          <div class="editable-label localPorts-label" translate>GPO Triggered By :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.gpos[0].events[0].value" e-ng-options="s.value as s.label for s in ctrl.Properties.gpo.events" buttons="no" onshow="ctrl.SetVisible('gpoStatus', false)" onhide="ctrl.SetVisible('gpoStatus', true)" onaftersave="ctrl.updateGpioEvent('gpo')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.gpos[0].events[0].value, ctrl.Properties.gpo.events) }}</span>
+          </div>
+          <div ng-hide="ctrl.SelectedPortIds.length > 1 || !ctrl.Visible.gpoStatus" class="localPorts-config-right">
+            <span class="localPorts-gpio-status-label">Status</span>
+            <img class="localPorts-status-led" ng-src="{{ ctrl.CurrentPort.liveStatus.gpos[0].status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+            <input type="button" value="Test" class="btn localPorts-btn localPorts-btn-test" cc-while-pressed="ctrl.testGpo(true)" cc-while-pressed-interval="2000" cc-pressup="ctrl.testGpo(false)" translate>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.gpos[0].offDelay !== undefined">
+          <div class="editable-label localPorts-label" translate>GPO Off Delay :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.gpos[0].offDelay" e-ng-options="s.value as s.label for s in ctrl.Properties.gpo.offDelay" buttons="no" onaftersave="ctrl.updateGpioEvent('gpo')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.gpos[0].offDelay, ctrl.Properties.gpo.offDelay) }}</span>
+          </div>
+        </div>
+
+        
+        <div ng-show="ctrl.CurrentPort.port_settings.gpoTriggerEnabled !== undefined">
+          <div class="editable-label localPorts-label" translate>GPO Trigger :</div>
+          <div class="editable-entry localPorts-entry">
+            <span editable-select="ctrl.CurrentPort.port_settings.gpoTriggerEnabled" e-ng-options="s.value as s.label for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateProperty('gpoTriggerEnabled')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentPort.port_settings.gpoTriggerEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ul id="devPortsPageGuide" class="guide-hidden" data-tourtitle="CCM Audio Ports">
+  
+  <li class="tlypageguide_left" data-tourtarget=".ports-list" data-name="portsSelector">
+    <p>This is the port selector.</p>
+    <p>The port selector is organised by port type. The selected port has an amber outline. </p>
+    <ul>
+      <li>Individual ports can be selected by clicking on the port label.</li>
+      <li>Multiple ports can be selected by clicking on the checkbox on the left.</li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#interfaces2W">
+    <p>Power: Enable power to external devices if required. Mode: Clear-Com or 2-channel RTS compatibility.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#interfacesIVC">
+    <p>This section displays information related to the server that owns this port.</p>
+    <p>A gear icon is also available to easily navigate to related settings in the Accounts page. </p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#portsCommon">
+    <p>This section includes the following settings.</p>
+    <ul>
+      <li> Label: Click to give port a useful name.
+      </li>
+      <li> Input Gain: Set a gain to apply to the audio coming from the port (in dB). </li>
+      <li> Output Gain: Set a gain to apply to the audio before it is sent out to the port (in dB). </li>
+      <li ng-show="ctrl.CurrentPort.port_settings.micLevel  !== undefined"> Output Level: To set the output level type (Only available on {{ctrl.sharedVM.device.deviceType_name}} with GPIO (4WG)).
+        <p> Mic Level will apply a 55 dB attenuation on the audio level. Mic level supports connection to devices that normally have a microphone connected directly to their audio input (for instance, hand-held radios). Overall gain = Output Gain + Output Level.</p>
+      </li>
+      <li ng-if="ctrl.CurrentPort.port_settings.multiChannel !== undefined && ctrl.showMultiChannelSupportSetting()"> Multi channel support: enabling the multi-channel support on a port allows it to be placed in more than one Channel in the Assignments page.
+          <p>The port has a green background in the Assignments page
+          <svg style="width: 24px; height: 22px;display:inline-block;margin-left:10px;vertical-align: middle">
+            <circle r="10" cx="50%" cy="50%" class="circle-button-multi-channel-outer"/>
+            <circle r="8" cx="50%" cy="50%" class="circle-button-multi-channel-inner"/>
+          </svg></p>
+        <p>
+        Note: A port with multi-channel support cannot participate in a local audio mix.</p>
+        <p>Note: Multi-Channel ports and Local Audio Mix are only available to {{ctrl.sharedVM.device.deviceType_name}} devices. </p>
+      </li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#ports4W">
+    <p>This section is for 4W Port specific settings</p>
+    <ul>
+      <li>
+        Port Function: To set the pinout of the audio port wires to match certain function:
+        <ul>
+          <li> to Matrix: you can use a direct cable to connect an {{ctrl.sharedVM.device.deviceType_name}} port to an EHX MVX port </li>
+          <li> to Panel: you can use a direct cable to connect an {{ctrl.sharedVM.device.deviceType_name}} port to an EHX panel </li>
+        </ul>
+      </li>
+      <li> Baud Rate: Set the Baud rate to match a different system
+<p>Select 19200 for Eclipse systems, and 9600 for Drake compatibilty mode.</p>
+      </li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#ports2W">
+    <p>This section is for 2W Port specific settings</p>
+    <ul>
+      <li> Termination: Set {{ctrl.sharedVM.device.deviceType_name}} to perform termination of a 2W chain. Make sure that there is only one device in the 2W chain that is providing termination. Mainstation: may offer termination. Beltpacks only: {{ctrl.sharedVM.device.deviceType_name}} can provide termination.</li>
+      <li ng-show="ctrl.CurrentPort.port_settings.rmkInputEnabled !== undefined">If RMK Input is set to enabled then an endpoint connected to a 2W port will be able to issue RMK commands</li>
+      <li ng-show="ctrl.CurrentPort.port_settings.rmkOutputEnabled !== undefined">If RMK Output is set to enabled then an endpoint connected to a 2W port will be able to receive RMK commands</li>
+      <li> Auto-Nulling: Select Auto-Nulling to activate the process that will automatically configure the 2W Port to eliminate echo.
+        <p>Note: Auto-Null will not be activated if the power is not applied to the interface (see interface setting section)</p>
+        <p>WARNING: Do not listen on the devices in the 2W chain while the process is active</p>
+      </li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#portsIVC">
+    <p>This section is for managing bandwidth usage for an IVC connection.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#portsVox">
+    <p>This section is for VOX specific settings</p>
+    <p>VOX allows configuration of the way the system detects valid audio on a port.
+      Sometimes it makes sense to consider low level noise or ambient sound as not being valid audio.
+      Based on that detection the system will &nbsp;prevent "invalid" audio from being transmitted (i.e. perform audio gating). VOX detection can &nbsp;also be used to activate/deactivate channel Events.</p>
+    <ul>
+      <li> Vox Mode: <br>
+        <br>
+        <ul>
+          <li style="font-size:small">Disabled: Vox is not activated so audio will always be transmitted but no channnel events can be configured.
+            Note that audio is still detected and the status indicator will turn ON when there is some audio even if VOX is disabled. </li>
+          <li style="font-size:small"> Fixed Threshold: Selecting this option will activate the audio detection based a fixed audio level controlled
+            by the VOX Threshold fields. Note: the Off delay and the Threshold are activated when this option is selected. </li>
+          <li style="font-size:small"> Adaptive Threshold: Selecting this option will activate the audio detection based on an adaptive audio level. It means that
+            the level is changing based on the calculation of an average level (also known as noise floor). The system constantly re-evalutes the noise floor which means that the detection threshold changes based on environmental conditions.
+            Note that only the Off delay is activated when this option is selected.
+            <p>WARNING: Adaptive Threshold is not suitable for music </p>
+          </li>
+        </ul>
+      </li>
+      <li>
+        VOX Off Delay: Delays the deactivation of the VOX gate to allow the signal to stabilise.
+      </li>
+      <li ng-show="ctrl.CurrentPort.port_settings.vox !== undefined && ctrl.Properties.vox.threshold.length"> VOX Threshold: This sets the minimum audio signal level (in dB) for the audio to be considered valid.
+        <p>Note: This field is only available when "Fixed Threshold" VOX mode is selected. </p>
+      </li>
+      <li ng-show="ctrl.CurrentPort.port_settings.vox !== undefined && ctrl.Properties.vox.events.length"> VOX Action Triggers: Select the Channel Event that the detection of valid audio will produce.
+        <p>Any channel event can be selected (Event 1, Event 2 and Call Event).</p>
+      </li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#gpioEvent">
+    <p>This section is for GPIO specific settings</p>
+    <p>GPI are signals that are received by {{ctrl.sharedVM.device.deviceType_name}} and that can be used to trigger Channel Events</p>
+    <p>GPO are signals that are driven by {{ctrl.sharedVM.device.deviceType_name}} and can be activated/triggered from any Channel Event</p>
+    <ul>
+      <li> GPI Action triggers: Assign a Channel Event (action) on detection of the GPI signal. </li>
+      <li> GPO Triggered by: Assign which Channel Event can trigger/activate the GPO signal.
+        <p>A Test button is available to momentarily activate the GPO signal</p>
+      </li>
+      <li> GPO Off Delay: Set a delay before the GPO is deactivated after the trigger events have disappeared. </li>
+    </ul>
+  </li>
+</ul>
+

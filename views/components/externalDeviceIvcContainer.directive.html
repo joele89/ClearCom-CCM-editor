@@ -1,0 +1,68 @@
+<div class="device-container">
+    <div class="device-container-outer">
+        <div class="device-container-inner">
+            
+            <div class="external-ivc-id">
+                <span>{{ ctrl.externalDevice.desc }}</span>
+            </div>
+            
+            <div style="margin-top: -6px">
+                
+                <div class="device-label device-ok">{{ ctrl.externalDevice.label }}</div>
+
+                <div class="external-ivc-outer-container">
+                    <div class="external-ivc-inner-container">
+                        
+                        <div class="device-model">
+                            {{ ctrl.externalDevice.type === 'IVC' ? 'IVC-32' : ctrl.externalDevice.type }}
+                        </div>
+                        
+                        <div class="external-ivc-ip">
+                            {{ ctrl.externalDevice.settings.ip ? ctrl.externalDevice.settings.ip : 'Not set'}}
+                        </div>
+                        
+                        <div class="external-ivc-bottom-section">
+                            <div class="external-ivc-box">
+                                <div class="white-background">
+                                    {{ ctrl.numberOfConnectedPorts }} / {{ ctrl.numberOfAssignedPorts }}
+                                </div>
+                            </div>
+                            <div class="external-ivc-box">
+                                <div class="black-background" ng-if="ctrl.externalDevice.type === 'IVC'">
+                                    G.722
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="external-ivc-right-outer">
+
+                    <div class="external-ivc-right-inner">
+                        <div class="device-status-outer">
+                            <div class="device-status-inner">
+                                
+                                <img ng-src="{{ ctrl.numberOfConnectedPorts === ctrl.numberOfAssignedPorts ? '/images/ok.png' : '/images/warning.png'}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div style="float: right; margin-right: 5px">
+                    <a ng-href="/view/accounts/{{ ctrl.externalDevice.type === 'IVC' ? 'ivc32' : ctrl.externalDevice.type.toLowerCase() }}/{{ ctrl.externalDevice.id }}" class="icon-button">
+                        <img src="/images/gear.png" width="24" height="24" style="margin-top:3px;margin-right: 2px">
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <div style="float: left; margin-left: -4px; margin-top: 5px">
+                    <img src="/images/ehx_icon.png" style="width: 30px" ng-if="ctrl.externalDevice.type === 'IVC'">
+                    <span class="glyphicon glyphicon-earphone" style="vertical-align: middle; color: #ccc" ng-if="ctrl.externalDevice.type === 'SIP'"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+
+
+<div class="role-palette-container" style="height:auto">
+  <div style="margin-left:10px;margin-right: 10px;margin-bottom: 10px">
+    
+    <button id="roles-add" type="button" class="btn-green" style="width:190px" ng-style="{'margin-left':getLeftMargin()+'px'}" ng-click="ctrl.showNewRoleDialog()">
+      <span class="glyphicon glyphicon-plus"></span>
+      <span translate>ADD</span>
+    </button>
+    <img ng-if="guideEnabled || currentGuide=='rolesList'" id="rolesListGuideToggle" ng-click="ctrl.openGuide('rolesList')" ng-src="../images/guide.png" style="cursor:pointer;height:20px">
+  </div>
+
+  <div id="roles-sortby" class="conn-canvas-buttons" style="display:block; margin-left:0px">
+  <div style="margin-bottom: 5px" translate>Sort by&nbsp;:</div>
+    <div style="margin-bottom: 5px">
+      <label>
+        <input type="radio" ng-model="ctrl.UserData.rolesSortingFieldName" ng-value="'id'">
+          ID
+      </label>
+      <label>
+        <input type="radio" style="margin-left: 20px" ng-model="ctrl.UserData.rolesSortingFieldName" ng-value="'label'">
+          Name
+      </label>
+    </div>
+  </div>
+
+  <form name="rolesList" style="margin-top:17px">
+
+    <div class="roles-list">
+      <div ng-repeat="endpointCapability in ctrl.EndpointCapabilitiesArray track by endpointCapability.type" class="endpoint-capabilities-cs-help">
+        <div class="ng-scope" ng-click="ctrl.showEndpoint[endpointCapability.type] = !ctrl.showEndpoint[endpointCapability.type];" ng-class="ctrl.showEndpoint[endpointCapability.type] ? 'role-type-header-expanded' : 'role-type-header-collapsed'">
+          <span class="glyphicon" ng-class="ctrl.showEndpoint[endpointCapability.type] ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>          &nbsp; {{endpointCapability.title}}
+        </div>
+        <div ng-show="ctrl.showEndpoint[endpointCapability.type]">
+          <div style="display: flex; justify-content: space-around" class="select-all-cs-help">
+            <div ng-click="ctrl.toggleSelectAll(endpointCapability.type, true)" class="role-quick-select">Select All</div>
+            <div ng-click="ctrl.toggleSelectAll(endpointCapability.type, false)" class="role-quick-select">Deselect All</div>
+          </div>
+          <div class="role-entities">
+
+            <div ng-repeat="role in ctrl.Roles | orderBy: natural(ctrl.UserData.rolesSortingFieldName) | filter: {type: endpointCapability.type, label:'Default'} track by role.id" class="role-item-cs-help">
+              <div class="role-entity-FSII">
+                <div ng-class="(ctrl.RoleIsSelected[role.res]) ? 'active-default': 'inactive-default'">
+                  <div style="width:25px; float:left">
+                    <input type="checkbox" ng-change="ctrl.selectRole(role, false)" ng-model="ctrl.RoleIsSelected[role.res]" class="role-checkbox">
+                  </div>
+                  <div style="width:auto; overflow:hidden" ng-click="ctrl.selectRole(role, true)">
+                    <span>{{role.label}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div ng-repeat="role in ctrl.Roles | orderBy: natural(ctrl.UserData.rolesSortingFieldName) | filter: {type: endpointCapability.type, label:'!'+'Default'} track by role.id">
+              <div class="role-entity-FSII">
+                <div ng-class="(ctrl.RoleIsSelected[role.res]) ? 'active': 'inactive'">
+                  <div style="width:25px; float:left">
+                    <input type="checkbox" ng-change="ctrl.selectRole(role, false)" ng-model="ctrl.RoleIsSelected[role.res]" class="role-checkbox">
+                  </div>
+                  <div style="width:auto; overflow:hidden" ng-click="ctrl.selectRole(role, true)">
+                    <span>{{role.label}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  
+<ul id="rolesListPageGuide" class="guide-hidden" data-tourtitle="CCM Roles">
+  
+  <li class="tlypageguide_top" data-tourtarget="#roles-add">
+    <p>Opens the 'Add Role Dialog' window where you can select a template for the new Role.</p>
+  </li>
+    
+  <li class="tlypageguide_right" data-tourtarget="#roles-sortby">
+    <p>Select the sorting order for the roles. Either alphabetically or by Role ID.</p>
+  </li>
+  
+  
+    
+  
+  
+  <li class="tlypageguide_top" data-tourtarget=".select-all-cs-help">
+    <ul>
+      <li>Select All: select all Roles for editing at the same time. This does not select the default Role.</li>
+      <li>Deselect All: deselects all Roles and selects the default Role.</li>
+    </ul> 
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".role-item-cs-help">
+    <p>The Role Selector where you choose one or more Roles for editing.</p>
+    <ul>
+      <li>Individual Roles can be selected by clicking on the Role label.</li>
+      <li>Multiple Roles can be selected by clicking the checkbox to the left of the label.</li>
+    </ul>
+  </li>
+ </ul>
+</div>

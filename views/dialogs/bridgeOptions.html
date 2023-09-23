@@ -1,0 +1,74 @@
+<div class="bridgeoptions-dialog">
+  <div class="myclose" data-dismiss="modal" aria-label="Close" ng-click="ctrl.cancel();"><span>&#10005;</span></div>
+
+  
+  <div class="bridgeoptions-header-text">{{ ctrl.options.title }}
+    <div class="bridgeoptions-header-message">{{ ctrl.options.message }}</div>
+  </div>
+
+  <div class="localPorts-section-divider" translate>Transport Settings</div>
+
+  
+  <div class="editable-label localPorts-label" translate>Silence Suppression&nbsp;:</div>
+  <div class="editable-entry localPorts-entry" style="vertical-align: bottom">
+    <span editable-select="ctrl.bridgePort.port_settings.silenceSupp" buttons="no" e-ng-options="s.value as s.text for s in ctrl.BoolToEnabledDisabled" onaftersave="ctrl.setSilenceSupp(ctrl.bridgePort)">{{ ctrl.showSilenceSupp(ctrl.bridgePort) }}</span>
+    <img class="info-icon-inline" ng-src="/images/info.svg" uib-popover="{{ctrl.silenceSuppressionMessage}}" popover-placement="bottom" popover-trigger="outsideClick">
+  </div>
+
+  
+  <div>
+    <div class="editable-label localPorts-label" translate>Network Quality:</div>
+    <div ng-if="!ctrl.editingQuality" class="editable-custom-entry localPorts-entry">
+      <span class="editable-click" buttons="no" ng-click="ctrl.editPort(ctrl.bridgePort)">
+            {{ ctrl.showQuality(ctrl.bridgePort.port_settings.networkQuality.type) }}
+      </span>
+    </div>
+    <div class="editable-ng-slider" id="network-quality-slider" ng-show="ctrl.editingQuality" ng-if="ctrl.bridgePort.port_settings.networkQuality.type != null">
+      <div class="bridge-slider">
+        <input slider id="port_slider_inner_small" ng-model="ctrl.bridgePort.port_settings.networkQuality.type" type="number" ng-change="ctrl.applyNetworkQuality(ctrl.bridgePort)" options="ctrl.sliderOptionsSmall">
+      </div>
+    </div>
+    <div id="port_quality" ng-if="ctrl.editingQuality" class="quality-config-pane">
+      <div style="padding-top:15px; padding-bottom:5px">
+        <div class="section-label" style="float:right;margin-right:15px">{{ ctrl.showQuality(ctrl.bridgePort.port_settings.networkQuality.type) }}</div><br>
+        <div class="section-label" translate>Transmit</div>
+        <div class="quality-divider"></div>
+
+        <div style="margin-top:13px">
+          <div class="editable-label localPorts-label" translate>Audio Bitrate:</div>
+          <div class="editable-network-entry">
+            <span ng-if="ctrl.bridgePort.port_settings.networkQuality.type != 5">{{ ctrl.showBitrate(ctrl.bridgePort.port_settings.networkQuality.bitrate) }}</span>
+              <span ng-if="ctrl.bridgePort.port_settings.networkQuality.type == 5" editable-select="ctrl.bridgePort.port_settings.networkQuality.bitrate" buttons="no" e-ng-options="s.value as s.text for s in ctrl.bitrates" onaftersave="ctrl.applyNetworkQuality(ctrl.bridgePort)">{{ ctrl.showBitrate(ctrl.bridgePort.port_settings.networkQuality.bitrate) }}</span>
+          </div>
+          <div class="editable-label localPorts-label" translate>Audio Bandwidth:</div>
+          <div class="editable-network-entry" style="color:#CCCCCC">{{ ctrl.showAudioBandwidth(ctrl.bridgePort.port_settings.networkQuality) }}</div>
+        </div>
+
+        <div style="margin-top:8px">
+          <div class="editable-label localPorts-label" translate>Packet Size:</div>
+          <div class="editable-network-entry">
+            <span ng-if="ctrl.bridgePort.port_settings.networkQuality.type == 5" editable-select="ctrl.bridgePort.port_settings.networkQuality.packetSize" buttons="no" e-ng-options="s.value as s.text for s in ctrl.getPacketSizes(ctrl.bridgePort)" onaftersave="applyNetworkQuality(ctrl.bridgePort)">{{ ctrl.showPacketSize(ctrl.bridgePort.port_settings.networkQuality.packetSize) }}</span>
+            <span ng-hide="ctrl.bridgePort.port_settings.networkQuality.type == 5">{{ ctrl.showPacketSize(ctrl.bridgePort.port_settings.networkQuality.packetSize) }}</span>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top: 15px" translate>Receive</div>
+        <div class="quality-divider"></div>
+
+        <div style="margin-top:13px; margin-bottom:18px">
+          <div class="editable-label localPorts-label" translate>Jitter (min-max):</div>
+          <div class="editable-network-entry">
+            <span ng-if="ctrl.bridgePort.port_settings.networkQuality.type == 5" editable-select="ctrl.bridgePort.port_settings.networkQuality.jitter" buttons="no" e-ng-options="s.value as s.text for s in ctrl.jitterBuffers" onaftersave="ctrl.applyNetworkQuality(ctrl.bridgePort)">{{ ctrl.showJitter(ctrl.bridgePort.port_settings.networkQuality.jitter) }}</span>
+            <span ng-hide="ctrl.bridgePort.port_settings.networkQuality.type == 5">{{ ctrl.showJitter(ctrl.bridgePort.port_settings.networkQuality.jitter) }}</span>
+          </div>
+          <div class="editable-label localPorts-label">Unit latency:</div>
+          <div class="editable-network-entry" style="color:#CCCCCC">{{ ctrl.showLatency(ctrl.bridgePort.port_settings.networkQuality) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+<div style="margin-top:20px"></div>
+</div>

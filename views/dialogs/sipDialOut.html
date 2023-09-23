@@ -1,0 +1,37 @@
+<div class="sipdialout-dialog">
+  <div class="myclose" data-dismiss="modal" aria-label="Close" ng-click="ctrl.cancel();"><span>&#10005;</span></div>
+  
+  <div class="sipdialout-header-text">
+    {{ ctrl.port.port_label }}
+  </div>
+
+  <div class="localPorts-section-divider" translate>SIP Dial Out</div>
+
+  <form name="dial" class="sipdialout-form" ng-class="{'has-error': dial.$dirty && dial.$invalid}">
+    <input id="sipdialouturi" type="text" ng-focus="true" name="uri" ng-model="ctrl.uri" class="form-control input-sm" ng-disabled="ctrl.callRes" ng-change="ctrl.submitError = ''" required placeholder="Number / URI">
+    
+    <button ng-if="!ctrl.callRes" class="btn btn-success btn-sm sip-button" ng-click="dial.$valid && ctrl.initiateCall()" ng-disabled="ctrl.actionPending" uib-popover="{{ctrl.submitError}}" popover-trigger="none" popover-placement="bottom-right" popover-is-open="!!ctrl.submitError">
+      <img src="../images/SIP/MakeCall.svg" class="sip-button-icon">
+    </button>
+    
+    <button ng-if="ctrl.callRes" class="btn btn-danger btn-sm sip-button" ng-click="ctrl.hangUpCall()" ng-disabled="ctrl.actionPending" uib-popover="{{ctrl.submitError}}" popover-trigger="none" popover-placement="bottom-right" popover-is-open="!!ctrl.submitError">
+      <img src="../images/SIP/HangUp.svg" class="sip-button-icon">
+    </button>
+  </form>
+
+  <div class="sipdialout-call-status-area" ng-hide="ctrl.callRes || ctrl.call">
+    <span translate>Ready to dial</span>
+  </div>
+  <div class="sipdialout-call-status-area" ng-show="ctrl.callRes || ctrl.call">
+    <span translate>Call Status: </span>
+    <span class="sipdialout-call-status-message" ng-show="ctrl.callRes" translate>In progress</span>
+    <span class="sipdialout-call-status-message" ng-hide="ctrl.callRes" translate>Ended</span>
+  </div>
+  <div class="sipdialout-call-status-area" ng-show="ctrl.call">
+    <span translate>SIP Status: </span>
+    <span class="sipdialout-call-status-message" ng-class="{'error': ctrl.call.liveStatus.sipCallStatusCode > 200, 'success': ctrl.call.liveStatus.sipCallStatusCode === 200}">
+      {{ ctrl.call.liveStatus.sipCallStatus || 'Initializing' }}
+    </span>
+  </div>
+  <div style="clear:both"></div>
+</div>

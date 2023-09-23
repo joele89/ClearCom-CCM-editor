@@ -1,0 +1,57 @@
+<style>
+  .modal-dialog {
+    width: 495px;
+  }
+  .close {
+    color: #494949;
+    text-shadow: 0 1px 0 #FFF;
+    opacity: 1;
+  }
+</style>
+
+<div class="newrole-dialog">
+
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="dialogCtrl.Close();"><span aria-hidden="true">&times;</span></button>
+
+  
+  <div class="newrole-header-text">
+    Add Role Dialog</div>
+  <div class="newrole-header-underline"></div>
+
+  <div class="newrole-types">
+    <div ng-repeat="endpointCapability in dialogCtrl.EndpointCapabilitiesArray">
+      <div class="newrole-type" ng-click="dialogCtrl.SelectRoleType(endpointCapability.type)" ng-style="dialogCtrl.selectedType == endpointCapability.type && {'background-color': '#5A8CFB'} || {'background-color':'#C6C6C6'}">
+        {{endpointCapability.title}}</div>
+    </div>
+  </div>
+
+  <div class="newrole-verticalLine">&nbsp;</div>
+
+  <div class="newrole-settings">
+    <div class="form-group">
+      <input type="text" id="roleLabel" name="roleLabel" ng-focus="true" class="form-control" placeholder="Label" ng-model="dialogCtrl.newRole.label" ng-maxlength="dialogCtrl.getRoleCapabilitiesForType(dialogCtrl.selectedType).labelLength" ng-enter="dialogCtrl.AddRole()" required>
+
+      <input type="text" id="description" class="form-control" placeholder="Description (optional)" ng-model="dialogCtrl.newRole.description" ng-enter="dialogCtrl.AddRole()" style="margin-top: 5px">
+
+      <div style="margin-top: 8px; margin-left:3px">Select a Template Role</div>
+      
+      <select class="form-control" ng-model="dialogCtrl.templateRole" style="width:100%; cursor:pointer" ng-options="value as value.label for (key, value) in dialogCtrl.Roles | filter: {type: dialogCtrl.selectedType}">
+      </select>
+    </div>
+
+    <div ng-show="dialogCtrl.createError" class="alert alert-danger alert-dismissible" role="alert">
+      <button type="button" class="close" ng-click="dialogCtrl.createError = null"><span aria-hidden="true">&times;</span><span class="sr-only">
+        Close</span></button>
+      {{dialogCtrl.createError}}
+    </div>
+
+    <button ng-disabled="dialogCtrl.CanAddRoles" ng-class="dialogCtrl.CanAddRoles ? 'cc-btn-disabled' : 'cc-btn-add'" ng-click="dialogCtrl.CanAddRoles || dialogCtrl.AddRole()">
+      <span translate>Add</span></button>
+
+    <button class="cc-btn-done" ng-click="dialogCtrl.Close();" style="margin-left:68px">
+      <span translate>Close</span>
+    </button>
+
+  </div>
+</div>
+

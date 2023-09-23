@@ -1,0 +1,130 @@
+<style ng-bind-html="dialogCtrl.styleWidth"></style>
+
+<style>
+  .close {
+    color: #494949;
+    text-shadow: 0 1px 0 #FFF;
+    opacity: 1;
+  }
+</style>
+
+<div class="channelselect-dialog">
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="dialogCtrl.cancel();">
+    <span aria-hidden="true">&times;</span>
+  </button>
+
+  
+  <div class="channelselect-header-text">
+    {{dialogCtrl.options.title}}
+  </div>
+
+  <div ng-show="dialogCtrl.options.messages" class="channelselect-header-message">
+    {{dialogCtrl.options.messages}}
+  </div>
+  <div>
+    <table class="legend-table">
+    	<tr>
+        <th colspan="7">Legend</th>
+      </tr>
+    	<tr>
+        <td class="colFirst" colspan="2" style="text-align:center"><u>Colors</u></td>
+        <td style="width:10px"></td><td class="colMiddle"></td><td style="width:10px"></td>
+        <td class="colLast" colspan="2" style="text-align:center; width:100px"><u>Icons</u></td>
+      </tr>
+      <tr>
+        <td class="colFirst"><div style="background:#777; color:white; border:black solid 1px">Gray</div></td>
+        <td>indicates no association to this role </td>
+        <td></td><td class="colMiddle"></td><td></td>
+        <td><div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registered_1.svg'"></div></td>
+        <td class="colLast">indicates a fixed role</td>
+      </tr>
+      <tr>
+        <td class="colFirst"><div style="background:#3C6EDD; color:white; border:black solid 1px">Blue</div></td>
+        <td>indicates fixed to this role</td>
+        <td></td><td class="colMiddle"></td><td></td>
+        <td><div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registered_2.svg'"></div></td>
+        <td class="colLast">indicates a non-fixed role</td>
+      </tr>
+      <tr>
+        <td class="colFirst"><div style="background:#ff861e; color:white; border:black solid 1px">Orange</div></td>
+        <td>indicates a selection to this role that is not fixed</td>
+        <td></td><td class="colMiddle"></td><td></td>
+        <td><div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registering.svg'"></div></td>
+        <td class="colLast">indicates beltpack is on, no role assigned yet</td>
+      </tr>
+      <tr>
+        <td class="colFirst"></td>
+        <td></td>
+        <td></td><td class="colMiddle"></td><td></td>
+        <td><div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Not_Registered.svg'"></div></td>
+        <td class="colLast">indicates beltpack is not online</td>
+      </tr>
+      <tr>
+        <td class="footer" colspan="7"></td>
+      </tr>
+    </table>
+  </div>
+  <div class="channelselect-underline" style="margin-top:5px"></div>
+  <div ng-repeat="(key, obj) in dialogCtrl.options.connectables">
+    <div ng-show="obj.value.length > 0">
+      <div ng-if="dialogCtrl.connectionTypeCount == 1">
+        <div class="channelselect-header-message" style="margin: 0px; padding: 10px 0px">
+          {{ key }}
+        </div>
+      </div>
+      <div ng-if="dialogCtrl.connectionTypeCount > 1">
+        <div style="cursor: pointer; padding: 10px 0px" ng-click="dialogCtrl.showSection[key] = !dialogCtrl.showSection[key] ">
+          <span class="channelselect-header-plus-minus glyphicon" ng-class="dialogCtrl.showSection[key]  ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+
+          <div class="channelselect-header-message" style="margin: 0px">
+            {{ key }}
+          </div>
+        </div>
+      </div>
+      <div class="channelselect-underline"></div>
+
+      <div ng-show="dialogCtrl.showSection[key]">
+        <div class="channelselect-channels">
+          <div ng-repeat="connectableItem in obj.value">
+            <div class="channelselect-button" style="width:140px; height:34px" ng-click="dialogCtrl.onClick(connectableItem[obj.primaryKeyField])">
+              <div class="inner" style="width:134px; height: 28px">
+                <div ng-style="(dialogCtrl.isSelected(connectableItem[obj.primaryKeyField]))?
+                  { 'background': '#3C6EDD' } : (dialogCtrl.options.myId === connectableItem.role) ?  { 'background': '#ff861e' } :  { 'background': '#777777' }" style="height:26px; display: flex; align-items: center">
+                  <div style="max-width:110px; width:110px; overflow:hidden; text-overflow: ellipsis">{{connectableItem.label}}</div>
+                  <div ng-switch="connectableItem.status">
+                    <div ng-switch-when="0">
+                        <div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registered_1.svg'"></div>
+                    </div>
+                    <div ng-switch-when="1">
+                        <div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registered_2.svg'"></div>
+                    </div>
+                    <div ng-switch-when="2">
+                        <div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Registering.svg'"></div>
+                    </div>
+                    <div ng-switch-when="3">
+                        <div class="endpoint-icon-inline" ng-include="'/images/EndpointRoleStatus/Not_Registered.svg'"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div ng-show="dialogCtrl.options.emptyCollectionMessages && obj.value.length == 0" class="channelselect-channels">
+        {{dialogCtrl.options.emptyCollectionMessages}}
+      </div>
+    </div>
+    
+  </div>
+  <div ng-show="dialogCtrl.options.assigned.length > 1" style="text-align: center; padding-bottom:20px; background: #A0A0A0">
+    <p><strong>IMPORTANT :</strong></p>
+    <p>If you select multiple beltpacks, the Role will be assigned to the first requesting beltpack.</p>
+    <p>The other beltpacks cannot take this Role until the Role is freed.</p>
+  </div>
+  <div ng-show="dialogCtrl.options.allowMultipleSelections" style="text-align: center; padding-bottom:20px; background: #A0A0A0">
+    <button type="button" ng-class="dialogCtrl.canFinish() ? 'cc-btn-done' : 'cc-btn-done-disabled'" ng-disabled="!dialogCtrl.canFinish()" ng-click="dialogCtrl.finish();">
+      Done
+    </button>
+  </div>
+</div>

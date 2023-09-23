@@ -1,0 +1,254 @@
+
+<div ng-if="sipCtrl.isUnlicensed()" style="font-size: 16px">
+  <p>The SIP service is not licensed.</p>
+</div>
+
+<div class="content" ng-if="!sipCtrl.isUnlicensed()">
+
+  <div class="page-header-top"><span translate>SIP Servers</span>
+    <img ng-if="guideEnabled || currentGuide=='externalSIP'" id="externalSIPGuideToggle" ng-click="sipCtrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+  </div>
+  
+  <div class="ivc32-list-pane">
+    <ul>
+      <li ng-class="{ 'selected': sip.id == sipCtrl.selectedExternalDevice.id, 'warning': sipCtrl.hasWarning(sip) }" ng-repeat="sip in sipCtrl.externalDevices | orderBy: 'id'" ng-click="sipCtrl.selectExternalDevice(sip)">
+        <div class="ivc-id">{{ sip.desc }}</div>
+        <div class="ivc-label">{{ sip.label }}</div>
+      </li>
+    </ul>
+    <div>
+      <button id="sipAdd" type="button" class="btn btn-success btn-sm" ng-click="sipCtrl.addExternalDeviceDevice('SIP')" ng-disabled="!sipCtrl.isMasterReachable">
+        <span class="glyphicon glyphicon-plus"></span>
+      </button>
+      <img ng-hide="sipCtrl.isMasterReachable" src="/images/warning.png" class="warning-icon-inline" uib-popover="{{sipCtrl.getLinkMasterOffLineWarning()}}" popover-placement="bottom" popover-trigger="outsideClick">
+    </div>
+  </div>
+
+  <div class="ivc32-config-pane" ng-show="sipCtrl.selectedExternalDevice != null">
+    
+    <div class="collapsable-section-header-top" style="padding-bottom: 20px">
+      <div id="ivc32-delete-button" ng-click="sipCtrl.isMasterReachable && sipCtrl.confirmRemoveExternalDevice()">
+        <span class="glyphicon glyphicon-trash icon-button" ng-class="sipCtrl.isMasterReachable || 'icon-button-disabled'"></span>
+      </div>
+
+      <div id="sipSettings" style="margin-right: 32px">
+        <div class="collapsable-section-header-sub">SIP Server Settings</div>
+        <div class="collapsable-section-horizontal-divider"></div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>Label&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="sipCtrl.selectedExternalDevice.label" e-required e-maxlength="{{ sipCtrl.deviceCapability.labelLength }}" onbeforesave="sipCtrl.saveLabel($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.label || sipCtrl.emptyString }}</span>
+          <span ng-hide="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.label || sipCtrl.emptyString }}</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>Registrar/Proxy IP/Hostname&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="sipCtrl.selectedExternalDevice.settings.ip" e-maxlength="255" onbeforesave="sipCtrl.saveIp($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.ip || sipCtrl.emptyString }}</span>
+          <span ng-hide="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.ip || sipCtrl.emptyString }}</span>
+
+          <img ng-show="sipCtrl.showIPWarning()" src="/images/warning.png" class="warning-icon-inline" uib-popover="Missing IP/Hostname" popover-placement="bottom" popover-trigger="outsideClick">
+        </div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>Registrar/Proxy Port&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-number="sipCtrl.selectedExternalDevice.settings.port" e-required e-min="1" e-max="65535" onbeforesave="sipCtrl.savePort($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.port }}</span>
+          <span ng-hide="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.port }}</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>Domain&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="sipCtrl.selectedExternalDevice.settings.domain" e-maxlength="255" onbeforesave="sipCtrl.saveDomain($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" ng-show="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.domain || sipCtrl.emptyString }}</span>
+          <span ng-hide="sipCtrl.isMasterReachable">{{ sipCtrl.selectedExternalDevice.settings.domain || sipCtrl.emptyString }}</span>
+        </div>
+      </div>
+
+      <div id="sipAdvancedSettings" style="margin-right: 32px">
+        <div class="collapsable-section-header-sub">Advanced</div>
+        <div class="collapsable-section-horizontal-divider"></div>
+      </div>
+
+      <div>
+        <div class="editable-label" translate>SIP Transport Protocol&nbsp;:</div>
+        <div class="editable-entry">
+          <span>UDP/TCP</span>
+        </div>
+      </div>
+    </div>
+
+      
+    <div class="collapsable-section-header-top" style="padding-bottom: 20px">
+      <div id="sipLines" class="collapsable-section-header-sub">Accounts</div>
+      <div class="collapsable-section-horizontal-divider"></div>
+      <table class="ports-table">
+        <tr>
+          <th></th><th class="port-id">#</th>
+          <th class="port-label" translate>Label</th>
+          <th class="login" translate>User</th>
+          <th class="password" translate>Password</th>
+          <th class="assigned-device-id" translate>LQ Assignment</th>
+          <th class="form-cell"><div class="status-area">Status</div></th>
+        </tr>
+        <tr ng-repeat="port in sipCtrl.selectedExternalDevice.ports" id="sipLine{{$index}}" class="port-row">
+
+          <td class="command">
+            <button type="button" class="btn btn-gray btn-sm" ng-click="sipCtrl.confirmRemovePort(port)" ng-disabled="!sipCtrl.isMasterReachable">
+              <span class="glyphicon glyphicon-minus"></span>
+            </button>
+
+          </td>
+
+          <td class="port-id">
+                      {{ port.desc }}
+          </td>
+
+          <td class="editable-entry port-label">
+            <span editable-text="port.label" e-form="rowform" e-name="label" ng-click="sipCtrl.onEditableElementClick(this, $event)" ng-show="sipCtrl.isMasterReachable" e-maxlength="{{ sipCtrl.deviceCapability.labelLength }}" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="sipCtrl.validatePortLabel($data)" e-ng-keydown="sipCtrl.onPortKeyDown($event.keyCode, rowform)">{{port.label || sipCtrl.emptyString}}
+            </span>
+            <span ng-hide="sipCtrl.isMasterReachable">{{port.label || sipCtrl.emptyString}}</span>
+          </td>
+
+          <td class="editable-entry login">
+            <span editable-text="port.settings.login" e-form="rowform" e-name="login" ng-click="sipCtrl.onEditableElementClick(this, $event)" ng-show="sipCtrl.isMasterReachable" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="sipCtrl.validatePortLogin($data, port.id)" e-ng-keydown="sipCtrl.onPortKeyDown($event.keyCode, rowform)">{{port.settings.login || sipCtrl.emptyString}}</span>
+            <span ng-hide="sipCtrl.isMasterReachable">{{port.settings.login || sipCtrl.emptyString}}</span>
+          </td>
+
+          <td class="editable-entry password">
+            <span editable-text="port.settings.password" e-form="rowform" e-name="password" ng-click="sipCtrl.onEditableElementClick(this, $event)" ng-show="sipCtrl.isMasterReachable" e-ng-keydown="sipCtrl.onPortKeyDown($event.keyCode, rowform)">{{port.settings.password || sipCtrl.emptyString}}</span>
+            <span ng-hide="sipCtrl.isMasterReachable">{{port.settings.password || sipCtrl.emptyString}}</span>
+          </td>
+
+          <td class="editable-entry assigned-device-id">
+            <span editable-select="port.settings.assignedDeviceId" ng-show="sipCtrl.isMasterReachable" e-ng-options="s.value as s.text for s in sipCtrl.assignableDevices | filter:{sip: true}" class="editable-text" e-form="rowform" e-name="assignedDeviceId" ng-click="sipCtrl.onEditableElementClick(this, $event)" e-ng-keydown="sipCtrl.onPortKeyDown($event.keyCode, rowform)">{{sipCtrl.showAssignedDevice(port.settings.assignedDeviceId)}}</span>
+            <span ng-hide="sipCtrl.isMasterReachable">{{sipCtrl.showAssignedDevice(port.settings.assignedDeviceId)}}</span>
+          </td>
+
+          <td class="form-cell">
+            <form editable-form name="rowform" class="form-buttons form-inline" ng-show="rowform.$visible" onbeforesave="sipCtrl.updateLine(this, port.id, $data)" onhide="sipCtrl.clearError(this)">
+              <button type="submit" ng-disabled="rowform.$waiting || !sipCtrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                <span class="glyphicon glyphicon-ok"></span>
+              </button>
+              <button type="button" ng-disabled="rowform.$waiting" ng-click="sipCtrl.cancelPortEdit(this)" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </form>
+            <div ng-hide="rowform.$visible || !port.settings.assignedDeviceId">
+              <div class="status-area">
+
+                <div ng-hide="port.liveStatus.sipRegistrationStatusCode === -1 || port.liveStatus.sipRegistrationStatusCode === 0 ||
+                              port.liveStatus.sipRegistrationStatusCode === 1 || port.liveStatus.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="{{ sipCtrl.getConnectionWarning(port) }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Failed_to_Register.svg'">
+                </div>
+                <div ng-show="port.liveStatus.sipRegistrationStatusCode === -1 || port.liveStatus.sipRegistrationStatusCode === 0" class="sip-icon-inline" uib-popover="{{ sipCtrl.getConnectionWarning(port) }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Not_Registered.svg'">
+                </div>
+                <div ng-show="port.liveStatus.sipRegistrationStatusCode === 1" class="sip-icon-inline" uib-popover="{{ sipCtrl.getConnectionWarning(port) }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registering.svg'">
+                </div>
+                <div ng-show="port.liveStatus.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="{{ sipCtrl.getConnectionWarning(port) }}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registered_2.svg'">
+                </div>
+              </div>
+              <div class="port-link">
+                <a ng-href="{{ sipCtrl.isDeviceReachable(port.settings.assignedDeviceId) ?
+                  '/view/device/' + port.settings.assignedDeviceId + '/ports?externalDeviceId=' + port.externalDeviceId + '&amp;externalPortId=' + port.id :
+                  '' }}">
+                  <img src="/images/gear.png" class="icon-button" width="24" height="24" ng-class="sipCtrl.isDeviceReachable(port.settings.assignedDeviceId) || 'icon-button-disabled'">
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="command">
+            <button ng-hide="sipCtrl.pendingPort" type="button" class="btn btn-success btn-sm" ng-click="sipCtrl.addPendingLine(this)" ng-disabled="!sipCtrl.isMasterReachable">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </td>
+
+          <td class="port-id">
+          </td>
+
+          <td class="editable-entry port-label">
+            <span ng-show="sipCtrl.pendingPort" e-maxlength="{{ sipCtrl.deviceCapability.labelLength }}" editable-text="sipCtrl.pendingPort.label" e-form="pendingPortForm" e-name="label" e-ng-keydown="sipCtrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)" onbeforesave="sipCtrl.validatePortLabel($data)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error">{{sipCtrl.pendingPort.label || sipCtrl.emptyString}}
+            </span>
+          </td>
+
+          <td class="editable-entry login">
+            <span ng-show="sipCtrl.pendingPort" editable-text="sipCtrl.pendingPort.settings.login" e-form="pendingPortForm" e-name="login" e-ng-keydown="sipCtrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)" e-uib-popover="{{ '{{$error}\}' }}" e-popover-trigger="none" e-popover-placement="bottom" e-popover-is-open="!!$error" onbeforesave="sipCtrl.validatePortLogin($data)">{{sipCtrl.pendingPort.settings.login || sipCtrl.emptyString}}
+            </span>
+          </td>
+
+          <td class="editable-entry password">
+            <span ng-show="sipCtrl.pendingPort" editable-text="sipCtrl.pendingPort.settings.password" e-form="pendingPortForm" e-name="password" e-ng-keydown="sipCtrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)">{{port.settings.password || sipCtrl.emptyString}}
+            </span>
+          </td>
+
+          <td class="editable-entry assigned-device-id">
+            <span ng-show="sipCtrl.pendingPort" editable-select="sipCtrl.pendingPort.settings.assignedDeviceId" e-ng-options="s.value as s.text for s in sipCtrl.assignableDevices | filter:{sip: true}" class="editable-text" e-form="pendingPortForm" e-name="assignedDeviceId" e-ng-keydown="sipCtrl.onPendingPortKeyDown($event.keyCode, pendingPortForm)">{{sipCtrl.showAssignedDevice(sipCtrl.pendingPort.settings.assignedDeviceId)}}
+            </span>
+          </td>
+
+          <td class="form-cell">
+            <form editable-form name="pendingPortForm" class="form-buttons form-inline" ng-show="pendingPortForm.$visible" onbeforesave="sipCtrl.addLine(this, $data)" onaftersave="sipCtrl.onPortAdded()" onshow="sipCtrl.onPendingPortShown(this)" onhide="sipCtrl.onPendingPortHidden(this)">
+              <button type="submit" ng-disabled="pendingPortForm.$waiting || !sipCtrl.isMasterReachable" class="btn btn-primary btn-sm" uib-popover="{{$error}}" popover-trigger="none" popover-placement="bottom" popover-is-open="!!$error">
+                <span class="glyphicon glyphicon-ok"></span>
+              </button>
+              <button type="button" ng-disabled="pendingPortForm.$waiting" ng-click="sipCtrl.cancelAdd(this)" class="btn btn-default btn-sm">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </form>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+<ul id="externalSIPPageGuide" class="guide-hidden" data-tourtitle="CCM External system sip">
+  
+  <li class="tlypageguide_left" data-tourtarget="#sipAdd"> Click the + button to add a new SIP server</li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#sipSettings">This is the section where you can configure settings for a SIP server
+    <ul>
+      <li>Label: Give the SIP server a meaningful name</li>
+      <li>Registrar/Proxy IP/Hostname: IP or DNS name of the SIP server </li>
+      <li>IP Port: UDP/TCP Port to access the SIP server (5060 by default)</li>
+      <li>Domain: If the server supports using a domain that is different from the registrar address, enter it here</li>
+      <li>Delete this SIP server by clicking on the trash can</li>
+    </ul>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#sipLines"> This is the section where you can add/remove sip ports. A maximum of 8 accounts can be associated to an LQ device.</li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#sipLine0"> Every line represents a SIP account. For each one of them, you must configure the following:
+    <ul>
+      <li>Label: User friendly account label. Any meaningful name is possible</li>
+      <li>User ID: The user account to connect to the SIP server with</li>
+      <li>Password: The password to use when connecting the account to the SIP server</li>
+      <li>LQ Assignment: This is the LQ Device that will be responsible for managing the SIP account</li>
+      <li>
+        Status: If the account is associated with an LQ device the registration status will display one of the following:
+        <ul>
+          <li>
+            <div class="sip-icon-inline" ng-include="'/images/SIP/Failed_to_Register.svg'"></div>
+            Registration Failed: The SIP server returned a failure code. Click the icon for more details
+          </li>
+          <li>
+            <div class="sip-icon-inline" ng-include="'/images/SIP/Not_Registered.svg'"></div>
+            Not Registered: Registration with the SIP server has not begun</li>
+          <li>
+            <div class="sip-icon-inline" ng-include="'/images/SIP/Registering.svg'"></div>
+            Registering: Waiting for a reply from the SIP server</li>
+          <li>
+            <div class="sip-icon-inline" ng-include="'/images/SIP/Registered_2.svg'"></div>
+            Registered: The SIP server returned registration successful</li>
+      </ul></li>
+      <li>Click the gear icon to navigate to the port settings related to this account in the Device > Ports page</li>
+    </ul>
+  </li>
+</ul>
+</div>

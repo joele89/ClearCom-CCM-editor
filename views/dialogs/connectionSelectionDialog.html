@@ -1,0 +1,107 @@
+<style ng-bind-html="dialogCtrl.styleWidth"></style>
+
+<style>
+  .close {
+    color: #494949;
+    text-shadow: 0 1px 0 #FFF;
+    opacity: 1;
+  }
+</style>
+
+<div class="channelselect-dialog">
+
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="dialogCtrl.cancel();"><span aria-hidden="true">&times;</span></button>
+
+  
+  <div class="channelselect-header-text">
+    {{dialogCtrl.options.title}}
+  </div>
+
+  <div ng-show="dialogCtrl.options.messages" class="channelselect-header-message">
+    {{dialogCtrl.options.messages}}
+  </div>
+
+
+
+  <div ng-show="dialogCtrl.options.showRelayDetectionOfTalkMessage">
+    <div class="channelselect-underline" style="margin-top:5px"></div>
+    <div class="channelselect-header-message-left-aligned" style="margin-left:-10px">
+      <ul>
+        <li translate>
+          <strong>TALK BUTTON</strong> pressed by any keyset assigned to the Channel
+        </li>
+        <li translate>
+          Detection of <strong>VOX</strong> from a 4-Wire Interface assigned to the Channel
+        </li>
+        <li translate>
+          Detection of <strong>VOX</strong> on a Program Input assigned to the Channel
+        </li>
+        <li translate>
+          <strong>Note</strong>: Both Interface and Channel must be locally present
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div ng-show="dialogCtrl.options.showRelayDetectionOfCallMessage">
+    <div class="channelselect-underline" style="margin-top:5px"></div>
+    <div class="channelselect-header-message-left-aligned" style="margin-left:-10px">
+      <ul>
+        <li translate>
+          <strong>CALL BUTTON</strong> key pressed by any keyset assigned to the Channel
+        </li>
+        <li translate>
+          Detection of <strong>CALL SIGNALIZATION</strong> from either a 2-Wire or 4-Wire Interface assigned to Channel
+        </li>
+        <li translate>
+          <strong>Note</strong>: Both Interface and Channel must be locally present
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="channelselect-underline" style="margin-top:5px"></div>
+  <div ng-repeat="(key, obj) in dialogCtrl.options.connectables">
+    <div ng-show="obj.value.length > 0">
+      <div ng-if="dialogCtrl.connectionTypeCount == 1">
+        <div class="channelselect-header-message" style="margin: 0px; padding: 10px 0px">
+          {{ key }}
+        </div>
+      </div>
+      <div ng-if="dialogCtrl.connectionTypeCount > 1">
+        <div style="cursor: pointer; padding: 10px 0px" ng-click="dialogCtrl.showSection[key] = !dialogCtrl.showSection[key] ">
+          <span class="channelselect-header-plus-minus glyphicon" ng-class="dialogCtrl.showSection[key]  ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+
+          <div class="channelselect-header-message" style="margin: 0px">
+            {{ key }}
+          </div>
+        </div>
+      </div>
+      <div class="channelselect-underline"></div>
+
+      <div ng-show="dialogCtrl.showSection[key]">
+        <div class="channelselect-channels">
+          <div ng-repeat="connectableItem in obj.value">
+            <div class="channelselect-button" ng-click="dialogCtrl.onClick(connectableItem[obj.primaryKeyField])">
+              <div class="inner">
+                <div ng-class="(dialogCtrl.isSelected(connectableItem[obj.primaryKeyField]))?'active': 'inactive'">
+                  <span>{{connectableItem[obj.labelField]}}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="dialogCtrl.options.emptyCollectionMessages && obj.value.length == 0" class="channelselect-channels">
+      {{dialogCtrl.options.emptyCollectionMessages}}
+    </div>
+  </div>
+  
+
+  <div ng-show="dialogCtrl.options.allowMultipleSelections" style="text-align: center; padding-bottom:20px; background: #A0A0A0">
+    <button type="button" ng-class="dialogCtrl.canFinish() ? 'cc-btn-done' : 'cc-btn-done-disabled'" ng-disabled="!dialogCtrl.canFinish()" ng-click="dialogCtrl.finish();">
+      Done
+    </button>
+  </div>
+
+</div>

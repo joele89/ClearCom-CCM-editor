@@ -1,0 +1,1132 @@
+<div ng-show="ctrl.CurrentRole" style="width: 510px">
+  <style scoped>
+    .editable-label {
+      width:160px
+    }
+  </style>
+  
+
+  
+  <div class="role-config-roleName">
+    <div class="role-edit" ng-style="ctrl.CurrentRole.isDefault || ctrl.MultipleRolesSelected() ? {'color':'#ddd'} : 0">
+      <span ng-if="!ctrl.CurrentRole.isDefault && !ctrl.MultipleRolesSelected()" id="roleLabel" editable-text="ctrl.CurrentRole.label" e-minlength="1" e-maxlength="{{ctrl.getRoleCapabilitiesForType(ctrl.CurrentRole.type).labelLength}}" onshow="ctrl.Error['labelError'] = null" onaftersave="ctrl.updateProperties('label')">{{ctrl.CurrentRole.label || 'Enter Label for Role'}}</span>
+      <span ng-if="ctrl.CurrentRole.isDefault && !ctrl.MultipleRolesSelected()">{{ctrl.CurrentRole.label || 'Enter Label for Role'}}</span>
+
+        <div ng-show="ctrl.MultipleRolesSelected()" class="devices-warning">
+            <img ng-src="../../images/warning.png" style="width: 22px; height: 22px">
+            <div style="width: 250px" translate>Changes will be applied to all selected Roles</div>
+        </div>
+
+    </div>
+
+    <img ng-if="guideEnabled || currentGuide==='rolesSettings'" id="rolesSettingsGuideToggle" ng-click="ctrl.openGuide('rolesSettings')" ng-src="../images/guide.png" style="cursor:pointer; position:absolute; left: 295px; top: 10px; height: 20px">
+    
+    <button id="role-settings-clone" ng-show="!ctrl.MultipleRolesSelected()" class="btn btn-sm btn-success" style="position: absolute; left:320px; top:5px; outline:none" ng-click="ctrl.cloneCurrentRole()">
+      <span class="glyphicon glyphicon-duplicate"></span><span style="margin-left:7px">CLONE</span>
+    </button>
+
+    
+    <button id="role-settings-delete" ng-show="ctrl.canDelete()" class="btn btn-sm btn-danger" style="position: absolute; left:420px; top:5px; outline:none; min-width: 88px" ng-click="ctrl.deleteCurrentRole()">
+      <span class="glyphicon glyphicon-trash"></span><span style="margin-left:7px">DELETE</span>
+    </button>
+
+    <button id="role-settings-reset" ng-show="!ctrl.MultipleRolesSelected() && ctrl.CurrentRole.isDefault" class="btn btn-sm btn-danger" style="position: absolute; left:420px; top:5px; outline:none; min-width: 88px" ng-click="ctrl.resetCurrentRole()">
+      <span class="glyphicon glyphicon-repeat"></span><span style="margin-left:7px">RESET</span>
+    </button>
+
+  </div>
+  <div class="horizontal-divider" style="margin-left:5px; margin-bottom:2px; height:2px">&nbsp;</div>
+
+  
+  <div>
+    <div ng-show="ctrl.Error['labelError']" class="alert alert-danger" role="alert">
+      <button type="button" class="close" ng-click="ctrl.Error['labelError'] = null">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+      </button>
+      {{ctrl.Error['labelError']}}
+    </div>
+    <div ng-show="ctrl.Error['generalDescriptionErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalDescriptionErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalDescriptionErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+  <div class="role-config-usageCount" style="float:left" ng-if="!ctrl.CurrentRole.isDefault && ctrl.CurrentRole.type === 'FSII-BP' && !ctrl.MultipleRolesSelected()">
+    <div>
+      
+      <small ng-show="ctrl.roleInUseBy === ''" translate>This role is not in use.</small>
+      <small ng-hide="ctrl.roleInUseBy === ''" translate>This role is used by {{ctrl.roleInUseBy}}.</small>
+    </div>
+    <div>
+      
+      <small ng-hide="ctrl.roleUsageCount > 0" translate>This role has no fixed assignments.</small>
+      <small ng-show="ctrl.roleUsageCount > 0" translate>This role is assigned to {{ctrl.roleUsageCount}} {{ctrl.roleTypeToDeviceString(ctrl.CurrentRole.type, ctrl.roleUsageCount > 1)}}.</small>
+    </div>
+  </div>
+
+  <div class="role-config-usageCount" style="float:left" ng-hide="(ctrl.CurrentRole.type === 'FSII-BP') || (ctrl.CurrentRole.isDefault && ctrl.CurrentRole.type !== 'LQ-AIC') || ctrl.MultipleRolesSelected()">
+    
+    <small ng-hide="ctrl.roleUsageCount > 0" translate>This role has no fixed assignments.</small>
+    <small ng-show="ctrl.roleUsageCount > 0" translate>This role is used by {{ctrl.roleUsageCount}} {{ctrl.roleTypeToDeviceString(ctrl.CurrentRole.type, ctrl.roleUsageCount > 1)}}.</small>
+</div>
+  <div class="role-config-usageCount" style="float:right" ng-hide="ctrl.CurrentRole.isDefault || ctrl.MultipleRolesSelected()">
+    <button class="btn-blue" ng-click="ctrl.showEndpointAssignment()">
+      Assign to Device
+    </button>
+  </div>
+  <div style="clear:both"></div>
+
+  
+  <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.useLocalSettings != undefined">
+          <div class="editable-label" style="text-align:left; width:auto; margin-left:8px" translate>Use Local Settings:</div>
+          <div class="editable-entry">
+            <input type="checkbox" ng-change="ctrl.updateSettingOnChange('useLocalSettings', 'generalStationErrorTitle')" ng-model="ctrl.CurrentRole.settings.useLocalSettings" class="role-checkbox">
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  
+  <div data-my-shared-scope></div>
+
+  <div data-keyset-assign data-ng-model="ctrl.CurrentRole.settings.keysets" data-keyset-type="ctrl.CurrentRole.type" data-callback="ctrl.updateKeysetCallback()" data-last-key-can-reply="ctrl.roleTypeIs(['FSII-BP'])" data-can-call="ctrl.roleTypeIs(['FSII-BP'])" data-error-text="ctrl.Error['generalKeysetErrorTitle']" data-index-selected-key="ctrl.selectedKey" ng-class="{'keyset-helixnet': !ctrl.roleTypeIs(['LQ-AIC']), 'keyset-lq': ctrl.roleTypeIs(['LQ-AIC'])}">
+</div>
+
+  
+  <div data-expander data-expander-title="Groups" data-page-name="roles" data-section="groups" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-groups">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div>
+            <div class="editable-label" translate>Group Membership&nbsp;:</div>
+            <div class="editable-entry">
+                <span class="sudo-editable-entry" ng-click="ctrl.showGroupsAssignments()">{{ctrl.GetAssignments(ctrl.CurrentRole.settings.groups)}}</span>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['groupsErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['groupsErrorTitle'] = null">&times;</a>
+          <span translate>Error!&nbsp;</span>{{ctrl.Error['groupsErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+
+  
+  <div data-expander data-expander-title="General Settings" data-page-name="roles" data-section="generalSettings" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-general-settings">
+    <div class="role-settings-elements">
+      <div ng-hide="ctrl.MultipleRolesSelected()" class="role-settings-element">
+        <div class="editable-label" translate>Description&nbsp;:</div>
+        <div class="editable-entry">
+          <span id="roleDescriptionFSII" editable-text="ctrl.CurrentRole.description" e-minlength="0" e-maxlength="100" onaftersave="ctrl.updateProperties('description')">{{ctrl.CurrentRole.description || 'Enter Description for Role'}}</span>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayBrightness != undefined">
+          <div class="editable-label" translate>Display Brightness&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayBrightness" e-ng-options="s.value as s.text for s in ctrl.Properties.displayBrightnessFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayBrightness', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayBrightness, ctrl.Properties.displayBrightnessFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.dimmedTallies != undefined">
+          <div class="editable-label" translate>Dimmed Tallies&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.dimmedTallies" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('dimmedTallies', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.dimmedTallies, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.latchingTalkKeys != undefined">
+          <div class="editable-label" translate>Allow Caller Latching :</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.latchingTalkKeys" e-ng-options="s.value as s.text for s in ctrl.Properties.ReverseBoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('latchingTalkKeys', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.latchingTalkKeys, ctrl.Properties.ReverseBoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.eavesdropping != undefined">
+          <div class="editable-label" translate>Eavesdropping :</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.eavesdropping" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('eavesdropping', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.eavesdropping, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.menuKeyMode != undefined">
+          <div class="editable-label" translate>Menu Key Operation :</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.menuKeyMode" e-ng-options="s.value as s.text for s in ctrl.Properties.menuKeyModeFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('menuKeyMode', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.menuKeyMode, ctrl.Properties.menuKeyModeFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.replyTalkAutoClear != undefined">
+          <div class="editable-label" translate>Reply Auto Clear&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.replyTalkAutoClear" e-ng-options="s.value as s.text for s in ctrl.Properties.replyTalkAutoClearFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('replyTalkAutoClear', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.replyTalkAutoClear, ctrl.Properties.replyTalkAutoClearFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayDimTimeout != undefined">
+          <div class="editable-label" translate>Display Dim Timeout&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayDimTimeout" e-ng-options="s.value as s.text for s in ctrl.Properties.displayDimTimeoutFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayDimTimeout', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayDimTimeout, ctrl.Properties.displayDimTimeoutFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayOffTimeout != undefined">
+          <div class="editable-label" translate>Display Off Timeout&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayOffTimeout" e-ng-options="s.value as s.text for s in ctrl.Properties.displayTimeoutFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayOffTimeout', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayOffTimeout, ctrl.Properties.displayTimeoutFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.listenAgainAutoDelete != undefined">
+          <div class="editable-label" translate>Listen Again Timeout&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.listenAgainAutoDelete" e-ng-options="s.value as s.text for s in ctrl.Properties.listenAgainAutoDeleteFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('listenAgainAutoDelete', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.listenAgainAutoDelete, ctrl.Properties.listenAgainAutoDeleteFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.listenAgainRecordTime != undefined">
+          <div class="editable-label" translate>Listen Again Record&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.listenAgainRecordTime" e-ng-options="s.value as s.text for s in ctrl.Properties.listenAgainRecordTimeFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('listenAgainRecordTime', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.listenAgainRecordTime, ctrl.Properties.listenAgainRecordTimeFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Errors['generalStationErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Errors['generalStationErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Errors['generalStationErrorTitle']}}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Gain &amp; Level Options" data-page-name="roles" data-section="gainsLevels" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-gains-levels">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+          <div ng-show="ctrl.CurrentRole.settings.portInputGain != undefined">
+              <div class="editable-label" translate>Input Gain&nbsp;:</div>
+              <div class="editable-entry">
+          <span editable-select="ctrl.CurrentRole.settings.portInputGain" e-ng-options="s.value as s.text for s in ctrl.Properties.inputOutputGainFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('portInputGain')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.portInputGain, ctrl.Properties.inputOutputGainFSIIValues)}}</span>
+              </div>
+          </div>
+      </div>
+      <div class="role-settings-element">
+          <div ng-show="ctrl.CurrentRole.settings.portOutputGain != undefined">
+              <div class="editable-label" translate>Output Gain&nbsp;:</div>
+              <div class="editable-entry">
+        <span editable-select="ctrl.CurrentRole.settings.portOutputGain" e-ng-options="s.value as s.text for s in ctrl.Properties.inputOutputGainFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('portOutputGain')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.portOutputGain, ctrl.Properties.inputOutputGainFSIIValues)}}</span>
+              </div>
+          </div>
+      </div>
+
+      <div class="role-settings-element">
+          <div ng-show="ctrl.CurrentRole.settings.lineInVolume != undefined">
+              <div class="editable-label" translate>Line-In Volume&nbsp;:</div>
+              <div class="editable-entry">
+      <span editable-select="ctrl.CurrentRole.settings.lineInVolume" e-ng-options="s.value as s.text for s in ctrl.Properties.lineInVolumeFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('lineInVolume')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.lineInVolume, ctrl.Properties.lineInVolumeFSIIValues)}}</span>
+              </div>
+          </div>
+      </div>
+
+      <div class="role-settings-element">
+          <div ng-show="ctrl.CurrentRole.settings.masterVolume != undefined">
+              <div class="editable-label" translate>Master Volume&nbsp;:</div>
+              <div class="editable-entry">
+      <span editable-select="ctrl.CurrentRole.settings.masterVolume" e-ng-options="s.value as s.text for s in ctrl.Properties.volumeAdjustFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('masterVolume')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.masterVolume, ctrl.Properties.volumeAdjustFSIIValues)}}</span>
+              </div>
+          </div>
+      </div>
+
+      <div class="role-settings-element">
+          <div ng-show="ctrl.CurrentRole.settings.masterVolumeOperation != undefined">
+              <div class="editable-label" translate>Volume operation&nbsp;:</div>
+              <div class="editable-entry">
+                  <span editable-select="ctrl.CurrentRole.settings.masterVolumeOperation" e-ng-options="s.value as s.text for s in ctrl.Properties.masterVolumeModeFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('masterVolumeOperation')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.masterVolumeOperation, ctrl.Properties.masterVolumeModeFSIIValues)}}</span>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Errors['generalGainErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Errors['generalGainErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Errors['generalGainErrorTitle']}}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Headset" data-page-name="roles" data-section="headset" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-fsii-headset">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.headphoneLimit != undefined">
+          <div class="editable-label" translate>Headset Limiter&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.headphoneLimit" e-ng-options="s.value as s.text for s in ctrl.Properties.headphoneLimitValuesFSII" buttons="no" onaftersave="ctrl.updateSettingOnChange('headphoneLimit', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.headphoneLimit, ctrl.Properties.headphoneLimitValuesFSII)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.headphoneLowLevelLimit != undefined">
+          <div class="editable-label" translate>Headset Low Limit&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.headphoneLowLevelLimit" e-ng-options="s.value as s.text for s in ctrl.Properties.headphoneLowLevelLimitFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('headphoneLowLevelLimit', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.headphoneLowLevelLimit, ctrl.Properties.headphoneLowLevelLimitFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.sidetoneGain != undefined">
+          <div class="editable-label" translate>Sidetone Level&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.sidetoneGain" e-ng-options="s.value as s.text for s in ctrl.Properties.volumeAdjustFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('sidetoneGain', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.sidetoneGain, ctrl.Properties.volumeAdjustFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.sidetoneControl">
+          <div class="editable-label" translate>Sidetone Control&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.sidetoneControl" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.sidetoneControlValues" onaftersave="ctrl.updateSettingOnChange('sidetoneControl', 'generalHeadsetErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.sidetoneControl, ctrl.Properties.sidetoneControlValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.micEchoCancellation != undefined">
+          <div class="editable-label" translate>Mic Echo Cancellation&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.micEchoCancellation" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('micEchoCancellation', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.micEchoCancellation, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.micType != undefined">
+          <div class="editable-label" translate>Mic Type&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.micType" e-ng-options="s.value as s.text for s in ctrl.Properties.FSIIMicTypeValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('micType', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.micType, ctrl.Properties.FSIIMicTypeValues)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalHeadsetErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalHeadsetErrorTitle'] = null">&times;
+        </a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalHeadsetErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Menu Access" data-page-name="roles" data-section="menuAccess" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-menu-access">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.menuLevel != undefined">
+          <div class="editable-label" translate>Menu Access Level&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.menuLevel" e-ng-options="s.value as s.text for s in ctrl.Properties.menuLevelFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('menuLevel', 'generalMenuErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.menuLevel, ctrl.Properties.menuLevelFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.partyLineDisplayMode != undefined">
+          <div class="editable-label" translate>Display Mode&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.partyLineDisplayMode" e-ng-options="s.value as s.text for s in ctrl.Properties.partyLineDisplayModeFSIIValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('partyLineDisplayMode', 'generalMenuErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.partyLineDisplayMode, ctrl.Properties.partyLineDisplayModeFSIIValues)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalMenuErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalMenuErrorTitle'] = null">&times;
+        </a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalMenuErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Alarm Options" data-page-name="roles" data-section="alarmOptions" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-alarms">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.batteryAlarmMode != undefined">
+          <div class="editable-label" translate>Battery Alarm Mode&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.batteryAlarmMode" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.alarmModeFSIIValues" onaftersave="ctrl.updateSettingOnChange('batteryAlarmMode', 'generalAlarmErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.batteryAlarmMode, ctrl.Properties.alarmModeFSIIValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.lowBatteryThreshold != undefined">
+          <div class="editable-label" translate>Low Battery Threshold&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.lowBatteryThreshold" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.lowBatteryThresholdFSIIValues" onaftersave="ctrl.updateSettingOnChange('lowBatteryThreshold', 'generalAlarmErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.lowBatteryThreshold, ctrl.Properties.lowBatteryThresholdFSIIValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.callAlertMode != undefined">
+          <div class="editable-label" translate>Call Alert Mode&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.callAlertMode" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.alarmModeFSIIValues" onaftersave="ctrl.updateSettingOnChange('callAlertMode', 'generalAlarmErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.callAlertMode, ctrl.Properties.alarmModeFSIIValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.outOfRangeAlarm != undefined">
+          <div class="editable-label" translate>Out Of Range Alarm&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.outOfRangeAlarm" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.outOfRangeAlarmFSIIValues" onaftersave="ctrl.updateSettingOnChange('outOfRangeAlarm', 'generalAlarmErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.outOfRangeAlarm, ctrl.Properties.outOfRangeAlarmFSIIValues) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalAlarmErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalAlarmErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalAlarmErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Logic Input Options" data-page-name="roles" data-section="logicInputOptions" data-start-open="true" ng-if="ctrl.roleTypeIs(['FSII-BP'])" id="role-settings-logic-input">
+    <div class="role-settings-elements">
+      <div class="localPorts-section-divider">Logic Input 1</div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.logicInput1 != undefined">
+          <div class="editable-label" translate>Function&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.logicInput1" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.logicInputValues" onaftersave="ctrl.updateSettingOnChange('logicInput1', 'logicInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.logicInput1, ctrl.Properties.logicInputValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput1ActionDestination != undefined && ctrl.CurrentRole.settings.logicInput1 === 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Destination&nbsp;:</div>
+              <div class="editable-entry">
+                  <span class="sudo-editable-entry" ng-click="ctrl.showLogicActionDestination(1, ctrl.CurrentRole.settings.logicInput1ActionDestination)">{{ ctrl.GetAssignments([{res: ctrl.CurrentRole.settings.logicInput1ActionDestination}]) }}</span>
+              </div>
+          </div>
+
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput1ActionDestination != undefined && ctrl.CurrentRole.settings.logicInput1 !== 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Destination&nbsp;:</div>
+              <div class="editable-entry">
+                  <span style="opacity: 0.5" translate>N/A</span>
+              </div>
+          </div>
+      </div>
+      <div class="role-settings-element">
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput1ActionType != undefined && ctrl.CurrentRole.settings.logicInput1 === 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Type&nbsp;:</div>
+              <div class="editable-entry">
+                  <span editable-select="ctrl.CurrentRole.settings.logicInput1ActionType" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.logicInputActionTypeValues" onaftersave="ctrl.updateSettingOnChange('logicInput1ActionType', 'logicInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.logicInput1ActionType, ctrl.Properties.logicInputActionTypeValues) }}</span>
+                </div>
+          </div>
+
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput1ActionType != undefined && ctrl.CurrentRole.settings.logicInput1 !== 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Type&nbsp;:</div>
+              <div class="editable-entry">
+                  <span style="opacity: 0.5" translate>N/A</span>
+              </div>
+          </div>
+      </div>
+
+
+      <div class="localPorts-section-divider">Logic Input 2</div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.logicInput2 != undefined">
+          <div class="editable-label" translate>Function&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.logicInput2" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.logicInputValues" onaftersave="ctrl.updateSettingOnChange('logicInput2', 'logicInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.logicInput2, ctrl.Properties.logicInputValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput2ActionDestination != undefined && ctrl.CurrentRole.settings.logicInput2 === 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Destination&nbsp;:</div>
+              <div class="editable-entry">
+                  <span class="sudo-editable-entry" ng-click="ctrl.showLogicActionDestination(2, ctrl.CurrentRole.settings.logicInput2ActionDestination)">{{ ctrl.GetAssignments([{res: ctrl.CurrentRole.settings.logicInput2ActionDestination}]) }}</span>
+              </div>
+          </div>
+
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput2ActionDestination != undefined && ctrl.CurrentRole.settings.logicInput2 !== 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Destination&nbsp;:</div>
+              <div class="editable-entry">
+                  <span style="opacity: 0.5" translate>N/A</span>
+              </div>
+          </div>
+      </div>
+      <div class="role-settings-element">
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput2ActionType != undefined && ctrl.CurrentRole.settings.logicInput2 === 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Type&nbsp;:</div>
+              <div class="editable-entry">
+                  <span editable-select="ctrl.CurrentRole.settings.logicInput2ActionType" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.logicInputActionTypeValues" onaftersave="ctrl.updateSettingOnChange('logicInput2ActionType', 'logicInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.logicInput2ActionType, ctrl.Properties.logicInputActionTypeValues) }}</span>
+                </div>
+          </div>
+
+          
+          <div ng-if="ctrl.CurrentRole.settings.logicInput2ActionType != undefined && ctrl.CurrentRole.settings.logicInput2 !== 'activateRoute'" class="role-settings-element">
+              <div class="editable-label" translate>Action Type&nbsp;:</div>
+              <div class="editable-entry">
+                  <span style="opacity: 0.5" translate>N/A</span>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['logicInputErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['logicInputErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['logicInputErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="{{!ctrl.roleTypeIs(['HBP-2X']) ? 'Station' : 'General Settings'}}" data-page-name="roles" data-section="alarmOptions" data-start-open="true" ng-if="!ctrl.roleTypeIs(['FSII-BP','LQ-AIC'])">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div class="editable-label" translate>Description&nbsp;:</div>
+        <div class="editable-entry">
+          <span id="roleDescription" editable-text="ctrl.CurrentRole.description" e-minlength="0" e-maxlength="100" onaftersave="ctrl.updateProperties('description')">{{ctrl.CurrentRole.description || 'Enter Description for Role'}}</span>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayBrightness">
+          <div class="editable-label" translate>Display Brightness&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayBrightness" e-ng-options="s.value as s.text for s in ctrl.Properties.displayBrightnessValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayBrightness', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayBrightness, ctrl.Properties.displayBrightnessValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.dimmedTallies != undefined">
+          <div class="editable-label" translate>Dimmed Tallies&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.dimmedTallies" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('dimmedTallies', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.dimmedTallies, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.latchingTalkKeys != undefined">
+          <div class="editable-label" translate>Latching Talk Keys&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.latchingTalkKeys" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('latchingTalkKeys', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.latchingTalkKeys, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.replyTalkAutoClear">
+          <div class="editable-label" translate>Reply Tally Auto Clear Time&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.replyTalkAutoClear" e-ng-options="s.value as s.text for s in ctrl.Properties.replyTallyAutoClearValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('replyTalkAutoClear', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.replyTalkAutoClear, ctrl.Properties.replyTallyAutoClearValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.keyBrightness">
+          <div class="editable-label" translate>Key Brightness&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.keyBrightness" e-ng-options="s.value as s.text for s in ctrl.Properties.keyBrightnessValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('keyBrightness', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.keyBrightness, ctrl.Properties.keyBrightnessValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayDimTimeout">
+          <div class="editable-label" translate>Display Dim Timeout&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayDimTimeout" e-ng-options="s.value as s.text for s in ctrl.Properties.displayDimTimeoutValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayDimTimeout', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayDimTimeout, ctrl.Properties.displayDimTimeoutValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.displayOffTimeout">
+          <div class="editable-label" translate>Display Off Timeout&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.displayOffTimeout" e-ng-options="s.value as s.text for s in ctrl.Properties.displayOffTimeoutValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('displayOffTimeout', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.displayOffTimeout, ctrl.Properties.displayDimTimeoutValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.listenAgainAutoDelete">
+          <div class="editable-label" translate>Listen Again Auto Delete&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.listenAgainAutoDelete" e-ng-options="s.value as s.text for s in ctrl.Properties.listenAgainAutoDeleteValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('listenAgainAutoDelete', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.listenAgainAutoDelete, ctrl.Properties.listenAgainAutoDeleteValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.listenAgainRecordTime">
+          <div class="editable-label" translate>Listen Again Record Time&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.listenAgainRecordTime" e-ng-options="s.value as s.text for s in ctrl.Properties.listenAgainRecordTimeValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('listenAgainRecordTime', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.listenAgainRecordTime, ctrl.Properties.listenAgainRecordTimeValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.vibrateOnCallEnabled != undefined">
+          <div class="editable-label" translate>Vibrate On Call&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.vibrateOnCallEnabled" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('vibrateOnCallEnabled', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.vibrateOnCallEnabled, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.rotateDisplayEnabled != undefined">
+          <div class="editable-label" translate>Rotate Display&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.rotateDisplayEnabled" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('rotateDisplayEnabled', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.rotateDisplayEnabled, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.screensaverMode != undefined">
+          <div class="editable-label" translate>Screensaver&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.screensaverMode" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.screenSaverValues" onaftersave="ctrl.updateSettingOnChange('screensaverMode', 'generalStationErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.screensaverMode, ctrl.Properties.screenSaverValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.roleTypeIs(['HMS-4X'])">
+          <div class="editable-label" translate>RMK Key&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.rmkBtnMode" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.rmkBtnModeValues" onaftersave="ctrl.updateSettingOnChange('rmkBtnMode', 'generalStationErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.rmkBtnMode, ctrl.Properties.rmkBtnModeValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.roleTypeIs(['HRM-4X'])">
+          <div class="editable-label" translate>OPT (RMK) Key&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.rmkBtnMode" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.rmkBtnModeValues" onaftersave="ctrl.updateSettingOnChange('rmkBtnMode', 'generalStationErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.rmkBtnMode, ctrl.Properties.rmkBtnModeValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.menuAccessEnabled != undefined">
+          <div class="editable-label" translate>Menu Access&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.menuAccessEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateSettingOnChange('menuAccessEnabled', 'generalStationErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.menuAccessEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.roleTypeIs(['HMS-4X','HRM-4X'])">
+          <div class="editable-label" translate>All Talk key talks to&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.allTalkBtnMode" e-ng-options="s.value as s.text for s in ctrl.Properties.allTalkKeyValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('allTalkBtnMode', 'generalStationErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.allTalkBtnMode, ctrl.Properties.allTalkKeyValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.unlatchOnShiftEnabled != undefined">
+          <div class="editable-label" translate>Unlatch on Shift&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.unlatchOnShiftEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateSettingOnChange('unlatchOnShiftEnabled', 'generalStationErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.unlatchOnShiftEnabled, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalStationErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalStationErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalStationErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Expansion" data-page-name="roles" data-section="expansion" data-start-open="true" ng-if="ctrl.CurrentRole.settings.expansionBaseModeEnabled">
+    <div class="role-settings-elements">
+      <div class="editable-label" translate>{{ctrl.roleTypeIs(['HMS-4X' ]) ? 'Master :' : 'Selected Master :'}}</div>
+      <div class="editable-entry">
+        <span editable-select="ctrl.CurrentRole.settings.expansionBaseModeEnabled" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('expansionBaseModeEnabled', 'generalExpansionErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.expansionBaseModeEnabled, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalExpansionErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalExpansionErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalExpansionErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Headset" data-page-name="roles" data-section="headset" data-start-open="true" ng-if="!ctrl.roleTypeIs(['FSII-BP','LQ-AIC'])">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.sidetoneGain != undefined">
+          <div class="editable-label" translate>Sidetone Gain&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.sidetoneGain" e-ng-options="s.value as s.text for s in ctrl.Properties.sidetoneGain" buttons="no" onaftersave="ctrl.updateSettingOnChange('sidetoneGain', 'generalHeadsetErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.sidetoneGain, ctrl.Properties.sidetoneGain) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.headphoneGain != undefined">
+          <div class="editable-label" translate>Headphone Gain&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.headphoneGain" e-ng-options="s.value as s.text for s in ctrl.Properties.headphoneGain" buttons="no" onaftersave="ctrl.updateSettingOnChange('headphoneGain', 'generalHeadsetErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.headphoneGain, ctrl.Properties.headphoneGain) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.headphoneLimit">
+          <div class="editable-label" translate>Headphone Limiter&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.headphoneLimit" e-ng-options="s.value as s.text for s in ctrl.Properties.headphoneLimitValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('headphoneLimit', 'generalHeadsetErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.headphoneLimit, ctrl.Properties.headphoneLimitValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.sidetoneControl">
+          <div class="editable-label" translate>Sidetone Control&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.sidetoneControl" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.sidetoneControlValues" onaftersave="ctrl.updateSettingOnChange('sidetoneControl', 'generalHeadsetErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.sidetoneControl, ctrl.Properties.sidetoneControlValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.headsetMicType">
+          <div class="editable-label" translate>HS Mic Type&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.headsetMicType" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.headsetMicTypeValues" onaftersave="ctrl.updateSettingOnChange('headsetMicType', 'generalHeadsetErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.headsetMicType, ctrl.Properties.headsetMicTypeValues) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalHeadsetErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalHeadsetErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalHeadsetErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Microphone" data-page-name="roles" data-section="microphone" data-start-open="true" ng-if="!ctrl.roleTypeIs(['FSII-BP','LQ-AIC'])">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.micHeadroom != undefined">
+          <div class="editable-label" translate>Headroom&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.micHeadroom" e-ng-options="s.value as s.text for s in ctrl.Properties.headroomValues" buttons="no" onaftersave="ctrl.updateSettingOnChange('micHeadroom', 'generalMicrophoneErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.micHeadroom, ctrl.Properties.headroomValues)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.micContourFilterEnabled != undefined">
+          <div class="editable-label" translate>Contour Filter&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.micContourFilterEnabled" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('micContourFilterEnabled', 'generalMicrophoneErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.micContourFilterEnabled, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.micEchoCancellation != undefined">
+          <div class="editable-label" translate>Echo Cancellation&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.micEchoCancellation" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" buttons="no" onaftersave="ctrl.updateSettingOnChange('micEchoCancellation', 'generalMicrophoneErrorTitle')">{{ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.micEchoCancellation, ctrl.Properties.BoolToEnabledDisabled)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalMicrophoneErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalMicrophoneErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalMicrophoneErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Program Input" data-page-name="roles" data-section="programInput" data-start-open="true" ng-if="ctrl.roleTypeIs(['HMS-4X','HRM-4X'])">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div class="editable-label" translate>Label&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="ctrl.CurrentRole.settings.pgmLabel" e-minlength="0" e-maxlength="16" onaftersave="ctrl.updateSettingOnChange('pgmLabel', 'generalProgramInputErrorTitle')">{{ctrl.CurrentRole.settings.pgmLabel || 'Hostname'}}</span>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.pgmGain != undefined">
+          <div class="editable-label" translate>Gain&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.pgmGain" e-ng-options="s.value as s.text for s in ctrl.Properties.pgmGain" buttons="no" onaftersave="ctrl.updateSettingOnChange('pgmGain', 'generalProgramInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.pgmGain,ctrl.Properties.pgmGain) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.pgmVoxEnabled != undefined">
+          <div class="editable-label" translate>VOX&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.pgmVoxEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateSettingOnChange('pgmVoxEnabled', 'generalProgramInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.pgmVoxEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.pgmVoxOffDelayMs">
+          <div class="editable-label" translate>VOX Off Delay&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.pgmVoxOffDelayMs" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.vox_off_delayValuesMs" onaftersave="ctrl.updateSettingOnChange('pgmVoxOffDelayMs', 'generalProgramInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.pgmVoxOffDelayMs, ctrl.Properties.vox_off_delayValuesMs) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.pgmIfbDimLevel != null">
+          <div class="editable-label" translate>IFB Dim Level&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.pgmIfbDimLevel" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.prgm_ifbValues" onaftersave="ctrl.updateSettingOnChange('pgmIfbDimLevel', 'generalProgramInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.pgmIfbDimLevel, ctrl.Properties.prgm_ifbValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.pgmAssignments">
+          <div class="editable-label" translate>Channel Assignment&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showPrgChannelAssignment()">{{ctrl.GetAssignments(ctrl.CurrentRole.settings.pgmAssignments);}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div>
+          <div class="editable-label" translate>GPO Trigger&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.pgmGpoTriggerEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.BoolToEnabledDisabled" onaftersave="ctrl.updateSettingOnChange('pgmGpoTriggerEnabled', 'generalProgramInputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.pgmGpoTriggerEnabled, ctrl.Properties.BoolToEnabledDisabled) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalProgramInputErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalProgramInputErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalProgramInputErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Stage Announce Output" data-page-name="roles" data-section="stageAnnounce" data-start-open="true" ng-if="ctrl.roleTypeIs(['HMS-4X','HRM-4X'])">
+    <div class="role-settings-elements">
+      <div class="role-settings-element">
+        <div class="editable-label" translate>Label&nbsp;:</div>
+        <div class="editable-entry">
+          <span editable-text="ctrl.CurrentRole.settings.saLabel" e-minlength="0" e-maxlength="16" onaftersave="ctrl.updateSettingOnChange('saLabel', 'generalSaErrorTitle')">{{ctrl.CurrentRole.settings.saLabel || 'Enter Label'}}</span>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.saGain != undefined">
+          <div class="editable-label" translate>Gain&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.saGain" e-ng-options="s.value as s.text for s in ctrl.Properties.saGain" buttons="no" onaftersave="ctrl.updateSettingOnChange('saGain', 'generalSaErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.saGain, ctrl.Properties.saGain) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.saConnectionAssignModeEnabled != undefined">
+          <div class="editable-label" translate>Mode&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.saConnectionAssignModeEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.sa_modeValues" onaftersave="ctrl.updateSettingOnChange('saConnectionAssignModeEnabled', 'generalSaErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.saConnectionAssignModeEnabled, ctrl.Properties.sa_modeValues) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.saBtnLatchEnabled != undefined && !ctrl.CurrentRole.settings.saConnectionAssignModeEnabled">
+          <div class="editable-label" translate>SA Button&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.saBtnLatchEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.keysetSALatching" onaftersave="ctrl.updateSettingOnChange('saBtnLatchEnabled', 'generalSaErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.saBtnLatchEnabled, ctrl.Properties.keysetSALatching) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.saPgmOutputEnabled != undefined && ctrl.CurrentRole.settings.saConnectionAssignModeEnabled">
+          <div class="editable-label" translate>Program Output&nbsp;:</div>
+          <div class="editable-entry">
+            <span editable-select="ctrl.CurrentRole.settings.saPgmOutputEnabled" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.MuteUnmute" onaftersave="ctrl.updateSettingOnChange('saPgmOutputEnabled', 'generalSaErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.saPgmOutputEnabled, ctrl.Properties.MuteUnmute) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="role-settings-element">
+        <div ng-show="ctrl.CurrentRole.settings.saConnectionAssignModeEnabled">
+          <div class="editable-label" translate>Channel Assign&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showSaChannelAssignment()">{{ctrl.GetAssignments(ctrl.CurrentRole.settings.saConnectionAssignments);}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalSaErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalSaErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalSaErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Hot Mic Output" data-page-name="roles" data-section="hotMic" data-start-open="true" ng-if="ctrl.CurrentRole.settings.hotMicGain != undefined">
+    <div class="role-settings-elements">
+      <div class="editable-label" translate>Gain&nbsp;:</div>
+      <div class="editable-entry">
+        <span editable-select="ctrl.CurrentRole.settings.hotMicGain" e-ng-options="s.value as s.text for s in ctrl.Properties.hotMicGain" buttons="no" onaftersave="ctrl.updateSettingOnChange('hotMicGain', 'generalHotMicOutputErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.hotMicGain, ctrl.Properties.hotMicGain) }}</span>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalHotMicOutputErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalHotMicOutputErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalHotMicOutputErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="Loudspeaker" data-page-name="roles" data-section="loudspeaker" data-start-open="true" ng-if="ctrl.CurrentRole.settings.loudspeakerDimLevel != undefined">
+    <div class="role-settings-elements">
+      <div class="editable-label" translate>Dim&nbsp;:</div>
+      <div class="editable-entry">
+        <span editable-select="ctrl.CurrentRole.settings.loudspeakerDimLevel" buttons="no" e-ng-options="s.value as s.text for s in ctrl.Properties.loudSpeakerDimValues" onaftersave="ctrl.updateSettingOnChange('loudspeakerDimLevel', 'generalLoudspeakerErrorTitle')">{{ ctrl.GetDisplayTextFromValue(ctrl.CurrentRole.settings.loudspeakerDimLevel, ctrl.Properties.loudSpeakerDimValues) }}</span>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalLoudspeakerErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalLoudspeakerErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalLoudspeakerErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="GPI (Opto)" data-page-name="roles" data-section="gpi" data-start-open="true" ng-if="ctrl.roleTypeIs(['HMS-4X', 'HRM-4X'])">
+    <div class="role-settings-elements">
+      <div ng-if="ctrl.roleTypeIs(['HMS-4X'])" ng-repeat="optoIdx in [0,1,2,3]">
+        <div class="localPorts-section-divider">Opto {{ optoIdx+1 }}</div>
+        <div class="editable-label" translate>Local Key Assignment&nbsp;:</div>
+        <div class="editable-entry">
+          <span class="sudo-editable-entry" ng-click="ctrl.showLocalKeyAssignmentsDialog('opto', optoIdx)">{{ctrl.getGpioLocalKeyPressAssignment('opto', optoIdx)}}</span>
+        </div>
+      </div>
+      <div ng-if="ctrl.roleTypeIs(['HRM-4X'])" ng-init="optoIdx = 0">
+        <div class="localPorts-section-divider">Opto {{ optoIdx+1 }}</div>
+        <div class="editable-label" translate>Local Key Assignment&nbsp;:</div>
+        <div class="editable-entry">
+          <span class="sudo-editable-entry" ng-click="ctrl.showLocalKeyAssignmentsDialog('opto', optoIdx)">{{ctrl.getGpioLocalKeyPressAssignment('opto', optoIdx)}}</span>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalGpi' + (optoIdx + 1) + 'ErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalGpi' + (optoIdx + 1) + 'ErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalGpi' + (optoIdx + 1) + 'ErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+  <div data-expander data-expander-title="GPO (Relay)" data-page-name="roles" data-section="gpi" data-start-open="true" ng-if="ctrl.roleTypeIs(['HMS-4X', 'HRM-4X'])">
+    <div class="role-settings-elements">
+      <div ng-if="ctrl.roleTypeIs(['HMS-4X'])" ng-repeat="relayIdx in [0,1,2,3]">
+        <div class="localPorts-section-divider">Relay {{relayIdx+1}}</div>
+        <div>
+          <div class="editable-label" translate>Local Key Assignment&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showLocalKeyAssignmentsDialog('relay', relayIdx)">{{ctrl.getGpioLocalKeyPressAssignment('relay', relayIdx)}}</span>
+          </div>
+        </div>
+        <div>
+          <div class="editable-label" translate>Detection of Talk&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showRelayDetectionOfTalkCall(relayIdx, 'talk')">{{ctrl.getRelayDetectionOfTalkCall(relayIdx, 'talk')}}</span>
+          </div>
+        </div>
+        <div>
+          <div class="editable-label" translate>Detection of Call&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showRelayDetectionOfTalkCall(relayIdx, 'call')">{{ctrl.getRelayDetectionOfTalkCall(relayIdx, 'call')}}</span>
+          </div>
+        </div>
+      </div>
+      <div ng-if="ctrl.roleTypeIs(['HRM-4X'])" ng-init="relayIdx = 0">
+        <div class="localPorts-section-divider">Relay {{ relayIdx+1 }}</div>
+        <div class="editable-label" translate>Local Key Assignment&nbsp;:</div>
+        <div class="editable-entry">
+          <span class="sudo-editable-entry" ng-click="ctrl.showLocalKeyAssignmentsDialog('relay', relayIdx)">{{ctrl.getGpioLocalKeyPressAssignment('relay', relayIdx)}}</span>
+        </div>
+        <div>
+          <div class="editable-label" translate>Detection of Talk&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showRelayDetectionOfTalkCall(relayIdx, 'talk')">{{ctrl.getRelayDetectionOfTalkCall(relayIdx, 'talk')}}</span>
+          </div>
+        </div>
+        <div>
+          <div class="editable-label" translate>Detection of Call&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="sudo-editable-entry" ng-click="ctrl.showRelayDetectionOfTalkCall(relayIdx, 'call')">{{ctrl.getRelayDetectionOfTalkCall(relayIdx, 'call')}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-show="ctrl.Error['generalGpo' + (relayIdx + 1) + 'ErrorTitle']" style="margin-top:35px; margin-left:15px">
+      <div class="alert alert-danger">
+        <a class="close" ng-click="ctrl.Error['generalGpo' + (relayIdx + 1) + 'ErrorTitle'] = null">&times;</a>
+        <span translate>Error!&nbsp;</span>{{ctrl.Error['generalGpo' + (relayIdx + 1) + 'ErrorTitle'] }}
+      </div>
+    </div>
+  </div>
+
+  
+<ul id="rolesSettingsPageGuide" class="guide-hidden" data-tourtitle="CCM Roles">
+  
+  <li class="tlypageguide_left" data-tourtarget="#roleLabel">
+    <p>Click to change the label of this Role. Any meaningful name is possible. Click blue check mark to submit</p>
+  </li>
+    
+  <li class="tlypageguide_top" data-tourtarget="#role-settings-clone">
+    <p>Create a clone (copy) of the currently selected Role. All Roles can be edited (changed) after you have created them.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#role-settings-reset">
+    <p>Reset to default settings. The default Role cannot be deleted.</p>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#role-settings-delete">
+    <p>Delete currently selected Role</p>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".role-config-usageCount">
+    <p>Shows if currently selected Role is in use by an endpoint(s). A single Role can be used by many users, up to the capacity of the host device</p>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".role-settings-element .editable-label">
+    <p>Selecting this option will prevent the role settings below from being applied to the beltpack. Instead the beltpack will use the settings it has saved locally. Keyset changes will be applied regardless of this setting.</p>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget=".role-config-usageCount .btn-blue">
+    <p>Click on this button to bring up the assign to beltpack dialog window where you can view and fix roles to beltpacks</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget=".keyset-helixnet">
+    <p>Configure Channel assignments and talk latch behavior on Keysets. Click a blue label to select a Channel. Click again to deselect.</p>
+  </li>
+  <li class="tlypageguide_left" data-tourtarget=".keyset-lq">
+  <p>Configure audio and key behavior for this Role
+    </p><p></p><p>Click '<b>+</b>' to add a Keyset </p>
+    <p><img src="images/arrange.png" width="30" height="30" alt="">Sort, move and select Keysets. Click blue checkmark to exit sort mode</p>
+    <p>Click trashcan to delete selected Keyset</p><p></p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-groups">
+    <p>Assign the role to Groups so the Role can hear announcements made to the Group and reply back to the announcer.</p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-general-settings">
+    <p>Configure General Settings for the Role.</p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-gains-levels">
+    <p>Configure the gains and levels for the Role.</p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-fsii-headset">
+    <p>Configure headset options for the Role.</p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-menu-access">
+    <p>Configure the menu access and display type for the Role.</p>
+  </li>
+
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-alarms">
+    <p>Configure Alarm Options for the Role.</p>
+  </li>
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-logic-input">
+    <p>Configure options for the 7-pin push-to-talk enabled beltpacks assigned this Role.</p>
+  </li>
+
+
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-station">
+    <p>Configure selected device settings </p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-headset">
+    <p>Configure headset settings. If Limiter is set, a LIM indicator will show. If Sidetone Control is set to Tracking, sidetone will follow (track) the main volume level. Non-tracking, sidetone volume is set to maximum</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-microphone">
+    <p>Configure microphone. Headroom: High; intended for environments with high background noise.<br>Contour filter: a Clear-Com algorithm for enhancing speech intelligibility at low volumes.</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-program">
+    <p>Program Input settings. VOX: set a level for valid audio in order to prevent background noise.<br>VOX off delay: delays activation of the VOX gate to allow the signal to stabilise. The GPO trigger, if enabled, activates a relay on receiving a call or a talk being activated on a Channel</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-stage-announce">
+    <p>Configure Stage Announce settings</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-hot-mic">
+    <p>Configure audio setting for Hot Mic output</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-loudspeaker">
+    <p>Set audio gain on device loudspeaker</p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-gpi">
+    <p>Opto isolated inputs enable you to connect a foot switch or other control device and use it to trigger Call or Talk functions. Click blue label to enable GPI. Click again to remove assignment. </p>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#role-settings-gpo">
+    <p>Relay outputs enable you to use Call or Talk keys to trigger any external device that accepts a standard contact closure (such as an On Air light, or the beltpack USB flasher). Click blue label to enable GPO. Click again to remove assignment.</p>
+  </li>
+ </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>

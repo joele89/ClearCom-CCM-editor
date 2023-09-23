@@ -1,0 +1,186 @@
+
+<div id="content">
+
+  
+  <div ng-controller="deviceCfgNetworkCtrl as ctrl">
+
+    <div class="page-header-top"><span translate>
+      Network</span>
+      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devNetwork'" id="devNetworkGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    </div>
+
+    <div ng-show="ctrl.editingNetworkSettings || ctrl.goodResponse || ctrl.warningResponse || ctrl.errorResponse">
+      <div ng-show="ctrl.goodResponse" class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <strong>
+          <translate>Success!</translate>
+        </strong>
+        &nbsp;{{ ctrl.goodResponse }}
+      </div>
+      <div ng-show="ctrl.warningResponse" class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <strong>
+          <translate>Warning!</translate>
+        </strong>
+        &nbsp;{{ ctrl.warningResponse }}
+      </div>
+      <div ng-show="ctrl.errorResponse" class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <strong>
+          <translate>Error!</translate>
+        </strong>
+        &nbsp;{{ ctrl.errorResponse }}
+      </div>
+
+      <button ng-show="ctrl.editingNetworkSettings" ng-disabled="ctrl.invalidIpMessage || ctrl.invalidExternalIpMessage || ctrl.invalidNetmaskMessage ||
+                             !((ctrl.net.mode == 'static' &&
+                              ctrl.net.staticIP != '' &&
+                              ctrl.net.netmask != '') || (ctrl.net.mode=='dhcp'))" class="btn btn-success btn-sm btn-apply" style="margin-top:50px; float:right" ng-click="ctrl.applyNetwork();">
+        <span translate>Apply Changes</span>
+      </button>
+      <button ng-show="ctrl.editingNetworkSettings" class="btn btn-danger btn-sm btn-cancel" style="margin-top:50px; float:right; margin-right:5px" ng-click="ctrl.restoreSettings();">
+        <span translate>Cancel</span>
+      </button>
+    </div>
+    <div id="networkSettings" class="collapsable-section-header-sub" style="cursor: default">
+      LAN / WAN
+      <span translate>Connectivity</span>
+    </div>
+    <div class="horizontal-divider"></div>
+    <div class="editable-label-with-apply" style="margin-top: 10px">
+      <span translate>Mode</span>
+      :
+    </div>
+    <div class="editable-entry-with-apply" style="width: 160px; margin-top: 10px">
+      <div>
+        <input type="radio" value="static" ng-model="ctrl.net.mode" ng-change="ctrl.switchNetMode()">
+        <span translate>Static</span>
+      </div>
+
+      <div>
+        <input type="radio" ng-checked="(ctrl.net.mode === 'dhcp')" value="dhcp" ng-model="ctrl.net.mode">
+        <span translate>DHCP</span>
+      </div>
+
+    </div>
+    {{mode}}
+
+    <div ng-hide="(ctrl.net.mode == 'dhcp')">
+      <div>
+        <div class="editable-label-with-apply">
+          <span translate>IP Address</span>
+          :
+        </div>
+        <div class="editable-entry-with-apply" ng-class="ctrl.invalidIpMessage ? 'input-invalid' : ''">
+          <span editable-text="ctrl.net.staticIP" e-pattern="{{ctrl.regexIpAddr}}" onshow="ctrl.setEditing('ip', true)" onhide="ctrl.setEditing('ip', false)" onaftersave="ctrl.validateNetworkSettings()">{{ ctrl.net.staticIP || ctrl.required_string }}</span>
+          <img ng-show="ctrl.invalidIpMessage && !ctrl.editing['ip']" class="warning-icon-inline" src="/images/warning.png" width="30" height="30" uib-popover="{{ctrl.invalidIpMessage}}" popover-placement="bottom" popover-trigger="outsideClick">
+        </div>
+      </div>
+      <div>
+        <div class="editable-label-with-apply">
+          <span translate>Subnet Mask</span>
+          :
+        </div>
+        <div class="editable-entry-with-apply" ng-class="ctrl.invalidNetmaskMessage ? 'input-invalid' : ''">
+           <span editable-text="ctrl.net.netmask" e-pattern="{{ctrl.regexNetmask}}" onshow="ctrl.setEditing('netmask', true)" onhide="ctrl.setEditing('netmask', false)" onaftersave="ctrl.validateNetworkSettings()">{{ ctrl.net.netmask || ctrl.required_string }}</span>
+          <img ng-show="ctrl.invalidNetmaskMessage && !ctrl.editing['netmask']" class="warning-icon-inline" src="/images/warning.png" width="30" height="30" uib-popover="{{ctrl.invalidNetmaskMessage}}" popover-placement="bottom" popover-trigger="outsideClick">
+        </div>
+      </div>
+      <div>
+        <div class="editable-label-with-apply">
+          <span translate>Gateway</span>
+          :
+        </div>
+        <div class="editable-entry-with-apply">
+          
+          <span editable-text="ctrl.net.gateway" e-pattern="{{ctrl.regexIpAddr}}">{{ ctrl.net.gateway || ctrl.empty_string }}</span>
+        </div>
+      </div>
+      <div ng-if="ctrl.sharedVM.deviceCapability.network.dns">
+        <div>
+          <div class="editable-label-with-apply">
+            <span translate>Primary DNS</span>
+            :
+          </div>
+          <div class="editable-entry-with-apply">
+            <span editable-text="ctrl.net.dns1" e-pattern="{{ctrl.regexIpAddr}}" e-title="{{ctrl.patternIpAddr}}">{{ ctrl.net.dns1 || ctrl.empty_string }}</span>
+          </div>
+        </div>
+        <div>
+          <div class="editable-label-with-apply">
+            <span translate>Secondary DNS</span>
+            :
+          </div>
+          <div class="editable-entry-with-apply">
+            <span editable-text="ctrl.net.dns2" e-pattern="{{ctrl.regexIpAddr}}" e-title="{{ctrl.patternIpAddr}}">{{ ctrl.net.dns2 || ctrl.empty_string }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="ctrl.showExternalConnectivity()">
+      <div style="padding-bottom: 15px"></div>
+      <div id="networkExternalSettings" class="collapsable-section-header-sub" translate style="cursor: default">
+        External Connectivity
+      </div>
+      <div class="horizontal-divider"></div>
+      <div>
+        <div class="editable-label">
+          <span translate>External IP Address</span>
+          :
+        </div>
+        <div class="editable-entry" ng-class="invalidExternalIpMessage ? 'input-invalid' : ''">
+          <span editable-text="ctrl.net.extip" e-pattern="{{ctrl.regexIpAddr}}" e-title="{{ctrl.patternIpAddr}}" onshow="ctrl.setEditing('extIp', true)" onhide="ctrl.setEditing('extIp', false)" onaftersave="ctrl.validateNetworkSettings()">{{ ctrl.net.extip || ctrl.empty_string }}</span>
+          <img ng-show="ctrl.invalidExternalIpMessage && !ctrl.editing['extIp']" class="warning-icon-inline" src="/images/warning.png" width="30" height="30" uib-popover="{{ctrl.invalidExternalIpMessage}}" popover-placement="bottom" popover-trigger="outsideClick">
+        </div>
+        </div>
+      <div>
+        <div class="editable-label">
+          <span translate>External Port</span>
+          :
+        </div>
+        <div class="editable-entry">
+          <span editable-number="ctrl.net.extport" e-pattern="{{ ctrl.regexPort }}" e-min="1" e-max="65535" e-title="Audio Port">{{ ctrl.net.extport || ctrl.empty_string }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+<ul id="devNetworkPageGuide" class="guide-hidden" data-tourtitle="CCM Network">
+  
+  <li class="tlypageguide_left" data-tourtarget="#networkSettings">
+    <div>
+      <p>Use this section to set the network configuration of this device.</p>
+      <p>It could be either set to "DHCP" or static. </p>
+      <ul>
+        <li> DHCP: Settings are retreived automatically from the network. If no DHCP server is available, a link-local address will be used. </li>
+        <li> Static: All settings must be entered manually with valid entries. </li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#networkExternalSettings" data-name="networkExternal">
+    <p>Set the external IP and port of the device</p>
+    <p>This is required if the device is behind a firewall. The firewall must be configured to peform port forwarding of the device IP and port 655 (which is the port
+      used for audio and presence) for both UDP and TCP protocol.</p>
+    <ul>
+      <li> External IP Address: Corresponds to the public IP Address of the Firewall </li>
+      <li> External Port: Corresponds to the public port that is forwarded to the port 655 of the device</li>
+    </ul>
+    <p>Note: Not all devices behind a firewall require the external connectivity to be set. But it will improve performance and latency.</p>
+  </li>
+</ul>
+
+
+</div>
+

@@ -1,0 +1,1040 @@
+
+<div style="margin-left:15px; margin-top:15px">
+
+  <div ng-show="ctrl.isLinkingSupported">
+
+    <div id="overviewDevices" class="overview-header"><span translate>Devices</span>
+      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='ovDevices'" id="ovDevicesGuideToggle" ng-click="ctrl.openGuide('ovDevices')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    </div>
+
+    <div ng-show="hasUnsupportedDeviceCount" class="devices-warning">
+      <img ng-src="../../images/warning.png">
+      <div>
+        Linking more than 3 Main Stations is not advised
+      </div>
+    </div>
+
+
+    
+    <div ng-repeat="device in ctrl.displayDevices track by $index" ng-init="slotId = ($index + 1)" style="margin-top:20px">
+
+      
+      <div ng-if="(device.device_id > 0)">
+        
+        <cc-device-container ng-if="ctrl.hostIsReachable && device.device_isReachable" device="device" supported-interfaces="ctrl.supportedInterfaceObject[device.device_id]" status="{{ ctrl.getOnlineDeviceStatus(device) }}" warnings="{{ ctrl.getDeviceWarnings(device) }}" psu-monitoring="ctrl.isCapabilitySupportedByDevice(device, 'psuMonitoring')" nav-target="/view/device/{{ device.device_id }}/general" linking="ctrl.isCapabilitySupportedByDevice(device, 'linking')" border="true" ng-attr-id="overviewDevice_{{$index}}" resource-meter="ctrl.showResourceUsage()" is-master-reachable="ctrl.isMasterReachable">
+        </cc-device-container>
+
+        
+        <cc-device-container ng-if="(!ctrl.hostIsReachable && !device.isHost)" device="device" supported-interfaces="ctrl.supportedInterfaceObject[device.device_id]" status="WARNING" warnings="{{ ctrl.getDeviceWarnings(device) }}" nav-on-click="ctrl.showModalAlert(ctrl.alertMsgHostUnreachable)" linking="ctrl.isCapabilitySupportedByDevice(device, 'linking')" border="true" ng-attr-id="overviewDevice_{{$index}}" is-master-reachable="ctrl.isMasterReachable">
+        </cc-device-container>
+
+        
+        <cc-device-container ng-if="(ctrl.hostIsReachable && !device.isHost && !device.device_isReachable) || (!ctrl.hostIsReachable && device.isHost)" device="device" supported-interfaces="ctrl.supportedInterfaceObject[device.device_id]" status="ERROR" nav-on-click="!device.isHost && ctrl.removeDevice(device.device_id)" linking="ctrl.isCapabilitySupportedByDevice(device, 'linking')" border="true" ng-attr-id="overviewDevice_{{$index}}" is-master-reachable="ctrl.isMasterReachable">
+        </cc-device-container>
+
+        
+      </div>
+
+      
+      <div ng-show="device.device_id == 0">
+        <div class="device-container">
+          <div class="device-container-outer">
+            <div class="device-container-inner">
+              <div class="device-container-index">
+                {{ slotId }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      
+    </div>
+    
+  </div>
+
+
+  <div id="overviewHelixnetEndpoints" class="overview-header" data-expander data-expander-title="HelixNet" data-start-open="true" data-page-name="overview" data-section="helixnet" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovHelixNet'" data-guide-function="ctrl.openGuide('ovHelixNet')" ng-if="ctrl.showHelixNet();">
+
+    <table ng-show="(ctrl.endpoints | filter: ctrl.isEndpointHN).length > 0" class="cc-overview-table table-header-rotated header-background" id="cc-overview-helixnet-endpoints-table">
+      <thead>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <th rowspan="2" class="header-background-device-name rotate" ng-repeat="device in ctrl.devices | filter: {deviceType_name: 'HMS-4X' } | orderBy: ['id'] track by device.device_id">
+          <div class="header-text">
+
+                {{device.device_label}}
+
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <td class="header-background border cc-overview-helixnet-table-device-row">Device Name</td>
+        <td class="header-background border">Model</td>
+        <td class="header-background border cc-overview-helixnet-table-role-row">Role</td>
+        <td></td>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr ng-repeat="endpoint in ctrl.endpoints | filter: ctrl.isEndpointHN | orderBy: [ctrl.getTypeForSorting, ctrl.getRoleLabelForSorting, ctrl.root.naturalSort('label'), 'id'] track by endpoint.id">
+        <td class="border col-helixnet-devicename">{{endpoint.label}}</td>
+        <td class="border col-helixnet-model">{{ctrl.endpointTypeStr(endpoint.type, endpoint.revision)}}</td>
+        <td class="border col-helixnet-role">{{ctrl.getRoleLabel(endpoint.role)}}</td>
+        <td class="border col-helixnet-settings">
+          <a ng-show="endpoint.type == 'HMS-4X'" ng-href="/view/device/{{endpoint.device_id}}/general" class="icon-button">
+            <img src="/images/gear.png" width="24" height="24">
+          </a>
+          <a ng-hide="endpoint.type == 'HMS-4X'" ng-click="ctrl.showHNEndpointConfig(endpoint)" class="icon-button">
+            <img src="/images/gear.png" width="24" height="24">
+          </a>
+        </td>
+        <td ng-repeat="device in ctrl.devices | filter: {deviceType_name: 'HMS-4X' } | orderBy: ['id'] track by device.device_id" class="border">
+          <div ng-if="endpoint.device_id === device.device_id" class="cc-overview-crosspoint-col">
+            <span ng-hide="!device.device_isReachable" class="glyphicon glyphicon-record"></span>
+            <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable"></span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p ng-show="(ctrl.endpoints | filter: ctrl.isEndpointHN).length == 0">There are no HelixNet endpoints to display.</p>
+  </div>
+
+  <div id="overviewLQEndpoints" class="overview-header" data-expander data-expander-title="Agent-IC" data-start-open="true" data-page-name="overview" data-section="aic" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovAIC'" data-guide-function="ctrl.openGuide('ovAIC')" ng-if="ctrl.showAIC();">
+    <table ng-show="(ctrl.endpoints | filter: ctrl.isEndpointLQ).length > 0" class="cc-overview-table table-header-rotated header-background" id="cc-overview-LQ-endpoints-table">
+      <thead>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <th rowspan="2" class="header-background-device-name rotate" ng-repeat="device in ctrl.devices | filter: {deviceType_name: 'LQ' }  track by device.device_id">
+          <div>
+              <span>
+                <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable" style="padding-right:5px"></span>
+                {{device.device_label}}&nbsp;<span ng-style="{'color':ctrl.getAgentICColor(device)}">({{ ctrl.getAgentICUserCount(device) }}/{{ ctrl.getTotalLicensedUsers(ctrl.licenseService.AGENT_IC_LICENSE_REGEXP, device) }})</span>
+              </span>
+          </div>
+        </th>
+      </tr>
+      <tr>
+        <td class="header-background border">Role</td>
+        <td class="header-background border">Account</td>
+        <td class="header-background border">Device</td>
+      </tr>
+      </thead>
+      <tbody>
+
+      <tr ng-repeat="endpoint in ctrl.endpoints | filter: ctrl.isEndpointLQ | orderBy: [ctrl.root.naturalSort('label')] track by endpoint.id">
+        <td class="border cc-overview-table-column-role">
+          {{ctrl.getLQRoleLabel(endpoint.role)}}
+          <a ng-href="/view/roles?initialId={{ctrl.getRoleOrDefault(endpoint)}}" class="icon-button" style="float:right">
+            <img src="/images/gear.png" width="24" height="24">
+          </a>
+        </td>
+        <td class="border cc-overview-table-column-account">
+          {{endpoint.label}}
+        </td>
+        <td class="border cc-overview-table-column-phone-type">{{ctrl.getEndpointPhoneType(endpoint)}}</td>
+        <td ng-repeat="device in ctrl.devices | filter: {deviceType_name: 'LQ' } | orderBy: ['id'] track by device.device_id" class="border cc-overview-crosspoint-col">
+          <div ng-if="endpoint.device_id === device.device_id" class="cc-overview-crosspoint-col">
+            <span ng-hide="!device.device_isReachable" class="glyphicon glyphicon-record"></span>
+            <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable"></span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p ng-show="(ctrl.endpoints | filter: ctrl.isEndpointLQ).length == 0">There are no Agent-IC connected users.</p>
+  </div>
+
+  <div id="overviewSipServers" class="overview-header" data-expander data-expander-title="SIP Accounts" data-start-open="true" data-page-name="overview" data-section="sip" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovSIP'" data-guide-function="ctrl.openGuide('ovSIP')" ng-if="ctrl.showSip();">
+    <table ng-show="ctrl.sipOverviewData.length > 0" class="cc-overview-table table-header-rotated" id="cc-overview-sip-table">
+      <thead>
+      <tr>
+         <th></th><th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th class="cc-overview-table-column-vox border header-background">VOX</th>
+        <th class="border header-background">Call</th>
+        <th class="border header-background cc-overview-table-column-action">Action</th>
+        
+        <th rowspan="2" class="header-background-device-name rotate" ng-repeat="device in ctrl.devices | filter: {deviceType_name: '!HMS-4X' } | orderBy: ['id'] track by device.device_id">
+          <div>
+              <span>
+                <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable" style="padding-right:5px"></span>
+                {{device.device_label}}&nbsp;<span ng-style="{'color':ctrl.getSipLinesColor(device)}">({{ ctrl.getUserSipLines(device) }}/{{ ctrl.getTotalLicensedUsers(ctrl.licenseService.SIP_LICENSE_REGEXP, device) }})</span>
+              </span>
+          </div>
+        </th>
+      </tr>
+      <tr>
+         <th class="cc-overview-table-column-id border header-background" colspan="2">ID</th>
+        <th class="cc-overview-table-column-host border header-background left-aligned-text">SIP Server</th>
+        <th colspan="2" style="min-width: 244px" class="border header-background left-aligned-text">Account</th>
+        <th></th>
+        <th></th>
+        
+        <th>
+          <button class="btn btn-danger btn-sm hangup-all-sip-call-btn" ng-click="ctrl.hangUpAllSipCall()">
+            <span>Hang Up All</span>
+          </button>
+        </th>
+        
+      </tr>
+      </thead>
+      <tbody class="sip-table-body border">
+
+
+      <tr ng-repeat-start="sipLine in ctrl.sipOverviewData track by sipLine.desc" style="border-top: solid 1px black">
+        <td class="col-sip-description" colspan="2">{{sipLine.desc}}</td>
+
+        <td class="left-aligned-text col-sip-server"><span style="float:left; vertical-align: middle">{{sipLine.serverName}}</span></td>
+
+        <td class="left-aligned-text cc-overview-table-column-port col-sip-account">
+          <span>{{sipLine.label}}</span>
+        </td>
+        <td class="cc-overview-table-config-link">
+          <a ng-href="/view/device/{{sipLine.assignedDeviceId}}/ports?externalDeviceId={{ sipLine.externalDeviceId }}&amp;externalPortId={{sipLine.externalPortId}}" class="icon-button">
+            <img src="/images/gear.png" width="24" height="24">
+          </a>
+        </td>
+
+        <td></td>
+
+        <td class="cc-overview-table-column-status left-aligned-text">
+          <div ng-show="sipLine.deviceOnline && sipLine.assignedDeviceId !== 0">
+            <div ng-show="sipLine.sipRegistrationStatusCode === -1 || sipLine.sipRegistrationStatusCode === 0" class="sip-icon-inline" uib-popover="{{sipLine.externalConnectionStatusMessage}}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Not_Registered.svg'">
+            </div>
+            <div ng-show="sipLine.sipRegistrationStatusCode === 1" class="sip-icon-inline" uib-popover="{{sipLine.externalConnectionStatusMessage}}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registering.svg'">
+            </div>
+            <div ng-show="sipLine.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="{{sipLine.externalConnectionStatusMessage}}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Registered_2.svg'">
+            </div>
+            <div ng-hide="sipLine.sipRegistrationStatusCode === -1 || sipLine.sipRegistrationStatusCode === 0 ||
+                              sipLine.sipRegistrationStatusCode === 1 || sipLine.sipRegistrationStatusCode === 200" class="sip-icon-inline" uib-popover="{{sipLine.externalConnectionStatusMessage}}" popover-placement="bottom" popover-trigger="outsideClick" ng-include="'/images/SIP/Failed_to_Register.svg'">
+            </div>
+          </div>
+          <div ng-hide="sipLine.deviceOnline || sipLine.assignedDeviceId === 0">
+            <span class="conn-port-external offline"></span>
+            <img class="sip-status-image" uib-popover="Device Offline" popover-placement="bottom" popover-trigger="outsideClick" src="/images/Accounts/Devices-associated-offline.svg">
+          </div>
+          <div ng-show="sipLine.assignedDeviceId === 0">
+            <span class="conn-port-external not-connected"></span>
+              <img class="sip-status-image" style="" uib-popover="Unassigned" popover-placement="bottom" popover-trigger="outsideClick" src="/images/Accounts/Devices-not-associated.svg">
+          </div>
+        </td>
+
+        <td></td>
+
+        <td ng-repeat="device in ctrl.devices | filter: {deviceType_name: '!HMS-4X' } | orderBy: ['id'] track by device.device_id" class="border" ng-attr-rowspan="{{sipLine.calls.length + 1}}">
+          <div ng-if="sipLine.assignedDeviceId === device.device_id" class="cc-overview-crosspoint-col">
+            <span ng-hide="!device.device_isReachable" class="glyphicon glyphicon-record"></span>
+            <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable"></span>
+          </div>
+        </td>
+      </tr>
+
+      <tr ng-repeat-end ng-repeat="sipCall in sipLine.calls track by sipCall.id" class="cc-overview-sip-table-call-row">
+        <td class="cc-overview-sip-table-col-empty"></td>
+
+        <td colspan="5" style="margin-right: 0px;  padding-right: 0px">
+          <div class="sip-line-background border cc-overview-sip-table-call-div-left">
+            <span class="cc-overview-sip-table-call-caller">
+              <span ng-if="sipCall.liveStatus.callerId" class="cc-overview-sip-table-call-caller-id">{{sipCall.liveStatus.callerId}}</span>
+              <span ng-if="sipCall.uri" class="cc-overview-sip-table-col-sip-call-uri">{{sipCall.uri}}</span>
+            </span>
+            <span class="col-sip-vox">
+              <img ng-src="{{ sipCall.liveStatus.vox.status ? '/images/vox-active.png' : '/images/vox-inactive.png' }}" ng-show="sipCall.liveStatus.inProgress" style="padding-bottom: 5px; padding-left:9px">
+            </span>
+          </div>
+        </td>
+        <td style="margin-left: 0px; margin-right: 0px; padding: 0px">
+          <div class="sip-line-background sip-line-call-status border cc-overview-sip-table-call-div-middle">
+            <div ng-show="sipCall.liveStatus.inProgress && sipCall.liveStatus.sipCallStatusCode === 180" style="fill:green" class="sip-icon" ng-include="'/images/SIP/Calling.svg'"></div>
+            <div ng-show="sipCall.liveStatus.inProgress && sipCall.liveStatus.sipCallStatusCode === 200" style="fill:green" class="sip-icon" ng-include="'/images/SIP/MakeCall.svg'"></div>
+            <div ng-show="!sipCall.liveStatus.inProgress" style="fill:red" class="sip-icon" ng-include="'/images/SIP/HangUp.svg'"></div>
+
+            <span ng-show="sipCall.liveStatus.inProgress" class="conn-port-sip-codec">{{ctrl.codecToDisplayText(sipCall.liveStatus.codec)}}</span>
+          </div>
+        </td>
+        <td style="margin-left: 0px; margin-right: 0px; padding: 0px">
+          <div class="sip-line-background border cc-overview-sip-table-call-div-right">
+            <button ng-show="sipCall.liveStatus.inProgress" class="btn btn-danger btn-sm hangup-sip-call-btn" ng-click="ctrl.hangUpSipCall(sipCall)">
+              <span>Hang Up</span>
+            </button>
+          </div>
+        </td>
+        <td style="visibility: collapse"></td>
+      </tr>
+
+      </tbody>
+    </table>
+    <p ng-show="ctrl.sipOverviewData.length == 0">There are no SIP Accounts configured.</p>
+  </div>
+
+  <div id="overviewIVCServers" class="overview-header" data-expander data-expander-title="IVC Ports" data-start-open="true" data-page-name="overview" data-section="ivc" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovIVC'" data-guide-function="ctrl.openGuide('ovIVC')" ng-if="ctrl.showIvc32();">
+    <table ng-show="ctrl.ivcOverviewData.length > 0" class="cc-overview-table" id="cc-overview-ivc-table">
+      <thead>
+      <tr>
+         <th></th><th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        
+        <th rowspan="2" class="header-background-device-name rotate" ng-repeat="device in ctrl.devices | filter: {deviceType_name: '!HMS-4X' } | orderBy: ['id'] track by device.device_id">
+          <div>
+            <span>
+              <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable" style="padding-right:5px"></span>
+              {{device.device_label}}
+            </span>
+          </div>
+        </th>
+      </tr>
+      <tr>
+         <th class="cc-overview-table-column-id border header-background" colspan="2">ID</th>
+        <th class="cc-overview-table-column-host border header-background left-aligned-text">IVC Host</th>
+        <th colspan="2" class="border header-background left-aligned-text">Port Label</th>
+        <th class="border header-background">VOX</th>
+        <th class="border header-background">Status</th>
+        
+      </tr>
+      </thead>
+      <tbody class="border ivc-table-body">
+      <tr class="border" ng-repeat="ivc in ctrl.ivcOverviewData track by ivc.desc">
+        <td class="border col-ivc-description" colspan="2">
+          {{ivc.desc}}
+        </td>
+        <td class="col-ivc-servername left-aligned-text">
+          <span style="float:left; vertical-align: middle">
+            {{ivc.serverName}}
+          </span>
+        </td>
+        <td class="col-ivc-label left-aligned-text cc-overview-table-column-port">
+          <span>{{ivc.label}}</span>
+        </td>
+        <td class="cc-overview-table-config-link">
+          <a ng-href="/view/device/{{ivc.assignedDeviceId}}/ports?externalDeviceId={{ ivc.externalDeviceId }}&amp;externalPortId={{ivc.externalPortId}}" class="icon-button">
+            <img src="/images/gear.png" width="24" height="24">
+          </a>
+        </td>
+        <td class="cc-overview-table-column-vox">
+          <span>
+            <img ng-src="{{ ivc.vox ? '/images/vox-active.png' : '/images/vox-inactive.png' }}">
+          </span>
+        </td>
+        <td class="cc-overview-table-column-status left-aligned-text">
+          <div class="cc-overview-table-column-status left-aligned-text">
+            <div ng-show="ivc.deviceOnline && ivc.assignedDeviceId !== 0">
+              <span class="conn-port-external" ng-class="{
+                          'connected': ivc.externalConnectionStatus === 'connected',
+                          'not-connected': ivc.externalConnectionStatus !== 'connected'
+                          }"></span>
+                      <img src="/images/warning.png" ng-show="ivc.externalConnectionStatus !== 'connected'" class="warning-icon-inline" uib-popover="{{ ivc.externalConnectionStatusMessage }}" popover-placement="bottom" popover-trigger="outsideClick">
+                      <img ng-show="ivc.externalConnectionStatus === 'connected'" src="/images/vox-active.png" uib-popover="{{ ivc.externalConnectionStatusMessage }}" popover-placement="bottom" popover-trigger="outsideClick">
+            </div>
+            <div ng-hide="ivc.deviceOnline || ivc.assignedDeviceId === 0">
+              <img class="ivc-status-image" uib-popover="Device Offline" popover-placement="bottom" popover-trigger="outsideClick" src="/images/Accounts/Devices-associated-offline.svg">
+            </div>
+            <div ng-show="ivc.assignedDeviceId === 0">
+              <span class="conn-port-external offline"></span>
+              <img class="ivc-status-image" uib-popover="Unassigned" popover-placement="bottom" popover-trigger="outsideClick" src="/images/Accounts/Devices-not-associated.svg">
+            </div>
+          </div>
+        </td>
+        <td ng-repeat="device in ctrl.devices | filter: {deviceType_name: '!HMS-4X' } | orderBy: ['id'] track by device.device_id" class="border">
+          <div ng-if="ivc.assignedDeviceId === device.device_id" class="cc-overview-crosspoint-col">
+            <span ng-hide="!device.device_isReachable" class="glyphicon glyphicon-record"></span>
+            <span ng-hide="device.device_isReachable" class="glyphicon glyphicon-record device_unreachable"></span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p ng-show="ctrl.ivcOverviewData.length == 0">There are no IVC Accounts configured.</p>
+  </div>
+
+  <div id="overviewFSIIBeltpacks" class="overview-header" data-expander data-expander-title="Wireless Beltpacks" data-start-open="true" data-page-name="overview" data-section="WirelessBeltpacks" data-current-guide="ctrl.root.currentGuide" data-guide-enabled="ctrl.root.guideEnabled" data-guide-name="'ovFSIIBP'" data-guide-function="ctrl.openGuide('ovFSIIBP')" ng-if="ctrl.supportedEndpoints['FSII']">
+
+
+
+      <table class="cc-overview-table table-header-rotated" id="cc-overview-FSII-beltpack-table">
+        <thead>
+        <tr>
+          <th colspan="7">
+          </th>
+          <th class="antenna-header" ng-repeat="antenna in ctrl.endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id'] track by antenna.id" style="text-align: center; width:33px">
+            <div style="font-size: 8px; height:25px; width:30px; text-overflow:ellipsis">
+              <span class="error" ng-show="antenna.liveStatus.syncState === 'local'">{{antenna.liveStatus.syncState}}</span>
+            </div>
+            <div ng-class="ctrl.getAntennaClasses(antenna.liveStatus.status, $index)" style="background-color: #222A35">{{$index+1}}</div>
+          </th>
+          <th></th>
+        </tr>
+        <tr>
+          <th colspan="7">
+            <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devAntenna'" id="devAntennaGuideToggle" ng-click="ctrl.openGuide('devAntenna')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px;float: right"></th>
+          <th class="antenna-header" ng-repeat="antenna in ctrl.endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id'] track by antenna.id" style="height:40px; vertical-align: top; text-align: center">
+              <div ng-click="ctrl.showFSIIAntennaConfig(antenna)" style="cursor:pointer">
+                <img ng-src="{{ctrl.getAntennaIconSRC(antenna);}}">
+              </div>
+          </th>
+          <th></th>
+        </tr>
+        <tr>
+          <th colspan="3" style="vertical-align: bottom">
+            <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devSearch'" id="devSearchGuideToggle" ng-click="ctrl.openGuide('devSearch')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+            <div style="padding-bottom:5px">
+              <div id="display-by-role-or-name">
+                <input type="radio" ng-model="ctrl.fsIIFilterByRole" ng-value="true" checked="checked">Role
+                <input type="radio" ng-model="ctrl.fsIIFilterByRole" ng-value="false" style="margin-left:10px">Beltpack Name
+              </div>
+              <div>
+                <input type="text" id="FSIISearchInput" ng-model="FSIISearchInput" placeholder="Search beltpacks">
+              </div>
+            </div>
+          </th>
+          <th colspan="2" style="vertical-align: bottom">
+            <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devKeyLegend'" id="devKeyLegendGuideToggle" ng-click="ctrl.openGuide('devKeyLegend')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px;float:right">
+            <div style="cursor:pointer" ng-click="ctrl.toggleColourLegend();">
+              <span class="glyphicon glyphicon-chevron-right" ng-class="ctrl.showColourLegend() ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+              <u> Key Legend </u>
+            </div>
+            <div ng-show="ctrl.showColourLegend();">
+              <div>
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <circle cx="5" cy="5" r="4" fill="{{ ctrl.keyColourIndex('talk')}}"/>
+              </svg>
+              Talk-Only
+            </div>
+              <div>
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <circle cx="5" cy="5" r="4" fill="{{ctrl.keyColourIndex('listen')}}"/>
+                </svg>
+                Listen-Only
+              </div>
+              <div>
+                <svg width="10" height="10" viewBox="0 0 10 10">
+                  <circle cx="5" cy="5" r="4" fill="{{ctrl.keyColourIndex('talk+listen')}}"/>
+                </svg>
+                Talk & Listen
+              </div>
+            </div>
+          </th>
+          
+          <th colspan="2" style="vertical-align: bottom">
+            <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devActions'" id="devActionsGuideToggle" ng-click="ctrl.openGuide('devActions')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+            <div style="background-color: #474E53; height:35px; line-height:35px; text-align: center; border-radius: 10px 10px 0px 0px; padding-left:-1px">Actions</div>
+            <div style="border-left:2px solid #474E53; border-right: 2px solid #474E53; margin-bottom: -5px; padding-bottom:5px">
+              <div class="cc-overview-header-action-title">Call</div>
+              <div>
+                <input type="button" value="All Call" id="FSII-call-all-button" cc-while-pressed="ctrl.triggerCallSignal({}, true)" cc-while-pressed-interval="1000" cc-pressup="ctrl.triggerCallSignal({}, false)" class="cc-overview-header-action-button" ng-class="{'cc-overview-header-action-button-active' : (ctrl.devices[0].device_liveStatus.callAllState || ctrl.callAll)}" style="border-width:0px; width:135px" translate>
+                <input type="text" id="overview-call-text-input" placeholder="Text to send" class="editable-input form-control input-sm ng-pristine ng-valid-maxlength ng-touched" maxlength="10" ng-model="ctrl.callText">
+              </div>
+              <div class="cc-overview-header-action-title">RMK</div>
+              <div class="cc-overview-header-action-button" id="FSII-rmk-all-button" ng-class="{'cc-overview-header-action-button-active' : ctrl.rmkAll}" ng-click="ctrl.triggerRMK({})">RMK All Beltpacks</div>
+            </div>
+          </th>
+          
+          <th class="header-background-device-name rotate antenna-header" ng-repeat="antenna in ctrl.endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id'] track by antenna.id">
+            <div>
+              <div class="antenna-label-guide-marker"></div>
+                <span ng-class="antenna.liveStatus.status === 'online' ? 'antenna-label' : 'antenna-label-offline'">
+                {{antenna.label}}
+              </span>
+            </div>
+          </th>
+          <th class="header-background-device-name rotate">
+            <div>
+                <span>
+                Total
+              </span>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th style="width:60px"><div class="header-text border-radius">ID</div></th>
+          <th style="width:150px" class="FSII-filter-type">
+            <div ng-show="ctrl.fsIIFilterByRole" class="header-text border-radius"><label>Role</label></div>
+            <div ng-hide="ctrl.fsIIFilterByRole" class="header-text border-radius"><label>Device Name</label></div>
+          </th>
+          <th style="width:100px"><div class="header-text border-radius">Status</div></th>
+          <th style="width:80px"><div class="header-text border-radius">Key</div></th>
+          <th style="width:80px"><div class="header-text border-radius">Gain</div></th>
+          <th style="padding-right:0px"><div style="text-align: center; background-color: #474E53; height:35px; line-height:35px">RMK</div></th>
+          <th style="padding-left:0px"><div style="text-align: center; background-color: #474E53; height:35px; line-height:35px">Call</div></th>
+          <th class="header-background-device-name antenna-connected-pp-count" ng-repeat="antenna in ctrl.endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id'] track by antenna.id">
+            <div ng-class="ctrl.getAntennaDensityWarning(antenna, $index)">
+              <span>{{ctrl.getNumberOfConnectedBPs($index)}}</span>
+            </div>
+          </th>
+          <th style="width:33px"><div style="text-align: center"><span>{{ctrl.getTotalNumberOfBPs()}}</span></div></th>
+          
+          
+        </tr>
+        </thead>
+        <tbody class="">
+        <tr ng-repeat="endpoint in ctrl.filteredEndpoints = (ctrl.endpoints | filter : ctrl.searchActivePP(FSIISearchInput) | orderBy: ctrl.activePPOrderBy) track by endpoint.id">
+          <td class="border-top" ng-class="$even ? 'even-row' : 'odd-row'">
+            <span class="endpoint-id" ng-click="ctrl.showFSIIBeltpackConfig(endpoint)">{{ctrl.getEndpointIdString(endpoint.id)}}</span>
+          </td>
+
+          
+          <td class="left-aligned-text border-top" ng-class="$even ? 'even-row' : 'odd-row'" style="width:150px">
+
+            
+            <div ng-if="endpoint.liveStatus.status == 'online'">
+              <div style="display:flex; align-items: center; justify-content: space-between" ng-show="ctrl.fsIIFilterByRole">
+                <div class="role-name">{{ctrl.getRoleLabelById(endpoint)}}</div>
+                <div><a ng-href="/view/roles?initialId={{endpoint.role.id}}"><img style="height:15px; width: 15px" src="/images/Navigation/roles_white.svg" ng-href="/view/roles?initialId={{endpoint.role.id}}"></a></div>
+              </div>
+
+              <div style="display:flex; align-items: center; justify-content: space-between" ng-show="!ctrl.fsIIFilterByRole">
+                <div class="role-name">{{endpoint.label}}</div>
+              </div>
+            </div>
+
+            
+            <div ng-if="endpoint.liveStatus.status == 'connecting'">
+                <div style="display:flex; align-items: center; justify-content: space-between" ng-show="ctrl.fsIIFilterByRole">
+                  <div class="role-name">Select role ...</div>
+                </div>
+            </div>
+          </td>
+
+          
+          <td class="left-aligned-text border-top" ng-class="$even ? 'even-row' : 'odd-row'">
+            <div style="display:flex; align-items: center; justify-content: space-between" class="antenna-map-status-cell-container" ng-style="(endpoint.liveStatus.keysetTallies == undefined) && {'width':'81'}">
+              <div class="tallies-container" ng-show="endpoint.liveStatus.keysetTallies != undefined">
+                <div class="endpoint-tallies"><span>T</span></div>
+                <div class="endpoint-tallies"><span>C</span></div>
+              </div>
+
+              
+              <div class="endpoint-battery" ng-style="(endpoint.liveStatus.keysetTallies == undefined) && {'margin-left':'2px'}" ng-class="{'battery-warning': endpoint.liveStatus.status != 'offline' && endpoint.liveStatus.batteryLevel < 10}">
+                <div ng-if="endpoint.liveStatus.batteryType == 'Li-Ion'" class="endpoint-battery-longevity" style="line-height: 14px">{{endpoint.liveStatus.longevity.hours || 0}}h</div>
+                <div ng-if="endpoint.liveStatus.batteryType == 'AA'" class="endpoint-battery-longevity">{{endpoint.liveStatus.batteryType}}</div>
+                <div ng-class="endpoint.liveStatus.status != 'offline' && endpoint.liveStatus.batteryLevel ? (endpoint.liveStatus.batteryLevel >= 50 ? 'high' : (endpoint.liveStatus.batteryLevel > 20 ? 'medium' : 'low')) : 'offline'" class="endpoint-battery-level" ng-style="{ width:(endpoint.liveStatus.batteryLevel + '%'), transition:'none' }"></div>
+              </div>
+
+              
+              <div class="signal-strength-container">
+                <svg style="height:25px; width:25px" preserveAspectRatio="xMidYMid meet" zoomAndPan="magnify" viewBox="0 0 50 20">
+                  <text ng-if="ctrl.displayFER(endpoint.liveStatus)" stroke="#ff3333" font-size="12px" font-weight="100">FER</text>
+                  <rect ng-repeat="bar in [1, 2, 3, 4, 5]" fill="{{ ctrl.getFillColor(endpoint.liveStatus, bar)}}" stroke="{{ ctrl.getStrokeColor(endpoint.liveStatus, bar)}}" ng-attr-x="{{ 1 + ((bar - 1) * 8) }}" ng-attr-y="{{ 14 + (5 - bar) * 4 }}" width="4" ng-attr-height="{{ bar * 4}}"/>
+                </svg>
+              </div>
+            </div>
+          </td>
+
+          
+          <td class="border-top button-state" ng-class="$even ? 'even-row' : 'odd-row'">
+            <div style="height:25px; margin:5px" ng-if="endpoint.liveStatus.status == 'online'">
+              <svg width="55" height="25" viewBox="0 -5 100 50">
+                <circle cx="10" cy="10" r="12" stroke="{{ ctrl.getButtonStrokeColor(endpoint, 0)}}"/>
+                <circle cx="10" cy="10" r="8" fill="{{ ctrl.getButtonFillColor(endpoint, 0)}}"/>
+
+                <circle cx="30" cy="35" r="9" stroke="{{ ctrl.getButtonStrokeColor(endpoint, 2)}}"/>
+                <circle cx="30" cy="35" r="5" fill="{{ ctrl.getButtonFillColor(endpoint, 2)}}"/>
+
+                <rect x="32" y="-1" width="36" height="21" stroke="{{ ctrl.getButtonStrokeColor(endpoint, 4)}}"/>
+                <rect x="35" y="2" width="30" height="15" fill="{{ ctrl.getButtonFillColor(endpoint, 4)}}"/>
+
+                <circle cx="90" cy="10" r="12" stroke="{{ ctrl.getButtonStrokeColor(endpoint, 1)}}"/>
+                <circle cx="90" cy="10" r="8" fill="{{ ctrl.getButtonFillColor(endpoint, 1)}}"/>
+
+                <circle cx="70" cy="35" r="8" stroke="{{ ctrl.getButtonStrokeColor(endpoint, 3)}}"/>
+                <circle cx="70" cy="35" r="5" fill="{{ ctrl.getButtonFillColor(endpoint, 3)}}"/>
+              </svg>
+            </div>
+          </td>
+
+          
+          <td class="border-top volume-bar" ng-class="$even ? 'even-row' : 'odd-row'">
+            <div ng-if="endpoint.liveStatus.status == 'online'" style="display:flex; justify-content: space-between; fill-opacity: 0.7">
+              <div ng-repeat="keyIndex in [0, 1, 2, 3, 4]">
+                <div ng-if="endpoint.liveStatus.keyState[keyIndex].volume >= 0">
+                  <svg style="height:45px; width:10px" preserveAspectRatio="xMidYMid meet" zoomAndPan="magnify" viewBox="0 0 15 20">
+                    <rect fill="#fcd116" x="5" width="10" height="30"/>
+                    <rect fill="#323232" x="4" width="11" ng-attr-height="{{ ctrl.convertVolumeToHeight(endpoint.liveStatus.keyState[keyIndex].volume )}}"/>
+                    <text x="5" font-size="10px" y="40" stroke="white">{{ ctrl.getKeyIndexLabel(keyIndex) }}</text>
+                  </svg>
+                </div>
+                <div ng-if="endpoint.liveStatus.keyState[keyIndex].volume == -1">
+                  <svg style="height:45px; width:10px" preserveAspectRatio="xMidYMid meet" zoomAndPan="magnify" viewBox="0 0 15 20">
+                    <text x="5" font-size="10px" y="40" stroke="white">{{ ctrl.getKeyIndexLabel(keyIndex) }}</text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <td class="border-top trigger-rmk" ng-class="$even ? 'even-row' : 'odd-row'">
+            <div class="round-action-button" ng-click="ctrl.triggerRMK(endpoint)" ng-hide="endpoint.liveStatus.status !== 'online'" ng-class="{'cc-overview-header-action-button-active' : endpoint.rmkPress}">RMK</div>
+          </td>
+          <td class="border-top trigger-call-signal" ng-class="$even ? 'even-row' : 'odd-row'" style="text-align:center">
+              <input type="button" value="Call" cc-while-pressed="ctrl.triggerCallSignal(endpoint, true)" cc-while-pressed-interval="1000" cc-pressup="ctrl.triggerCallSignal(endpoint, false)" class="round-action-button" ng-hide="endpoint.liveStatus.status !== 'online'" ng-class="{'cc-overview-header-action-button-active': (endpoint.liveStatus.callState || endpoint.pressingCall)}" style="padding:0px" translate>
+          </td>
+          <td ng-class="$parent.$even ? 'even-row' : 'odd-row'" ng-repeat="antenna in ctrl.endpoints | filter:{type: 'FSII-Antenna'} | orderBy: ['id'] track by antenna.id" class="border">
+            <div ng-show="endpoint.liveStatus.antennaIndex == $index" class="cc-overview-crosspoint-col role-antenna-connection">
+              <span class="glyphicon glyphicon-record" ng-class="endpoint.liveStatus.status == 'online' ?
+               (endpoint.frequencyType == '1.9' ? 'rf-type-19' : 'rf-type-24' ) : 'offline'"></span>
+            </div>
+          </td>
+          <td></td>
+
+        </tr>
+        </tbody>
+      </table>
+
+
+      <div ng-show="ctrl.filteredEndpoints.length == 0" style="font-style: italic">
+        <span ng-show="ctrl.getTotalNumberOfBPs() == 0">There are no beltpacks to display.</span>
+        <span ng-show="ctrl.getTotalNumberOfBPs() > 0">There are no beltpacks that meet your search criteria.</span>
+      </div>
+
+
+      
+     <div class="localPorts-section-divider">Other Registered Beltpacks</div>
+      <table id="cc-overview-FSII-unregistered-beltpack-table" class="cc-overview-table">
+        
+        <thead>
+        <tr>
+          <th style="width:55px"><div class="header-text border-radius">ID</div></th>
+          <th style="width:100px">
+            <div ng-show="ctrl.fsIIFilterByRole" class="header-text border-radius"><label>Role</label></div>
+            <div ng-hide="ctrl.fsIIFilterByRole" class="header-text border-radius"><label>Device Name</label></div>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="endpoint in ctrl.unusedEndpoints = (ctrl.endpoints | filter: ctrl.searchUnusedPP) track by endpoint.id">
+          <td class="col-sip-description">
+            <span class="endpoint-id" ng-click="ctrl.showFSIIBeltpackConfig(endpoint)">{{ctrl.getEndpointIdString(endpoint.id)}}</span>
+          </td>
+
+          <td class="left-aligned-text">
+            <div style="display:flex; align-items: center; justify-content: space-between" ng-show="ctrl.fsIIFilterByRole">
+              <div class="role-name">{{ctrl.getRoleLabelById(endpoint)}}</div>
+            </div>
+            <div style="display:flex; align-items: center; justify-content: space-between" ng-show="!ctrl.fsIIFilterByRole">
+              <div class="role-name">{{endpoint.label}}</div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  
+<ul id="ovDevicesPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Devices">
+  
+  <li class="tlypageguide_top" data-tourtarget="#overviewDevice_0 .device-container-outer">
+    <div>
+      <p>This image includes an overall description of the device characteristics and some information and status indicators.</p>
+      <ul>
+        <li> On the top right, see the device ID (LM = Link-Master, Link-Members 2 - 6)</li>
+        <li> On the bottom right, the following icons can be seen:
+          <ul>
+            <li>
+              <img height="20" width="20" src="images/gear.png"> Navigate to the device configuration page
+            </li>
+            <li>
+              <div style="vertical-align: middle; color: rgb(204, 204, 204); text-align: center" class="glyphicon glyphicon-bell"></div>
+              Alerts/Info indicator will appear when an error condition needs the user's attention. Click/touch for details. </li>
+            <li>
+              <div style="vertical-align: middle; color: rgb(204, 204, 204); text-align: center" class="glyphicon glyphicon-trash"></div> When the device is unreachable, the gear icon is changed into a trash icon to  allow a device to be deleted &nbsp;from the link-group.
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </li>
+  <li class="tlypageguide_top guide-device-container-label" data-tourtarget="#overviewDevice_0 .device-label" data-name="overviewLQlabel">
+    <div>
+      <p>The device label as configured in the device configuration page</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_bottom" data-tourtarget="#overviewDevice_0 .device-interfaces">
+    <div>
+      <p>The right side of the device representation incudes information such as:</p>
+      <ul>
+        <li> Device type</li>
+        <li> IP address</li>
+        <li>Device's current capabilities (ports)</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#overviewDevice_0 .device-resource-groove">
+    <div>
+      <p>The left side of the device representation incudes information such as:</p>
+      <ul>
+        <li> Resource usage bar</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#overviewDevice_0 .device-status-inner">
+    <div>
+      <ul>
+        <li>
+          <img height="20" width="20" src="images/ok.png"> Device is working correctly</li>
+        <li>
+          <img height="20" width="20" src="images/warning.png"> Device shows an error condition<p>The bell icon may appear below to provide more information</p>
+        </li>
+        <li>
+          <img height="20" width="20" src="images/failure.svg"> Device is either not reachable or is disconnected<p>The bell icon &nbsp;appears below to provide more information. Also the gear icon may change into a delete icon to allow devices that are not present anymore to be deleted from the screen. </p>
+        </li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_right" data-tourtarget="#overviewDevice_0 .device-psu-monitoring">
+    <div>
+      <p>These icons represent the status of the PSU (or Power over Ethernet (POE) when available)</p>
+      <p>LQ 1Ru rack units have two power supplies. Use either one, or both for redundancy.&nbsp;Green = power connected. Red = power not connected.</p>
+    </div>
+  </li>
+</ul>
+
+
+<ul id="ovSIPPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Externals">
+  <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .collapsable-section-header-sub">
+    <div>
+      <p>This section displays information related to the SIP accounts configured in the system</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .col-sip-description">
+    <div>
+      <p>The auto-assigned identifier for the SIP account</p>
+    </div>
+  </li>
+ <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .col-sip-server">
+    <div>
+      <p>The user-defined description for the SIP server the account is registered against</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .col-sip-account">
+    <div>
+      <p>The user-defined label for the SIP account</p>
+    </div>
+  </li> -->
+  <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .cc-overview-table-column-status">
+    <div>
+      <p>Click status icon for information</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#overviewSipServers .cc-overview-crosspoint-col">
+    <div>
+      <p>Shows which device the SIP line is connected to. The green numbers show how many licenses are available on this device and how many licenses are in use.</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".cc-overview-sip-table-call-caller">
+    <div>
+      <p>SIP Caller Id of the incoming caller or outgoing destination</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".cc-overview-sip-table-col-sip-call-uri">
+    <div>
+      <p>SIP Call URI of the incoming caller or outgoing destination</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".col-sip-vox">
+    <div>
+      <p>This light is green when incoming audio present on the call </p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget=".sip-line-call-status">
+    <div>
+      <p>Call/Codec</p>
+    </div>
+  </li>
+</ul>
+
+
+<ul id="ovIVCPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Externals">
+  <li class="tlypageguide_top" data-tourtarget="#overviewIVCServers .collapsable-section-header-sub">
+    <div>
+      <p>This section displays information related to the IVC accounts configured in the system</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .col-ivc-description">
+    <div>
+      <p>The auto-assigned identifier for the IVC account</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .col-ivc-servername">
+    <div>
+      <p>The user-defined description for the IVC server the account is registered against</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .col-ivc-label">
+    <div>
+      <p>The user-defined label for the IVC account</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .cc-overview-table-config-link">
+    <div>
+      <p>Click here for port configuration options</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .cc-overview-table-column-vox">
+    <div>
+      <p>This lights when valid incoming audio is detected</p>
+    </div>
+  </li>
+
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .cc-overview-table-column-status">
+    <div>
+      <p>Click on status icon for information</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-ivc-table .cc-overview-crosspoint-col">
+    <div>
+      <p>This shows which device this connection is assigned to. If you have a Link-Group set up you see more than one device here</p>
+    </div>
+  </li>
+</ul>
+
+
+<ul id="ovHelixNetPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Externals">
+  <li class="tlypageguide_top" data-tourtarget="#overviewHelixnetEndpoints .collapsable-section-header-sub">
+    <div>
+      <p>This section displays information related to the HelixNet Endpoints in the system</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-helixnet-endpoints-table .col-helixnet-devicename">
+    <div>
+      <p>The user-friendly name given to the HelixNet device</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-helixnet-endpoints-table .col-helixnet-model">
+    <div>
+      <p>The type of endpoint</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-helixnet-endpoints-table .col-helixnet-role">
+    <div>
+      <p>A Role is a predefined setup for your HelixNet device. Change the Role in the Roles page if required</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-helixnet-endpoints-table .col-helixnet-settings">
+    <div>
+      <p>Click cog for port configuration options</p>
+    </div>
+  </li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-helixnet-endpoints-table .cc-overview-crosspoint-col">
+    <div>
+      <p>This shows the device or devices in a Link-Group, and which Main Station beltpacks and remote stations are connected to</p>
+    </div>
+  </li>
+</ul>
+
+
+<ul id="ovFSIIBPPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Externals">
+  <li class="tlypageguide_top" data-tourtarget="#overviewFSIIBeltpacks .collapsable-section-header-sub">
+    <div>
+      <p>This section displays information related to the FreeSpeak II beltpacks in the system.</p>
+    </div>
+  </li>
+</ul>
+<ul id="devActionsPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Actions">
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table #FSII-call-all-button">Click to broadcast a message to all wireless beltpacks with either the 'Text to send' message or the word 'System' if left blank.</li>
+  <li class="tlypageguide_right" data-tourtarget="#cc-overview-FSII-beltpack-table #overview-call-text-input">The message to send, either as a broadcast message using the All Call button or the individual call button.</li>
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table #FSII-rmk-all-button">Click to send an Remote Mic Kill (RMK) to all wireless beltpacks.</li>
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table .trigger-rmk">Click to send the Remote Mic Kill (RMK) to an individual wireless beltpack.</li>
+  <li class="tlypageguide_right" data-tourtarget="#cc-overview-FSII-beltpack-table .trigger-call-signal">Click to send a message to an individual wireless beltpack with either the 'Text to send' message or the word 'System' if left blank.</li>
+</ul>
+<ul id="devSearchPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Search and Filter">
+  <li class="tlypageguide_top" data-tourtarget="#display-by-role-or-name">Choose to either display and filter beltpacks by their user friendly Role name or their beltpack name.</li>
+  <li class="tlypageguide_right" data-tourtarget="#cc-overview-FSII-beltpack-table #FSIISearchInput">A text-based filter for the beltpack list. This will either filter on Role names or beltpack names depending on the option selected above.</li>
+  <li class="tlypageguide_bottom" data-tourtarget="#cc-overview-FSII-beltpack-table .role-name">Either the user friendly Role name or beltpack name of the current wireless beltpack.</li>
+</ul>
+<ul id="devAntennaPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Transceivers">
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-FSII-beltpack-table .antenna-header">Transceiver port ID.</li>
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table .antenna-label-guide-marker">The user friendly name given to this transceiver.</li>
+  <li class="tlypageguide_right" data-tourtarget=".antenna-connected-pp-count">The total number of beltpacks currently connected to this transceiver. It will turn yellow when the maximum number of beltpacks are connected. For 2.4GHz beltpacks this is 4, for 1.9GHz this is 5.</li>
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table .glyphicon.glyphicon-record">Indicator that this beltpack is currently connected to this transceiver.</li>
+</ul>
+<ul id="devKeyLegendPageGuide" class="guide-hidden" data-tourtitle="CCM Overview State Details">
+  <li class="tlypageguide_left" data-tourtarget="#cc-overview-FSII-beltpack-table .endpoint-battery">The amount of battery life left in the beltpack.</li>
+  <li class="tlypageguide_bottom" data-tourtarget="#cc-overview-FSII-beltpack-table .signal-strength-container">The signal quality between the beltpack and the transceiver. The letters FER will appear in red if there are communication errors.</li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-FSII-beltpack-table .button-state">A real-time representation of the beltpacks potential and actual activation states.</li>
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-FSII-beltpack-table .volume-bar">A real-time representation of the levels currently set on the beltpack.</li>
+</ul>
+
+<ul id="ovGPIPageGuide" class="guide-hidden" data-tourtitle="CCM Overview GPI">
+  <li class="tlypageguide_top" data-tourtarget="#logic-inputs-table .gpi-label-column">The user friendly name of the input.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-inputs-table .gpi-source-destination-col">A list of the sources and destinations that will be created when the input is activated.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-inputs-table .gpi-status-column">The current status of the input.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-inputs-table .gpi-force-column">Click On or Off to activate that state. A gold background is active. A blue background is inactive.</li>
+</ul>
+
+<ul id="ovGPOPageGuide" class="guide-hidden" data-tourtitle="CCM Overview GPO">
+  <li class="tlypageguide_top" data-tourtarget="#logic-outputs-table .gpo-label-column">The user friendly name of the output.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-outputs-table .gpo-triggers-col">A list of triggers. One or more trigger will activate the output when the conditions are satisfied. The triggering element will be displayed in green text. Control Events configured to activate GPOs are not displayed in this list.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-outputs-table .gpo-status-column">The current status of the output.</li>
+  <li class="tlypageguide_top" data-tourtarget="#logic-outputs-table .gpo-force-column">Click On or Off to activate that state. A gold background is active. A blue background is inactive.</li>
+</ul>
+
+
+
+<ul id="ovAICPageGuide" class="guide-hidden" data-tourtitle="CCM Overview Externals">
+  <li class="tlypageguide_top" data-tourtarget="#overviewLQEndpoints .collapsable-section-header-sub">
+    <div>
+      <p>This section displays information related to the Agent-IC Accounts in the system</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-LQ-endpoints-table .cc-overview-table-column-role">
+    <div>
+      <p>A Role is a predefined setup for your Agent-IC client. Change the Role in the Roles page if required</p>
+    </div>
+  </li>
+  
+ <li class="tlypageguide_top" data-tourtarget="#cc-overview-LQ-endpoints-table .cc-overview-table-column-account">
+    <div>
+      <p>The user-friendly name given to the Agent-IC user account </p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-LQ-endpoints-table .cc-overview-table-column-phone-type">
+    <div>
+      <p>The operating system information of the currently connected Agent-IC account</p>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_top" data-tourtarget="#cc-overview-LQ-endpoints-table .cc-overview-crosspoint-col">
+    <div>
+      <p>Shows which device the Agent-IC client is connected to. The green numbers show how many licenses are available on this device and how many licenses are in use.</p>
+    </div>
+  </li>
+</ul>
+  <div id="overviewFSIIGPIOtable" class="overview-header" data-expander data-expander-title="Logic Inputs & Outputs" data-start-open="true" data-page-name="overview" data-section="GPIOs" ng-if="ctrl.supportedEndpoints['FSII']">
+       <div class="localPorts-section-divider">
+         Logic Inputs
+         <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='ovGPI'" id="ovGPIGuideToggle" ng-click="ctrl.openGuide('ovGPI')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+       </div>
+       <div ng-repeat="device in ctrl.devices">
+    <table class="cc-overview-GPIO-table cc-overview-table" id="logic-inputs-table">
+      
+      <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th colspan="2"><div class="header-text border-radius">Routes</div></th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        <th style="min-width:60px"><div class="header-text border-radius">Index</div></th>
+        <th><div class="header-text border-radius">GPI Label</div></th>
+        <th style="width:80px; padding-right:0px"><div class="header-text">Source</div></th>
+        <th style="width:80px; padding-left:0px"><div class="header-text">Destination</div></th>
+        <th style="min-width:50px"><div class="header-text border-radius">Status</div></th>
+        <th style="min-width:50px"><div class="header-text border-radius">Force</div></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="gpi in ctrl.gpios.gpis">
+        <td>{{gpi.id + 1}}</td>
+        <td class="gpi-label-column">
+          <div style="display:flex; align-items: center; justify-content: space-between">
+            <div style="width:120px">{{gpi.label}}</div>
+            <div style="width:20px">
+              <a ng-href="/view/device/0/general">
+                <img style="height:15px; width: 15px" src="/images/Navigation/General_white.svg"></a>
+            </div>
+          </div>
+        </td>
+        <td class="gpi-source-destination-col" colspan="2">
+          <div ng-if="gpi.settings.events.length > 0" ng-repeat="event in gpi.settings.events" ng-class="{'gpio-event-triggered-surround': ctrl.isEventTriggered(gpi, 0, event.res)}" style="display:flex; justify-content: space-between">
+            <div style="width:90px">{{ ctrl.getEntityNameFromEntityRes(event.source) }} </div>
+            <div style="width:90px">{{ ctrl.getEntityNameFromEntityRes(event.destination) }} </div>
+          </div>
+          <div ng-if="gpi.settings.events.length === 0">
+            <span>No events assigned</span>
+          </div>
+        </td>
+        <td class="gpi-status-column" style="text-align: center"><img ng-src="{{ gpi.liveStatus.status ? '/images/vox-inactive.png' : '/images/vox-active.png' }}"></td>
+        <td class="gpi-force-column">
+          <div style="display:flex">
+            <div class="cc-overview-header-action-button left" ng-class="{'cc-overview-header-action-button-active': (gpi.liveStatus.forced === true && gpi.liveStatus.status === true)}" ng-click="ctrl.triggerGPITest(device.device_id, gpi, false)">OFF</div>
+            <div class="cc-overview-header-action-button right" ng-class="{'cc-overview-header-action-button-active': (gpi.liveStatus.forced === true && gpi.liveStatus.status === false)}" ng-click="ctrl.triggerGPITest(device.device_id, gpi, true)">ON</div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="localPorts-section-divider">
+      Logic Outputs
+      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='ovGPO'" id="ovGPOGuideToggle" ng-click="ctrl.openGuide('ovGPO')" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    </div>
+    <table class="cc-overview-GPIO-table cc-overview-table" id="logic-outputs-table">
+        <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th colspan="2"><div class="header-text border-radius">Triggers</div></th>
+              <th></th>
+              <th></th>
+            </tr>
+            <tr>
+              <th style="min-width:60px"><div class="header-text border-radius">Index</div></th>
+              <th><div class="header-text border-radius">GPO Label</div></th>
+              <th style="width:90px; padding-right:0px"><div class="header-text">Key Target</div></th>
+              <th style="width:90px; padding-left:0px"><div class="header-text">On Behavior</div></th>
+              <th style="min-width:50px"><div class="header-text border-radius">Status</div></th>
+              <th style="min-width:50px"><div class="header-text border-radius">Force</div></th>
+            </tr>
+            </thead>
+      <tbody>
+      <tr ng-repeat="gpo in ctrl.gpios.gpos">
+        <td style="vertical-align: top">{{gpo.id + 1}}</td>
+        <td class="gpo-label-column" style="vertical-align: top">
+          <div style="display:flex; align-items: center; justify-content: space-between">
+            <div style="width:120px">{{gpo.label}}</div>
+            <div style="width:20px">
+              <a ng-href="/view/device/0/general">
+                <img style="height:15px; width: 15px" src="/images/Navigation/General_white.svg"></a>
+            </div>
+          </div>
+        </td>
+        <td class="gpo-triggers-col" colspan="2">
+          <div ng-if="gpo.settings.events.length > 0" ng-repeat="event in gpo.settings.events" ng-class="{'gpio-event-triggered-surround': ctrl.isEventTriggered(gpo, 1, event.res)}" style="display:flex; justify-content: space-between">
+            <div style="width:90px">{{ ctrl.getEntityNameFromEntityRes(event.res) }} </div>
+            <div style="width:90px">{{ ctrl.getGPOActionDisplayTextFromValue(event.action) }} </div>
+          </div>
+          <div ng-if="gpo.settings.events.length === 0">
+            <span>No triggers assigned</span>
+          </div>
+        </td>
+        <td class="gpo-status-column" style="vertical-align: top; text-align: center"><img ng-src="{{ gpo.liveStatus.status ? '/images/closed_gpio.png' : '/images/opened_gpio.png' }}"></td>
+        <td class="gpo-force-column" style="vertical-align: top">
+          <div style="display:flex">
+            <div class="cc-overview-header-action-button left" ng-class="{'cc-overview-header-action-button-active': (gpo.liveStatus.forced === true && gpo.liveStatus.status === false)}" ng-click="ctrl.triggerGPOTest(device.device_id, gpo, false)">OFF</div>
+            <div class="cc-overview-header-action-button right" ng-class="{'cc-overview-header-action-button-active': (gpo.liveStatus.forced === true && gpo.liveStatus.status === true)}" ng-click="ctrl.triggerGPOTest(device.device_id, gpo, true)">ON</div>
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+    </div>
+
+</div>
+
+
+

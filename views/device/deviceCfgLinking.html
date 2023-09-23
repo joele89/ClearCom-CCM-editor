@@ -1,0 +1,220 @@
+<div>
+
+  
+  <div>
+    <div class="page-header-top">
+      Linking
+      <img ng-if="ctrl.root.guideEnabled || ctrl.root.currentGuide=='devLinking'" id="devLinkingGuideToggle" ng-click="ctrl.openGuide()" ng-src="../images/guide.png" style="cursor:pointer;margin-top:0px;margin-left:8px;height:20px">
+    </div>
+
+    
+    <div style="margin-top:20px; margin-bottom: 30px; margin-left:20px">
+      <div>
+        <div style="float: right">
+          <button ng-show="(ctrl.pendingRoleChange || ctrl.updatingLinking)" class="btn btn-danger btn-sm" style="margin-right:10px" ng-click="ctrl.applyLmMode(true);">
+            <span translate>Cancel</span>
+          </button>
+          <button ng-show="(ctrl.pendingRoleChange || ctrl.updatingLinking) &&
+                         (!ctrl.linkingErrorTitle) &&
+                         (!ctrl.slotUpdatePending) &&
+                         (ctrl.linkingDisabled || ctrl.lmModeSelected || ctrl.masterIp) &&
+                         !ctrl.invalidMasterIp" class="btn btn-success btn-sm" ng-click="ctrl.applyLmMode();">
+            <span translate>Apply Changes</span>
+          </button>
+        </div>
+        <div id="linkingMode">
+          <div style="width:180px;display: inline-block; line-height: 30px; color:#cccccc">{{ctrl.linkingLabel}}&nbsp;:</div>
+
+          <div class="read-only-entry" style="width: auto" ng-show="ctrl.pendingRoleChange">{{ctrl.showLinkingOptions(ctrl.pendingLinkingMode)}}</div>
+
+          <div class="editable-entry">
+              <span editable-select="ctrl.sharedVM.device.device_linking" e-ng-options="s.value as s.label for s in ctrl.LinkingOptions" buttons="no" ng-hide="ctrl.pendingRoleChange" onaftersave="ctrl.modifyLmMode(ctrl.sharedVM.device.device_linking)">{{ctrl.showLinkingOptions(ctrl.sharedVM.device.device_linking)}}</span>
+          </div>
+        </div>
+        <div id="linkingOptimization" ng-show="ctrl.showLinkGroupOptimization && !ctrl.pendingRoleChange">
+          <div style="width:180px; display: inline-block; line-height: 30px; color:#cccccc">Link-Group Optimization&nbsp;:</div>
+          <div class="editable-entry" ng-show="ctrl.showLinkGroupOptimizationDropdown">
+              <span editable-select="ctrl.netMode" e-ng-options="s.value as s.label for s in ctrl.netModeOptions" buttons="no" e-ng-disabled="!(ctrl.sharedVM.device.isHost && ctrl.lmModeSelected)" onaftersave="ctrl.applyNetMode(ctrl.netMode)">{{ctrl.showNetOptions(ctrl.netMode)}}</span>
+          </div>
+           <div class="editable-entry" ng-show="!ctrl.showLinkGroupOptimizationDropdown">{{ctrl.showNetOptions(ctrl.netMode)}}</div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div ng-show="(ctrl.pendingRoleChange || ctrl.updatingLinking) && !ctrl.linkingErrorTitle && !ctrl.slotUpdatePending && !ctrl.lmModeSelected && ctrl.masterIp && !ctrl.invalidMasterIp" style="margin-top:10px; margin-left:15px; width:375px">
+      <div style="margin-left:40px; margin-top:5px; display:inline-block" translate>
+        Configuration for Roles, Assignments/Channels and Accounts will be replaced by the configuration of the new Link-Master.
+      </div>
+      <img ng-src="../../images/warning.png" style="height:26px; margin-top:-44px">
+    </div>
+
+    <div ng-hide="ctrl.linkingDisabled">
+      
+      <div ng-show="!ctrl.lmModeSelected" style="margin-left:20px; margin-bottom:25px" ng-class="ctrl.invalidMasterIp ? 'input-invalid' : ''">
+        <div>
+          <div id="linkingMasterAddress" style="width:180px; display: inline-block; line-height: 30px; color:#cccccc">Link-Master IP address&nbsp;:</div>
+          <div class="editable-entry">
+            <span class="editable-text" id="masterIpInput" editable-text="ctrl.masterIp" e-style="width: 200px " blur="cancel" onaftersave="ctrl.masterIpChanged()">{{ ctrl.masterIp || 'Enter Link-Master IP address Here' }}</span>
+          </div>
+        </div>
+        
+        <div ng-hide="ctrl.slotUpdatePending || ctrl.linkingErrorTitle || ctrl.updatingLinking || ctrl.pendingRoleChange" style="margin-top:10px">
+          <span ng-show="ctrl.hostHasBadVersion && ctrl.sharedVM.device.isHost" style="color:#FC0000">The version of this device is incompatible with that of the Link-Master.</span>
+          <span ng-show="ctrl.hostHasConflict && ctrl.sharedVM.device.isHost" style="color:#FC0000">Slot-ID conflict detected.</span>
+        </div>
+      </div>
+    <div ng-show="ctrl.lmModeSelected" style="margin-bottom:20px"></div>
+
+    
+    <div ng-hide="(ctrl.lmModeSelected && ctrl.pendingRoleChange) || ctrl.invalidMasterIp">
+      <div style="color:#cccccc; margin-left:20px" ng-show="(!ctrl.linkingErrorTitle) && (!ctrl.slotUpdatePending)
+                                      && ctrl.masterIp && (ctrl.masterIp != ctrl.sharedVM.device.device_masterAddress || ctrl.pendingRoleChange || ctrl.updatingLinking)
+                                      && (!ctrl.lmModeSelected)">
+        <span translate>Link-Group Member IDs&nbsp;:</span>
+        <span style="margin-left: 15px;color: orange" ng-show="ctrl.masterUnreachable">*** <span translate>No Validation possible</span> ***</span>
+      </div>
+
+      <div id="linkingSlots" ng-hide="ctrl.slotUpdatePending || ctrl.linkingErrorTitle" style="height: 48px; margin-top:10px; margin-left:10px">
+
+        
+        <div ng-repeat="slot in ctrl.slots">
+          
+          <div style="float: left; margin-right: 5px; margin-bottom: 15px">
+
+            
+            <div ng-show="slot.isMaster" uib-popover="{{slot.label}}" popover-trigger="mouseenter" popover-placement="bottom" popover-popup-delay="600">
+              <div ng-class="{ 'button-slot-master-self':  slot.isHost,
+                              'button-slot-master-other': !slot.isHost }" ng-style="!slot.isHost && {'border-color': '#D7E1FF'}">
+                <div class="inner">
+                  <div class="disabled">
+                    <span style="cursor:default">LM</span></div>
+                </div>
+              </div>
+            </div>
+
+            
+            <div ng-show="( !slot.isMaster &&
+                            ( !(ctrl.updatingLinking || ctrl.pendingRoleChange) || ctrl.lmModeSelected || (!ctrl.lmModeSelected && !ctrl.masterIp) ||
+                              slot.inUse || (slot.isHost && (ctrl.pendingRoleChange && ctrl.updatingLinking)) ) )" uib-popover="{{slot.label}}" popover-trigger="mouseenter" popover-placement="bottom" popover-popup-delay="600">
+              <div ng-class="{  'button-slot-hostid':  slot.isHost ,
+                              'button-slot-disabled': !slot.isHost }" ng-style="slot.inUse && !slot.isHost && ctrl.masterIp && {'border-color': '#D7E1FF'}">
+                <div class="inner">
+                  <div class="disabled">
+                    <span style="cursor:default">{{slot.slotId}}</span></div>
+                </div>
+              </div>
+            </div>
+
+            
+            <div ng-show="( !slot.isMaster && (ctrl.updatingLinking || ctrl.pendingRoleChange) && !ctrl.lmModeSelected && !slot.inUse && (!slot.isHost || (slot.isHost && !(ctrl.pendingRoleChange && ctrl.updatingLinking))) && ctrl.masterIp )" ng-click="ctrl.updateLINQSlot(slot.slotId);" ng-class="{  'button-slot-enabled-self':  slot.isHost , 'button-slot-enabled': !slot.isHost }" ng-style="(slot.slotId > ctrl.supportedDevices) ? {'border-color':'#eae89d'} : {}">
+              <div class="inner" style="cursor:pointer">
+                <div class="disabled">
+                  <span style="cursor:pointer">{{slot.slotId}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+
+      <div ng-show="ctrl.slotUpdatePending && !ctrl.linkingErrorTitle" style="vertical-align: middle; text-align: center">
+        ... Loading ...
+      </div>
+
+    </div>
+    
+
+    
+    <div ng-show="ctrl.linkingSlotInfo && !ctrl.linkingErrorTitle && !ctrl.slotUpdatePending" style="margin-top:10px; margin-left:15px; width:375px">
+      <div style="margin-left:40px; margin-top:5px; display:inline-block">
+        {{ctrl.linkingSlotInfo}}
+      </div>
+      <img ng-src="../../images/info.svg" style="height:26px; margin-top:-44px">
+    </div>
+
+    
+    <div style="margin-top:10px; margin-left:15px; width:500px; display:inline-block" ng-show="ctrl.showLinkingWarningTooMany() && !ctrl.linkingErrorTitle && !ctrl.slotUpdatePending">
+      <img ng-src="../../images/warning.png" style="height:26px; display:inline-block">
+      <div style="margin-left:5px; display:inline-block">
+        Linking more than {{ ctrl.sharedVM.deviceCapability.linking.supportedDevices }} Devices is not advised
+      </div>
+    </div>
+
+    
+    <div ng-show="ctrl.linkingWarning && !ctrl.linkingErrorTitle && !ctrl.slotUpdatePending" style="margin-top:10px; margin-left:15px; width:375px">
+      <div style="margin-left:40px; margin-top:5px; display:inline-block">
+        {{ctrl.linkingWarning}}
+      </div>
+      <img ng-src="../../images/warning.png" style="height:26px; margin-top:-44px">
+    </div>
+
+    
+    <div ng-show="ctrl.linkingInfo && !ctrl.linkingErrorTitle && !ctrl.slotUpdatePending" style="margin-top:10px; margin-left:15px; width:375px">
+      <div style="margin-left:40px; margin-top:5px; display:inline-block">
+        {{ctrl.linkingInfo}}
+      </div>
+      <img ng-src="../../images/ok.png" style="height:26px; margin-top:-70px">
+    </div>
+
+    
+    <div ng-show="ctrl.linkingErrorTitle" id="modelError" style="margin-top:35px; margin-left:15px">
+      <uib-alert type="danger" close="linkingErrorTitle=null">
+        <strong><span translate>Error</span>!</strong> {{ctrl.linkingErrorTitle}}<br>{{ctrl.linkingErrorInfo}}
+      </uib-alert>
+    </div>
+    </div>
+  </div>
+  
+
+
+  
+  
+  
+<ul id="devLinkingPageGuide" class="guide-hidden" data-tourtitle="CCM Linking">
+  
+  <li class="tlypageguide_left" data-tourtarget="#linkingMode">
+    <div>
+      <p>This is the Link-Group Role for this device</p>
+      <ul>
+        <li> Link-Master: device responsible for distributing configuration of all devices in the Link-Group.
+          It also maintains certain group configurations such as Channel name. <br>
+          The Link-Master must be accessible to all Link-Members on both its Management port and Audio ports &nbsp;(80:TCP = Management port. 655: TCP/UDP = Audio port).</li>
+        <li> Link-Member: device participating in a Link-Group. In order to join a Link-Group, you must provide the Link-Master
+          IP address. </li>
+        <li>A HelixNet device must always be designated Link-Master and placed in slot 1 when creating a HelixNet/LQ link group.</li>
+        <li ng-if="ctrl.sharedVM.deviceCapability.type.indexOf('LQ') == -1">Disabled: device is not available for linking, if the device will operate stand-alone select this option</li>
+      </ul>
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#linkingOptimization">
+    <div>
+      <p>Link-Group Optimization can be set to either: </p>
+      <ul>
+        <li> Internet/NATed Network: When the Link-Group may cross fire walls</li>
+        <li> LAN/Wan Routed Network: When the link-Group stays within the limit of a private network</li>
+      </ul>
+
+    </div>
+  </li>
+  
+  <li class="tlypageguide_left" data-tourtarget="#linkingMasterAddress">
+    <div>
+      <p>This is where you enter the IP Address of the Link-Master</p>
+      <p>If the port is not standard &nbsp;http: port 80, then the IP address must be followed by the port [IP:Port].</p>
+      <p>When linking to a Link-Master, it is preferable that the Link-Master is reachable but not required.</p>
+    </div>
+  
+  </li>  <li class="tlypageguide_left" data-tourtarget="#linkingSlots">
+    <div>
+      <p>This is where you can see the device ID (automatically assigned to the device on linking).</p>
+      <p>The Link-Master is always allocated ID #1, the other IDs are assigned using a 'first come first served' algorithm.</p>
+    </div>
+  </li>
+</ul>
+
+
+</div>
