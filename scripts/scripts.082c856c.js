@@ -10426,6 +10426,7 @@ var CapabilitiesService = function() {
 }();
 /**/
 angular.module("moonraker").service("capabilitiesService", CapabilitiesService);
+/**/
 var LinkGroupCapabilitiesService = function() {
     function a(a, b, c, d) {
         this.$rootScope = b, this.$q = c, this.socket = d, this.linkGroupCapabilitiesCache = null, this.linkGroupCapabilitiesResource = a("/api/1/capabilities/linkgroup", {}, {
@@ -10474,6 +10475,7 @@ var LinkGroupCapabilitiesService = function() {
 }();
 /**/
 angular.module("moonraker").service("linkGroupCapabilitiesService", LinkGroupCapabilitiesService);
+/**/
 var EndpointsService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.endpointTypeToNameMap = {
@@ -10633,6 +10635,7 @@ var EndpointsService = function() {
 }();
 /**/
 angular.module("moonraker").service("endpointsService", EndpointsService);
+/**/
 var ExternalDevicesService = function() {
     function a(a, b, c, d, e) {
         var f = this;
@@ -10826,6 +10829,7 @@ var ExternalDevicesService = function() {
 }();
 /**/
 angular.module("moonraker").service("externalDevicesService", ExternalDevicesService);
+/**/
 var GPIOService = function() {
     function a(a, b, c, d) {
         this.$q = b, this.$rootScope = c, this.socket = d, this.gpiCache = null, this.gpoCache = null, this.GPIOsUrl = "/api/1/devices/0/gpio", this.GPOUrl = "/api/1/devices/:deviceId/gpo/:gpoId/:action", this.GPOEventsUrl = "/api/1/devices/:deviceId/gpo/:gpoId/events/:eventId", this.GPIUrl = "/api/1/devices/:deviceId/gpi/:gpiId/:action", this.GPIEventsUrl = "/api/1/devices/:deviceId/gpi/:gpiId/events/:eventId", this.deferredPromises = {}, this.gpiInitialized = !1, this.gpoInitialized = !1, this.GPIOsResource = a(this.GPIOsUrl, {
@@ -11111,6 +11115,7 @@ var GPIOService = function() {
 }();
 /**/
 angular.module("moonraker").service("gpioService", GPIOService);
+/**/
 var NetworkEventService = function() {
     function a(a, b) {
         this.$q = b, this.networkEventActionResourceUrl = "/api/1/devices/:deviceId/networkEvent/:networkEventId", this.NetworkEventActionResource = a(this.networkEventActionResourceUrl, {
@@ -11161,6 +11166,7 @@ var NetworkEventService = function() {
 }();
 /**/
 angular.module("moonraker").service("networkEventService", NetworkEventService);
+/**/
 var EventLogService = function() {
     function a(a, b, c, d) {
         var e = this;

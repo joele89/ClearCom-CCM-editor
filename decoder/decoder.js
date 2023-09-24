@@ -14,14 +14,14 @@ async function decode(uploader) {
     var decompressed = new Blob([fileData]).stream().pipeThrough(decompressor);
     var reader = decompressed.getReader();
     var dataset = await untar(reader);
-
-    dataset["db/connections"].forEach(function(r) {
-
-    })
-    dataset["db/devices"].forEach(function(r) {
+    dataset;
+    dataset["db/connections"].table.forEach(function(r) {
 
     })
-    dataset["db/roles"].forEach(function(r) {
+    dataset["db/devices"].table.forEach(function(r) {
+
+    })
+    dataset["db/roles"].table.forEach(function(r) {
 
     })
 }
