@@ -2521,6 +2521,7 @@ function(a, b) {
             return b.toUpperCase()
         },
         na = function() {
+            console.trace();
             T.removeEventListener("DOMContentLoaded", na, !1), a.removeEventListener("load", na, !1), fa.ready()
         };
     fa.fn = fa.prototype = {
