@@ -601,9 +601,9 @@ function navBarController(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
 }
 /**/
 function socket(a, b, c) {
-    alert(a)
-    alert(b)
-    alert(c)
+    console.log(a)
+    console.log(b)
+    console.log(c)
     var d = b.defer();
     return c.getDeviceCapabilites(0).then(function(b) {
         function c(b, c, d) {
