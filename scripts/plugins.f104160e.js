@@ -2492,6 +2492,7 @@ function(a, b) {
     function O(a) {
         return fa.isWindow(a) ? a : 9 === a.nodeType && a.defaultView
     }
+    console.trace();
     var P, Q, R = typeof b,
         S = a.location,
         T = a.document,
@@ -2521,7 +2522,6 @@ function(a, b) {
             return b.toUpperCase()
         },
         na = function() {
-            console.trace();
             T.removeEventListener("DOMContentLoaded", na, !1), a.removeEventListener("load", na, !1), fa.ready()
         };
     fa.fn = fa.prototype = {
