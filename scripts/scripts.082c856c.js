@@ -4477,7 +4477,7 @@ mobileService.factory("ClientInfoService", ["$window", function(a) {
         isMobile: b
     }
 }]), angular.module("moonraker").factory("socket", socket);
-/**/
+/*
 var PollingSocket = function() {
     function a(a, b) {
         return this.url = a, this.topics = {}, this.receivedResponse = !0, this.connected = !0, this.ws = null, this.intervalId = null, this.pollInterval = b.pollInterval, this.reconnectionDelay = b.reconnectionDelay, this.emitter = new Emitter, "WebSocket" in window ? void this.open() : void(this.connected = !0)
@@ -4538,7 +4538,7 @@ var PollingSocket = function() {
         this.pollInterval = a, this.stopPolling(), this.startPolling()
     }, a
 }();
-/**/
+*/
 angular.module("moonraker").factory("deviceCfgBtnGroupService", ["$window", "gettext", function(a, b) {
     var c = [{
             name: "General",
