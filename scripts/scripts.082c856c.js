@@ -623,24 +623,13 @@ function socket(a, b, c) {
             h.emit(a, b)
         }
 
-        function g(a) {
-            h instanceof PollingSocket && h.setPollingInterval(a)
-        }
         var h;
         h = b.webSocket ? io.connect("/", {
             reconnection: !0,
             reconnectionDelay: 1e3,
             reconnectionDelayMax: 1e3,
             reconnectionAttempts: 1 / 0
-        }) : new PollingSocket(window.location.host, {
-            reconnectionDelay: 1e3,
-            pollInterval: 5e3
-        }), d.resolve({
-            on: c,
-            off: e,
-            emit: f,
-            setPollingIntervalMs: g
-        })
+        }) : alert("websocket failed to start"), d.resolve({ on: c, off: e, emit: f, setPollingIntervalMs: g })
     }, function(a) {
         console.error("Failed to fetch device capabilities, unable to initiate socket"), d.reject(new Error("Unable to initiate socket"))
     }),
