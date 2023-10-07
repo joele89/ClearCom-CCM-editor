@@ -4484,7 +4484,7 @@ var PollingSocket = function() {
     }
     return a.prototype.open = function() {
         var a = this;
-        this.ws = new WebSocket("ws://" + this.url + "/"), this.ws.onopen = function(b) {
+        this.ws = new WebSocket("wss://" + this.url + "/"), this.ws.onopen = function(b) {
             a.emitter.emit("connect"), a.connected || a.emitter.emit("reconnect"), a.connected = !0, a.receivedResponse = !0
         }, this.ws.onmessage = function(b) {
             a.receivedResponse = !0
