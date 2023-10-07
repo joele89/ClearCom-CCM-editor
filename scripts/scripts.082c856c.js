@@ -629,7 +629,7 @@ function socket(a, b, c) {
             reconnectionDelay: 1e3,
             reconnectionDelayMax: 1e3,
             reconnectionAttempts: 1 / 0
-        }) : alert("websocket failed to start"), d.resolve({ on: c, off: e, emit: f, setPollingIntervalMs: g })
+        }) : alert("websocket failed to start"), d.resolve({ on: c, off: e, emit: f, setPollingIntervalMs: null })
     }, function(a) {
         console.error("Failed to fetch device capabilities, unable to initiate socket"), d.reject(new Error("Unable to initiate socket"))
     }),
