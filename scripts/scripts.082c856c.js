@@ -601,6 +601,7 @@ function navBarController(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
 }
 /**/
 function socket(a, b, c) {
+    console.trace()
     console.log(a)
     console.log(b)
     console.log(c)
