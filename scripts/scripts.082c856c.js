@@ -601,6 +601,9 @@ function navBarController(a, b, c, d, e, f, g, h, i, j, k, l, m, n) {
 }
 /**/
 function socket(a, b, c) {
+    alert(a)
+    alert(b)
+    alert(c)
     var d = b.defer();
     return c.getDeviceCapabilites(0).then(function(b) {
         function c(b, c, d) {
@@ -4466,68 +4469,6 @@ mobileService.factory("ClientInfoService", ["$window", function(a) {
         isMobile: b
     }
 }]), angular.module("moonraker").factory("socket", socket);
-/*
-var PollingSocket = function() {
-    function a(a, b) {
-        return this.url = a, this.topics = {}, this.receivedResponse = !0, this.connected = !0, this.ws = null, this.intervalId = null, this.pollInterval = b.pollInterval, this.reconnectionDelay = b.reconnectionDelay, this.emitter = new Emitter, "WebSocket" in window ? void this.open() : void(this.connected = !0)
-    }
-    return a.prototype.open = function() {
-        var a = this;
-        this.ws = new WebSocket("wss://" + this.url + "/"), this.ws.onopen = function(b) {
-            a.emitter.emit("connect"), a.connected || a.emitter.emit("reconnect"), a.connected = !0, a.receivedResponse = !0
-        }, this.ws.onmessage = function(b) {
-            a.receivedResponse = !0
-        }, this.ws.onclose = function(b) {
-            a.onClose()
-        }, this.ws.onerror = function(b) {
-            a.close()
-        }
-    }, a.prototype.close = function() {
-        this.ws && this.ws.readyState !== this.ws.CLOSED && (this.ws.onclose = null, this.ws.onerror = null, this.ws.onmessage = null, this.ws.onopen = null, this.ws.close(), this.onClose())
-    }, a.prototype.onClose = function() {
-        var a = this;
-        this.ws = null, this.connected && this.emitter.emit("disconnect"), this.connected = !1, this.removeAllTopics(), setTimeout(function() {
-            a.open()
-        }, this.reconnectionDelay)
-    }, a.prototype.addTopic = function(a) {
-        this.topics[a] ? this.topics[a]++ : (this.topics[a] = 1, this.startPolling())
-    }, a.prototype.emit = function(a) {
-        for (var b = [], c = 1; c < arguments.length; c++) b[c - 1] = arguments[c];
-        if ("live:update" === a) {
-            var d = b[0];
-            if (d)
-                for (var e in d) {
-                    var f = d[e];
-                    "start" === f ? this.addTopic(e) : "stop" === f && this.removeTopic(e)
-                }
-        }
-        return this
-    }, a.prototype.removeAllTopics = function() {
-        this.topics = {}, this.stopPolling()
-    }, a.prototype.removeTopic = function(a) {
-        var b = this.topics[a];
-        1 === b ? delete this.topics[a] : b >= 2 ? this.topics[a]-- : console.error("Supposed to remove topic, but count is", b), 0 === Object.keys(this.topics).length && this.stopPolling()
-    }, a.prototype.on = function(a, b) {
-        return this.emitter.on(a, b)
-    }, a.prototype.off = function(a, b) {
-        return this.emitter.off(a, b)
-    }, a.prototype.startPolling = function() {
-        var a = this;
-        null === this.intervalId && (this.intervalId = setInterval(function() {
-            return a.poll()
-        }, this.pollInterval))
-    }, a.prototype.stopPolling = function() {
-        null !== this.intervalId && (clearInterval(this.intervalId), this.intervalId = null)
-    }, a.prototype.poll = function() {
-        if (this.ws && this.ws.readyState != WebSocket.CLOSED && this.ws.readyState == WebSocket.OPEN && (this.receivedResponse ? (this.ws.send("ok?"), this.receivedResponse = !1) : this.close()), this.connected)
-            for (var a in this.topics) this.emitter.emit("live:" + a, {
-                updated: !0
-            })
-    }, a.prototype.setPollingInterval = function(a) {
-        this.pollInterval = a, this.stopPolling(), this.startPolling()
-    }, a
-}();
-*/
 angular.module("moonraker").factory("deviceCfgBtnGroupService", ["$window", "gettext", function(a, b) {
     var c = [{
             name: "General",
